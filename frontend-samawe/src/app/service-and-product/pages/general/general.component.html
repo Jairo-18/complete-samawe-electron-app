@@ -1,0 +1,59 @@
+<app-base-page>
+  <mat-tab-group>
+    <mat-tab label="Productos">
+      <ng-template matTabContent>
+        <app-create-or-edit-product
+          [categoryTypes]="categoryTypes"
+          (productSaved)="reloadProducts(); tabGroup.selectedIndex = 0"
+          [currentProduct]="currentProduct"
+        ></app-create-or-edit-product>
+
+        <app-see-products
+          [searchFieldsProducts]="searchFieldsProducts"
+          [categoryTypes]="categoryTypes"
+          (productSelected)="currentProduct = $event; goToTop()"
+          (productClean)="cleanProduct()"
+        ></app-see-products
+      ></ng-template>
+    </mat-tab>
+    <mat-tab label="Pasadías y Servicios">
+      <ng-template matTabContent>
+        <app-create-or-edit-excursion
+          [categoryTypes]="categoryTypes"
+          [stateTypes]="stateTypes"
+          (excursionSaved)="reloadExcursion(); tabGroup.selectedIndex = 1"
+          [currentExcursion]="currentExcursion"
+        ></app-create-or-edit-excursion>
+
+        <app-see-excursions
+          [categoryTypes]="categoryTypes"
+          [stateTypes]="stateTypes"
+          [searchFieldsExcursions]="searchFieldsExcursions"
+          (excursionSelect)="currentExcursion = $event; goToTop()"
+          (excursionClean)="cleanExcursion()"
+        ></app-see-excursions
+      ></ng-template>
+    </mat-tab>
+    <mat-tab label="Hospedajes">
+      <ng-template matTabContent>
+        <app-create-or-edit-accommodation
+          [categoryTypes]="categoryTypes"
+          [stateTypes]="stateTypes"
+          [bedTypes]="bedTypes"
+          (accommodationSaved)="
+            reloadAccommodations(); tabGroup.selectedIndex = 2
+          "
+          [currentAccommodation]="currentAccommodation"
+        ></app-create-or-edit-accommodation>
+
+        <app-see-accommodations
+          [searchFieldsAccommodations]="searchFieldsAccommodations"
+          [stateTypes]="stateTypes"
+          [bedTypes]="bedTypes"
+          (accommodationSelect)="currentAccommodation = $event; goToTop()"
+          (accommodationClean)="cleanAccommodation()"
+        ></app-see-accommodations
+      ></ng-template>
+    </mat-tab>
+  </mat-tab-group>
+</app-base-page>

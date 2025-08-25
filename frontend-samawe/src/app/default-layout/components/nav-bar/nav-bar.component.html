@@ -1,0 +1,50 @@
+<nav>
+  <article class="flex content-between px-6 py-2 items-center">
+    <!-- Logo -->
+    <section
+      class="flex content-between w-[70%] md:w-[40%] items-center text-white gap-x-3"
+    >
+      <img
+        routerLink="/"
+        src="../../../../assets/images/Logo Samawe.png"
+        alt="Logo Samawé"
+        class="h-11 w-11 md:h-16 md:w-16 cursor-pointer"
+      />
+      <h1 class="text-base md:text-xl font-medium md:font-semibold">
+        Ecohotel Samawé
+      </h1>
+    </section>
+
+    <!-- Desktop Menu -->
+    <section class="hidden md:flex justify-between w-[60%] text-white">
+      @for (item of navBarItems; track $index) {
+      <button
+        [routerLink]="item.route"
+        class="flex items-center justify-center gap-2 hover:bg-blue-300/55 px-2 rounded min-w-[150px] min-h-[65px]"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        {{ item.title }}
+      </button>
+      }
+    </section>
+
+    <!-- Mobile Menu -->
+    <section class="flex md:hidden justify-end w-[30%] md:w-[60%]">
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="mobileMenu"
+        aria-label="Menú"
+      >
+        <mat-icon class="text-white">menu</mat-icon>
+      </button>
+      <mat-menu #mobileMenu="matMenu">
+        @for (item of navBarItems; track $index) {
+        <button mat-menu-item [routerLink]="item.route">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span>{{ item.title }}</span>
+        </button>
+        }
+      </mat-menu>
+    </section>
+  </article>
+</nav>

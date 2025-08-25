@@ -1,0 +1,142 @@
+<app-section-header
+  [title]="isEditMode ? 'Editar producto' : 'Crear producto'"
+  [subtitle]="
+    isEditMode
+      ? 'Edita los campos que desees'
+      : 'Aquí puedes crear productos con sus respectivas categorías'
+  "
+></app-section-header>
+
+<form [formGroup]="productForm" class="flex flex-col">
+  <div class="flex flex-col md:flex-row gap-x-10 gap-y-[25px] md:gap-y-0">
+    <section class="flex flex-col w-full md:w-[50%] gap-[25px] md:gap-2">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Categoría</mat-label>
+        <mat-select formControlName="categoryTypeId" required>
+          <mat-option value="" disabled selected
+            >Seleccione la categoría</mat-option
+          >
+          <mat-option
+            *ngFor="let category of visibleCategoryTypes"
+            [value]="category.categoryTypeId"
+          >
+            {{ category.name }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>category</mat-icon>
+        <mat-error
+          *ngIf="productForm.get('categoryTypeId')?.hasError('required')"
+        >
+          Categoría requerido
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Código del producto</mat-label>
+        <mat-icon matPrefix>qr_code</mat-icon>
+        <input matInput formControlName="code" required />
+        <mat-error *ngIf="productForm.get('code')?.hasError('required')">
+          Código del producto requerido
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Nombre del producto</mat-label>
+        <mat-icon matPrefix>inventory</mat-icon>
+        <input matInput formControlName="name" required />
+        <mat-error *ngIf="productForm.get('name')?.hasError('required')">
+          Nombre del producto requerido
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Descripción</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          rows="3"
+          #descTextarea
+          maxlength="500"
+        ></textarea>
+        <mat-icon matPrefix>notes</mat-icon>
+        <mat-hint align="end">
+          {{ descTextarea.value ? descTextarea.value.length : 0 }}/250
+        </mat-hint>
+      </mat-form-field>
+    </section>
+
+    <section class="flex flex-col w-full md:w-[50%] gap-[25px] md:gap-2">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Unidades</mat-label>
+        <input matInput type="number" formControlName="amount" required />
+        <mat-icon matSuffix>numbers</mat-icon>
+        <mat-error *ngIf="productForm.get('amount')">
+          Unidades requeridas
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Precio de compra</mat-label>
+        <input
+          matInput
+          formControlName="priceBuy"
+          required
+          appCurrencyFormat
+          class="text-right"
+        />
+        <mat-icon matSuffix>shopping_cart </mat-icon>
+        <mat-error *ngIf="productForm.get('priceBuy')?.hasError('required')">
+          Precio de compra requerido
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Precio de venta</mat-label>
+        <input
+          matInput
+          class="text-right"
+          formControlName="priceSale"
+          appCurrencyFormat
+          required
+        />
+        <mat-icon matSuffix>attach_money</mat-icon>
+        <mat-error *ngIf="productForm.get('priceSale')?.hasError('required')">
+          Precio de venta requerido
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Estado</mat-label>
+        <mat-select formControlName="isActive">
+          <mat-option [value]="true">Activo</mat-option>
+          <mat-option [value]="false">Inactivo</mat-option>
+          <!-- opcional para reset -->
+        </mat-select>
+      </mat-form-field>
+    </section>
+  </div>
+
+  <section
+    actions
+    class="w-full h-full items-end justify-end flex text-sm md:text-base gap-2"
+  >
+    @if ( isEditMode) {
+    <div class="w-full flex content-between md:w-[24%]">
+      <button
+        mat-fab
+        extended="true"
+        color="warn"
+        class="!w-full"
+        (click)="resetForm()"
+      >
+        Cancelar
+      </button>
+    </div>
+    }
+    <div class="w-full flex content-between md:w-[24%]">
+      <button mat-fab extended="true" class="!w-full" (click)="save()">
+        {{ isEditMode ? 'Guardar cambios' : 'Crear producto' }}
+      </button>
+    </div>
+  </section>
+</form>

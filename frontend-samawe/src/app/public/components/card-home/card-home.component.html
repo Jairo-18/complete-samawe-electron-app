@@ -1,0 +1,24 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 p-0 md:p-4">
+  @for (card of cards; track card.title) {
+  <a
+    [routerLink]="card.route || '/home'"
+    [queryParams]="card.queryParams"
+    class="flex p-2 md:p-4 rounded-2xl border border-[#06a606] shadow-md hover:shadow-xl transition-transform hover:scale-105 items-center no-underline text-inherit"
+  >
+    <div class="flex items-center w-full gap-x-2">
+      <div class="flex items-center w-[10%]">
+        <mat-icon class="text-[#06a606]">{{ card.icon }}</mat-icon>
+      </div>
+      <div class="flex flex-col w-[80%]">
+        <span class="text-sm md:text-lg font-semibold">{{ card.title }}</span>
+        <span class="text-xs md:text-sm text-gray-600">{{
+          card.description
+        }}</span>
+      </div>
+      <div class="flex items-center w-[10%]">
+        <mat-icon class="text-black">{{ card.iconNext }}</mat-icon>
+      </div>
+    </div>
+  </a>
+  }
+</div>

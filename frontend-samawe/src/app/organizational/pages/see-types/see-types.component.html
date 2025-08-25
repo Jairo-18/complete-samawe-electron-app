@@ -1,0 +1,74 @@
+<app-base-page
+  contentTitle="Gestiona tu hotel"
+  contentInfo="Crea y edita información de tu interés"
+  [showContentTitle]="true"
+  [showContentInfo]="true"
+>
+  <div slot="actions" class="w-full md:w-[25%]">
+    <button mat-fab extended="true" class="!w-full" (click)="openDialog()">
+      Crear tipos
+    </button>
+  </div>
+  <section class="flex flex-col md:flex-row">
+    <div
+      class="w-[20%] border-r-2 border-[#06a606] hidden md:flex flex-col pr-0 md:pr-4 gap-3"
+    >
+      @for (button of buttonLabel; track $index) {
+      <button
+        class="text-left border border-[#06a606] rounded-lg px-2 py-1 transition-colors duration-200"
+        [ngClass]="{
+          'bg-[#06a606] text-white': selectedType === button[0],
+          'hover:bg-green-100': selectedType !== button[0]
+        }"
+        (click)="onButtonSelect(button[0])"
+      >
+        {{ button[1] }}
+      </button>
+
+      }
+    </div>
+    <div class="flex md:hidden my-4 border-b-2 border-[#06a606]">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Tipos</mat-label>
+        <mat-select [formControl]="buttonsControll">
+          @for (button of buttonLabel; track $index) {
+          <mat-option [value]="button[0]"> {{ button[1] }}</mat-option
+          >}
+        </mat-select>
+        <mat-icon matPrefix>table_chart</mat-icon>
+      </mat-form-field>
+    </div>
+    <div
+      class="flex flex-col justify-center items-center min-h-[50dvh] w-full md:w-[80%] ml-0 md:ml-4"
+    >
+      <!-- Buscador (colocar justo antes de los resultados) -->
+      <div class="w-full">
+        <app-search-fields
+          [searchFields]="searchFields"
+          [form]="form"
+          [debounceTime]="300"
+          (searchSubmit)="onSearchSubmit($event)"
+          (searchChange)="onSearchChange($event)"
+        ></app-search-fields>
+      </div>
+
+      @if (!results) {
+      <app-loader></app-loader>
+      } @else if (hasContent(results)) {
+
+      <app-card-types
+        class="w-full"
+        [infoTypes]="results"
+        [paginationParams]="paginationParams"
+        [selectedType]="selectedType"
+        (page)="onChangePagination($event)"
+        (edit)="onEditType($event)"
+        (remove)="onDeleteType($event)"
+      ></app-card-types>
+
+      } @else {
+      <span> No hay contenido registrado aún.</span>
+      }
+    </div>
+  </section>
+</app-base-page>

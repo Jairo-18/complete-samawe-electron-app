@@ -1,0 +1,308 @@
+<app-section-header
+  [title]="'Gestionar pasadías y servicios'"
+  [subtitle]="'Gestiona las pasadías y servicios registrados en tu hotel'"
+></app-section-header>
+@if (!isMobile) {
+<app-search-fields
+  [searchFields]="searchFieldsExcursions"
+  [form]="form"
+  [debounceTime]="300"
+  (searchSubmit)="onSearchSubmit($event)"
+  (searchChange)="onSearchChange($event)"
+></app-search-fields>
+
+<section class="flex w-full justify-end items-center gap-2">
+  <div class="w-[24%]">
+    <button
+      class="!w-full"
+      mat-fab
+      extended="true"
+      color="warn"
+      (click)="searchComponent.reset()"
+      [disabled]="!showClearButton"
+    >
+      Limpiar filtros
+    </button>
+  </div>
+</section>
+
+<div class="mt-4">
+  <div class="overflow-auto mb-3">
+    @if (loading) {
+    <app-loader></app-loader>
+    } @else if (dataSource.data.length > 0) {
+    <table mat-table [dataSource]="dataSource" matSort>
+      <ng-container matColumnDef="categoryType">
+        <th mat-header-cell *matHeaderCellDef class="center-text">Categoría</th>
+        <td mat-cell *matCellDef="let excursion">
+          {{ excursion?.categoryType?.name || 'Sin categoría' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="stateType">
+        <th mat-header-cell *matHeaderCellDef class="center-text">Estado</th>
+        <td
+          mat-cell
+          *matCellDef="let excursion"
+          [ngClass]="{
+            'text-yellow-700 font-bold':
+              excursion?.stateType?.name === 'Mantenimiento',
+            'text-green-700 font-bold':
+              excursion?.stateType?.name === 'Disponible',
+            'text-blue-700 font-bold': excursion?.stateType?.name === 'Ocupado',
+            'text-red-700 font-bold':
+              excursion?.stateType?.name === 'Fuera de Servicio',
+            'text-purple-700 font-bold':
+              excursion?.stateType?.name === 'Reservado'
+          }"
+        >
+          {{ excursion?.stateType?.name || 'Sin estado' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef class="center-text">Código</th>
+        <td mat-cell *matCellDef="let excursion" class="center-text">
+          {{ excursion.code }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef class="center-text">Nombre</th>
+        <td mat-cell *matCellDef="let excursion">
+          {{ excursion.name }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="priceBuy">
+        <th mat-header-cell *matHeaderCellDef class="center-text">P. Compra</th>
+        <td
+          mat-cell
+          *matCellDef="let excursion"
+          class="right-text text-red-700 font-bold"
+        >
+          {{ excursion.priceBuy | formatCop }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="priceSale">
+        <th mat-header-cell *matHeaderCellDef class="center-text">P. Venta</th>
+        <td
+          mat-cell
+          *matCellDef="let excursion"
+          class="right-text text-green-700 font-bold"
+        >
+          {{ excursion.priceSale | formatCop }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="center-text">Acciones</th>
+        <td mat-cell *matCellDef="let excursion" class="center-text">
+          <button
+            mat-icon-button
+            color="primary"
+            [routerLink]="['/service-and-product/general']"
+            [queryParams]="{ editExcursion: excursion.excursionId }"
+            (click)="excursionSelect.emit(excursion)"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="openDeleteExcursionDialog(excursion.excursionId)"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="paginationParams.total"
+      [pageSize]="paginationParams.perPage"
+      [pageSizeOptions]="[5, 10, 25, 100]"
+      [pageIndex]="(paginationParams.page || 0) - 1"
+      (page)="onChangePagination($event)"
+    ></mat-paginator>
+    } @else {
+    <div class="w-full justify-center items-center flex">
+      <p>No se encontraron pasadías o servicios</p>
+    </div>
+    }
+  </div>
+</div>
+} @else {
+<mat-tab-group
+  [(selectedIndex)]="selectedTabIndex"
+  (selectedIndexChange)="onTabChange($event)"
+>
+  <mat-tab [label]="'Búsqueda'" class="h-full">
+    <div class="mt-3 px-2">
+      <app-search-fields
+        [searchFields]="searchFieldsExcursions"
+        [debounceTime]="0"
+        (searchSubmit)="onSearchSubmit($event)"
+        (searchChange)="onSearchChange($event)"
+      >
+      </app-search-fields>
+    </div>
+    <section class="flex flex-col w-full gap-2">
+      <div class="w-full">
+        <button
+          class="!w-full"
+          mat-fab
+          extended="true"
+          color="warn"
+          (click)="searchComponent.reset()"
+          [disabled]="!showClearButton"
+        >
+          Limpiar filtros
+        </button>
+      </div>
+
+      <div class="w-full">
+        <button
+          class="!w-full"
+          mat-fab
+          extended="true"
+          (click)="searchComponent.submitSearch(); selectedTabIndex = 1"
+        >
+          Buscar
+        </button>
+      </div>
+    </section>
+  </mat-tab>
+  <mat-tab [label]="'Resultados'">
+    <div class="mat-elevation-z8">
+      <app-loader *ngIf="loading"></app-loader>
+      <div
+        *ngIf="!loading && dataSource.data.length > 0"
+        class="overflow-auto mb-3"
+      >
+        <table mat-table [dataSource]="dataSource" matSort>
+          <ng-container matColumnDef="categoryType">
+            <th mat-header-cell *matHeaderCellDef class="center-text">
+              Categoría
+            </th>
+            <td mat-cell *matCellDef="let excursion">
+              {{ excursion?.categoryType?.name || 'Sin categoría' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="stateType">
+            <th mat-header-cell *matHeaderCellDef class="center-text">
+              Estado
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let excursion"
+              [ngClass]="{
+                'text-yellow-700 font-bold':
+                  excursion?.stateType?.name === 'Mantenimiento',
+                'text-green-700 font-bold':
+                  excursion?.stateType?.name === 'Disponible',
+                'text-blue-700 font-bold':
+                  excursion?.stateType?.name === 'Ocupado',
+                'text-red-700 font-bold':
+                  excursion?.stateType?.name === 'Fuera de Servicio',
+                'text-purple-700 font-bold':
+                  excursion?.stateType?.name === 'Reservado'
+              }"
+            >
+              {{ excursion?.stateType?.name || 'Sin estado' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef class="center-text">
+              Código
+            </th>
+            <td mat-cell *matCellDef="let excursion" class="center-text">
+              {{ excursion.code }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef class="center-text">
+              Nombre
+            </th>
+            <td mat-cell *matCellDef="let excursion">
+              {{ excursion.name }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="priceBuy">
+            <th mat-header-cell *matHeaderCellDef class="center-text">
+              P. Compra
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let excursion"
+              class="right-text text-red-700 font-bold"
+            >
+              {{ excursion.priceBuy | formatCop }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="priceSale">
+            <th mat-header-cell *matHeaderCellDef class="center-text">
+              P. Venta
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let excursion"
+              class="right-text text-green-700 font-bold"
+            >
+              {{ excursion.priceSale | formatCop }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="center-text">
+              Acciones
+            </th>
+            <td mat-cell *matCellDef="let excursion" class="center-text">
+              <button
+                mat-icon-button
+                color="primary"
+                [routerLink]="['/service-and-product/general']"
+                [queryParams]="{
+                  editExcursion: excursion.excursionId
+                }"
+                (click)="excursionSelect.emit(excursion)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="openDeleteExcursionDialog(excursion.excursionId)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+      <div *ngIf="!loading && dataSource.data.length === 0" class="text-center">
+        <p>No se encontraron pasadías o servicios</p>
+      </div>
+      <mat-paginator
+        [length]="paginationParams.total"
+        [pageSize]="paginationParams.perPage"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        [pageIndex]="(paginationParams.page || 0) - 1"
+        (page)="onChangePagination($event)"
+      ></mat-paginator>
+    </div>
+  </mat-tab>
+</mat-tab-group>
+}

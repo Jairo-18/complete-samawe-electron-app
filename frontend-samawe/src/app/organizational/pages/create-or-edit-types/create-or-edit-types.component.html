@@ -1,0 +1,56 @@
+<app-base-dialog
+  [title]="data?.editMode ? 'Editar tipo' : 'Crear nuevo tipo'"
+  [description]="
+    data?.editMode
+      ? 'Edita los campos necesarios.'
+      : 'Llena el formulario para registrar un nuevo tipo en el sistema.'
+  "
+>
+  <form form [formGroup]="formType">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Tipos</mat-label>
+      <mat-select formControlName="selectedType" required>
+        <mat-option value="" disabled selected>Seleccione el tipo</mat-option>
+        <mat-option *ngFor="let type of typeOptions" [value]="type.key">
+          {{ type.value }}
+        </mat-option>
+      </mat-select>
+      <mat-icon matPrefix>table_chart</mat-icon>
+      <mat-error *ngIf="formType.get('selectedType')?.hasError('required')">
+        Tipo requerido
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Código o prefijo</mat-label>
+      <input matInput formControlName="code" required />
+      <mat-icon matPrefix>person</mat-icon>
+      <mat-error *ngIf="formType.get('code')"> Código requerido </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="name" required />
+      <mat-icon matPrefix>person</mat-icon>
+      <mat-error *ngIf="formType.get('name')"> Nombre requerido </mat-error>
+    </mat-form-field>
+
+    <section
+      actions
+      class="w-full flex content-between gap-x-2 items-center justify-end"
+    >
+      <button
+        class="w-full"
+        mat-fab
+        extended="true"
+        color="warn"
+        (click)="cancel()"
+      >
+        Cancelar
+      </button>
+      <button class="w-full" mat-fab extended="true" (click)="save()">
+        Guardar
+      </button>
+    </section>
+  </form>
+</app-base-dialog>

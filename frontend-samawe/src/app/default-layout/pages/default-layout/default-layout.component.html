@@ -1,0 +1,29 @@
+<article class="flex relative">
+  <!-- Sidebar para Administrador o Empleado -->
+  @if (isLoggedUser && (userInfo?.roleType?.name === 'Administrador' ||
+  userInfo?.roleType?.name === 'Empleado')) {
+  <app-side-bar
+    [userRole]="userInfo"
+    class="brand-side-bar"
+    (collapsed)="listenEvent($event)"
+    [closeSideBar]="closeSideBar"
+    (logout)="logout()"
+  ></app-side-bar>
+  }
+
+  <!-- Contenido principal -->
+  <div class="app-container w-full">
+    <!-- Navbar para Usuario normal o no logeado -->
+    <!-- @if ((isLoggedUser && userInfo?.roleType?.name === 'Usuario') ||
+    !isLoggedUser) {
+    <app-nav-bar class="brand-nav-bar"></app-nav-bar>
+    } -->
+    <main class="main w-full">
+      <router-outlet></router-outlet>
+      <!-- @if ((isLoggedUser && userInfo?.roleType?.name === 'Usuario') ||
+      !isLoggedUser) {
+      <app-footer class="brand-footer"></app-footer>
+      } -->
+    </main>
+  </div>
+</article>

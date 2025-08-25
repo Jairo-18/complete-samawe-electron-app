@@ -1,0 +1,50 @@
+<article class="flex flex-col">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    @for (item of infoTypes; track $index) {
+
+    <div class="p-4 rounded-2xl border border-[#06a606]">
+      <!-- Botones de acción -->
+      <section class="w-full flex justify-end">
+        <button
+          mat-icon-button
+          color="primary"
+          (click)="edit.emit({ type: selectedType, id: item[getIdKey(item)] })"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="
+            remove.emit({ type: selectedType, id: item[getIdKey(item)] })
+          "
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </section>
+
+      <section class="flex flex-col gap-2">
+        <div class="text-sm text-gray-500">Código / prefijo:</div>
+        <div class="text-base font-semibold text-gray-800">
+          {{ item.code }}
+        </div>
+
+        <div class="text-sm text-gray-500 mt-2">Nombre:</div>
+        <div class="text-base font-semibold text-gray-800">
+          {{ item.name }}
+        </div>
+      </section>
+    </div>
+
+    }
+  </div>
+
+  <mat-paginator
+    class="w-full mt-4"
+    [length]="paginationParams.total"
+    [pageSize]="paginationParams.perPage"
+    [pageSizeOptions]="[5, 10, 25, 100]"
+    [pageIndex]="(paginationParams.page || 1) - 1"
+    (page)="page.emit($event)"
+  ></mat-paginator>
+</article>

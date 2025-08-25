@@ -1,0 +1,112 @@
+<form [formGroup]="form" class="w-full mt-3">
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Buscar Hospedaje</mat-label>
+    <input
+      matInput
+      formControlName="accommodationName"
+      [matAutocomplete]="auto"
+      placeholder="Cabaña del lago..."
+      (focus)="onAccommodationFocus()"
+    />
+    <mat-icon matPrefix>home</mat-icon>
+
+    <!-- Botón para limpiar -->
+    <button
+      *ngIf="
+        form.get('accommodationName')?.enabled &&
+        form.get('accommodationName')?.value &&
+        !isLoadingAccommodations
+      "
+      matSuffix
+      mat-icon-button
+      type="button"
+      (click)="clearAccommodationSelection()"
+      matTooltip="Limpiar selección"
+    >
+      <mat-icon>clear</mat-icon>
+    </button>
+
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="onAccommodationSelected($event.option.value)"
+    >
+      <mat-option
+        *ngFor="let accommodation of filteredAccommodations"
+        [value]="accommodation.name"
+      >
+        {{ accommodation.name }}
+        <span
+          [ngClass]="{
+            'text-green-600': accommodation.stateType?.name === 'Disponible',
+            'text-yellow-600':
+              accommodation.stateType?.name === 'Mantenimiento',
+            'text-red-600':
+              accommodation.stateType?.name === 'Fuera de Servicio',
+            'text-blue-600': accommodation.stateType?.name === 'Ocupado'
+          }"
+        >
+          - {{ accommodation.stateType?.name }}
+        </span>
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <div class="flex flex-col md:flex-row gap-0 md:gap-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Precio</mat-label>
+      <input matInput formControlName="priceSale" [readonly]="true" />
+      <mat-icon matSuffix>attach_money</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Cantidad</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="amount"
+        appCurrencyFormat
+        class="text-right"
+      />
+      <mat-icon matSuffix>numbers</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-0 md:gap-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Fecha y hora de entrada</mat-label>
+      <input matInput type="datetime-local" formControlName="startDate" />
+      <mat-icon matPrefix>event_available</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Fecha y hora de salida</mat-label>
+      <input matInput type="datetime-local" formControlName="endDate" />
+      <mat-icon matPrefix>event_busy</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Tipo de impuesto</mat-label>
+    <mat-select formControlName="taxeTypeId">
+      <mat-option *ngFor="let taxe of taxeTypes" [value]="taxe.taxeTypeId">
+        {{ taxe.name }}
+      </mat-option>
+    </mat-select>
+    <mat-icon matPrefix>calculate</mat-icon>
+  </mat-form-field>
+
+  <button
+    class="!w-full !rounded-lg"
+    mat-fab
+    extended="true"
+    [disabled]="isLoading"
+    (click)="addAccommodation()"
+  >
+    <ng-container *ngIf="!isLoading; else loading">
+      Añadir hospedaje
+    </ng-container>
+    <ng-template #loading>
+      <mat-spinner diameter="24" color="accent"></mat-spinner>
+    </ng-template>
+  </button>
+</form>

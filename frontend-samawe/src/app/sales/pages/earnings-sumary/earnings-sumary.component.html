@@ -1,0 +1,229 @@
+<app-base-page
+  [headerTitle]="'Reporte de ganancias'"
+  contentInfo="Resumen completo de tu negocio"
+  [showContentTitle]="true"
+  [showBorder]="false"
+  [showContentTitle]="true"
+  [showContentInfo]="true"
+  class="text-xs md:text-base"
+>
+  @if (isLoading) {
+  <div class="flex justify-center items-center min-h-[300px]">
+    <app-loader></app-loader>
+  </div>
+  } @else {
+  <div class="hidden md:flex justify-center my-4 w-full">
+    <mat-button-toggle-group
+      [value]="selectedPeriod"
+      (change)="onPeriodChange($event.value)"
+      class="rounded-xl bg-white p-1"
+      color="primary"
+      buttonToggleAppearance="legacy"
+    >
+      <mat-button-toggle
+        *ngFor="let period of periods"
+        [value]="period.value"
+        class="px-4 py-2 text-sm font-medium"
+      >
+        {{ period.label }}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <div class="md:hidden flex justify-center my-2 w-full px-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Período</mat-label>
+      <mat-select
+        [value]="selectedPeriod"
+        (selectionChange)="onPeriodChange($event.value)"
+      >
+        <mat-option *ngFor="let period of periods" [value]="period.value">
+          {{ period.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Main Cards Grid -->
+  <div class="grid gap-6 md:grid-cols-3 sm:grid-cols-1">
+    <!-- Productos Vendidos -->
+    <div
+      class="p-4 md:p-6 rounded-2xl border border-[#06a606] shadow-md hover:shadow-xl transition-transform hover:scale-105"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 bg-[#06a606] rounded-full">
+            <i class="fas fa-box text-white"></i>
+          </div>
+          <h2 class="text-slate-800 font-semibold">Valor Bruto de Productos</h2>
+        </div>
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between">
+          <span class="text-slate-600">Precio de compra</span>
+          <span class="font-semibold">{{
+            productSummary?.totalProductPriceBuy ?? 0 | formatCop
+          }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-600">Precio de venta</span>
+          <span class="font-semibold">{{
+            productSummary?.totalProductPriceSale ?? 0 | formatCop
+          }}</span>
+        </div>
+        <div class="flex justify-between text-emerald-700 font-semibold">
+          <span>Utilidad</span>
+          <span>{{ productSummary?.balanceProduct ?? 0 | formatCop }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Balance de Facturas -->
+    <div
+      class="p-4 md:p-6 rounded-2xl border border-[#06a606] shadow-md hover:shadow-xl transition-transform hover:scale-105"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 bg-[#06a606] rounded-full">
+            <i class="fas fa-file-invoice text-white"></i>
+          </div>
+          <h2 class="text-slate-800 font-semibold">Balance de Facturación</h2>
+        </div>
+        <span class="text-sm bg-[#3ddd3d] text-slate-800 px-2 py-1 rounded">
+          {{ getSelectedPeriodLabel() }}
+        </span>
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between text-emerald-600">
+          <span>Ventas</span>
+          <span class="font-semibold">{{
+            invoiceBalance?.[selectedPeriod]?.totalInvoiceSale
+           ?? 0 | formatCop
+          }}</span>
+        </div>
+        <div class="flex justify-between text-orange-600">
+          <span>Compras</span>
+          <span class="font-semibold">{{
+            invoiceBalance?.[selectedPeriod]?.totalInvoiceBuy ?? 0 | formatCop
+          }}</span>
+        </div>
+        <div
+          class="flex justify-between font-semibold"
+          [ngClass]="{
+                'text-emerald-700': +(invoiceBalance?.[selectedPeriod]?.balanceInvoice ?? 0) >= 0,
+                'text-red-600': +(invoiceBalance?.[selectedPeriod]?.balanceInvoice ?? 0) < 0
+              }"
+        >
+          <span>Balance</span>
+          <span>{{
+            invoiceBalance?.[selectedPeriod]?.balanceInvoice ?? 0 | formatCop
+          }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventario -->
+    <div
+      class="p-4 md:p-6 rounded-2xl border border-[#06a606] shadow-md hover:shadow-xl transition-transform hover:scale-105"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 bg-[#06a606] rounded-full">
+            <i class="fas fa-warehouse text-white"></i>
+          </div>
+          <h2 class="text-slate-800 font-semibold">Inventario Total</h2>
+        </div>
+        <span class="text-sm bg-[#3ddd3d] text-slate-800 px-2 py-1 rounded"
+          >Stock</span
+        >
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between text-emerald-700">
+          <span class="text-slate-600">Valor de inventario</span>
+          <span class="font-semibold">{{
+            productSummary?.totalProductPriceSale ?? 0 | formatCop
+          }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-600">Unidades totales</span>
+          <span class="font-semibold">{{
+            inventoryTotal?.totalStock ?? 0
+          }}</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 bg-[#06a606] rounded-full">
+            <i class="fas fa-warehouse text-white"></i>
+          </div>
+          <h2 class="text-slate-800 font-semibold">Estado de Productos</h2>
+        </div>
+        <span class="text-sm bg-[#3ddd3d] text-slate-800 px-2 py-1 rounded"
+          >Estado</span
+        >
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between text-emerald-700">
+          <span class="text-slate-600">Activos</span>
+          <span class="font-semibold">{{ activeProductsCount }}</span>
+        </div>
+        <div class="flex justify-between text-red-600">
+          <span class="text-slate-600">Inactivos</span>
+          <span class="font-semibold">{{ inactiveProductsCount }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="p-4 md:p-6 rounded-2xl border border-[#06a606] shadow-md hover:shadow-xl transition-transform hover:scale-105"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 bg-[#06a606] rounded-full">
+            <i class="fas fa-warehouse text-white"></i>
+          </div>
+          <h2 class="text-slate-800 font-semibold">Estado de tus Hospedajes</h2>
+        </div>
+        <span class="text-sm bg-[#3ddd3d] text-slate-800 px-2 py-1 rounded"
+          >Estado</span
+        >
+      </div>
+      <div class="space-y-2">
+        <div class="flex justify-between text-emerald-700">
+          <span class="text-slate-600">Disponibles</span>
+          <span class="font-semibold">{{ availableAccommodationsCount }}</span>
+        </div>
+
+        <div class="flex justify-between text-yellow-600">
+          <span class="text-slate-600">En Mantenimiento</span>
+          <span class="font-semibold">{{
+            maintenanceAccommodationsCount
+          }}</span>
+        </div>
+
+        <div class="flex justify-between text-red-600">
+          <span class="text-slate-600">Ocupados</span>
+          <span class="font-semibold">{{ occupiedAccommodationsCount }}</span>
+        </div>
+
+        <div class="flex justify-between text-red-600">
+          <span class="text-slate-600">Fuera de Servicio</span>
+          <span class="font-semibold">{{ noServiceAccommodationsCount }}</span>
+        </div>
+
+        <div class="flex justify-between text-blue-600">
+          <span class="text-slate-600">Reservadas</span>
+          <span class="font-semibold">{{ reservedAccommodationsCount }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <app-grapic
+    [invoiceSummaryGroup]="invoiceSummaryGroup"
+    [selectedPeriod]="selectedPeriod"
+  ></app-grapic>
+
+  }
+</app-base-page>

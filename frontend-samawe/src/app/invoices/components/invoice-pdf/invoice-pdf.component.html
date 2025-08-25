@@ -1,0 +1,203 @@
+<!-- CONTENEDOR A IMPRIMIR -->
+<article
+  #pdfWrapper
+  class="bg-white text-black p-6 w-full max-w-[800px] text-xs"
+>
+  <section class="flex content-between w-full items-center">
+    <div class="flex items-center justify-center w-[25%]">
+      <img
+        src="../../../../assets/images/Logo Samawe.png"
+        alt="Logo"
+        class="w-[125px] h-[125px] rounded-full border border-solid border-black"
+      />
+    </div>
+    <div class="flex flex-col w-[75%]">
+      <div class="flex w-full content-between font-semibold">
+        <div class="flex w-[50%] justify-start">
+          <span>
+            NIT:
+            <span class="font-medium"> 9013501728 </span></span
+          >
+        </div>
+        <div class="flex w-[50%] justify-start">
+          <span>
+            {{ invoiceData.invoiceType.name }} #:
+            <span class="font-medium">{{ invoiceData.code }} </span></span
+          >
+        </div>
+      </div>
+      <div class="flex w-full content-between font-semibold">
+        <div class="flex w-[50%] justify-start">
+          <span
+            >Generado por:
+            <span class="font-medium"
+              >{{ invoiceData.employee.firstName }}
+              {{ invoiceData.employee.lastName }}</span
+            ></span
+          >
+        </div>
+        <div class="flex w-[50%] justify-start">
+          <span>
+            Dirección
+            <span class="font-medium"> Vereda Pueblo Viejo - Aut 21</span></span
+          >
+        </div>
+      </div>
+      <div class="flex w-full content-between font-semibold">
+        <div class="flex w-[50%] justify-start">
+          <span
+            >Cliente:
+            <span class="font-medium"
+              >{{ invoiceData.user.firstName }}
+              {{ invoiceData.user.lastName }}</span
+            ></span
+          >
+        </div>
+
+        <div class="flex w-[50%] justify-start">
+          <span>
+            Fecha de impresión:
+            <span class="font-medium">
+              {{ printDate | date : 'dd/MM/yyyy HH:mm:ss' }}</span
+            ></span
+          >
+        </div>
+      </div>
+      <div class="flex w-full content-between font-semibold">
+        <div class="flex w-[100%] justify-start">
+          <span>
+            Teléfono:
+            <span class="font-medium">
+              {{ invoiceData.user.phoneCode.code }}
+              {{ invoiceData.user.phone }}</span
+            ></span
+          >
+        </div>
+      </div>
+      <div class="flex w-full content-between font-semibold">
+        <div class="flex w-[50%] justify-start">
+          <span>
+            Identificación:
+            <span class="font-medium">
+              {{ invoiceData.user.identificationNumber }}
+            </span></span
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="border border-[#06a606] w-full h-[1px] my-6"></div>
+  <table
+    class="w-full border border-collapse my-4"
+    *ngIf="invoiceData?.invoiceDetails?.length"
+  >
+    <thead>
+      <tr>
+        <th class="border text-sm pb-4 bg-[#06a606]">Nro°</th>
+        <th class="border text-sm pb-4 bg-[#06a606]">Item</th>
+        <th class="border text-sm pb-4 bg-[#06a606]">Und</th>
+        <th class="border text-sm pb-4 bg-[#06a606]">Precio</th>
+        <th class="border text-sm pb-4 bg-[#06a606]">Precio + IVA</th>
+        <th class="border text-sm pb-4 bg-[#06a606]">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let detail of invoiceData.invoiceDetails; let i = index">
+        <td class="border px-4 pb-4 text-left text-xs">{{ i + 1 }}</td>
+        <td class="border px-4 pb-4 text-left text-xs">
+          {{
+            detail.product?.name ||
+              detail.accommodation?.name ||
+              detail.excursion?.name ||
+              'N/A'
+          }}
+        </td>
+        <td class="border px-4 pb-4 text-center text-xs">
+          {{ detail.amount }}
+        </td>
+        <td class="border px-4 pb-4 text-right text-xs">
+          {{ detail.priceWithoutTax | formatCop }}
+        </td>
+        <td class="border px-4 pb-4 text-right text-xs">
+          {{ detail.priceWithTax | formatCop }}
+        </td>
+        <td class="border px-4 pb-4 text-right text-xs">
+          {{ detail.subtotal | formatCop }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <section class="flex flex-col h-full justify-center">
+    <div class="border border-[#06a606] w-full h-[1px] my-6"></div>
+
+    <div class="flex content-between">
+      <div class="flex justify-start w-[50%]">
+        <span class="font-bold">Estado de pago:</span>
+      </div>
+      <div class="flex justify-end w-[50%]">
+        <span
+          class="font-medium"
+          [ngClass]="{
+            'text-green-600':
+              invoiceData.paidType.name === 'Pagado' ||
+              invoiceData.paidType.name === 'Reservado - Pagado',
+            'text-red-600':
+              invoiceData.paidType.name === 'Pendiente' ||
+              invoiceData.paidType.name === 'Reservado - Pendiente'
+          }"
+        >
+          {{ invoiceData.paidType.name }}
+        </span>
+      </div>
+    </div>
+
+    <div class="flex content-between">
+      <div class="flex justify-start w-[50%]">
+        <span class="font-bold">Tipo de pago:</span>
+      </div>
+      <div class="flex justify-end w-[50%]">
+        <span class="font-medium">{{ invoiceData.payType.name }}</span>
+      </div>
+    </div>
+
+    <div class="flex content-between">
+      <div class="flex justify-start w-[50%]">
+        <span class="font-bold">Subtotal sin IVA:</span>
+      </div>
+      <div class="flex justify-end w-[50%]">
+        <span class="font-medium">{{
+          invoiceData.subtotalWithoutTax | formatCop
+        }}</span>
+      </div>
+    </div>
+
+    <div class="flex content-between">
+      <div class="flex justify-start w-[50%]">
+        <span class="font-bold">Subtotal + IVA:</span>
+      </div>
+      <div class="flex justify-end w-[50%]">
+        <span class="font-medium">{{
+          invoiceData.subtotalWithTax | formatCop
+        }}</span>
+      </div>
+    </div>
+
+    <div class="flex content-between">
+      <div class="flex justify-start w-[50%]">
+        <span class="font-bold">Total:</span>
+      </div>
+      <div class="flex justify-end w-[50%]">
+        <span class="font-medium text-[#06a606]">{{
+          invoiceData.total | formatCop
+        }}</span>
+      </div>
+    </div>
+  </section>
+  <section class="text-center mt-6 text-[11px] italic">
+    <span
+      >“Gracias por su compañía - Factura generada por Samawe Putumayo S A S
+      Zomac"</span
+    >
+  </section>
+</article>
