@@ -65,7 +65,6 @@ export class SharedModule {
     return {
       module: SharedModule,
       imports: [
-        // Configuración global de variables de entorno
         ConfigModule.forRoot({
           isGlobal: true,
           envFilePath:
@@ -82,7 +81,6 @@ export class SharedModule {
           useFactory: (configService: ConfigService) => {
             const environment = process.env.NODE_ENV || 'development';
 
-            // Configuración SSL
             const sslEnabled = configService.get('DB_SSL') === 'true';
 
             console.log(`🚀 Configurando TypeORM para: ${environment}`);
