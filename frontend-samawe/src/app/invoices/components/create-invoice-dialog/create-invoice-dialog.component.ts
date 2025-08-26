@@ -69,8 +69,9 @@ export class CreateInvoiceDialogComponent implements OnInit {
   payTypes: PayType[] = [];
   filteredClients: PaginatedUserPartial[] = [];
   clientFilterControl = new FormControl<string | CreateUserPanel>('');
-  isLoadingClients = false;
-  isLoading = false;
+  isLoadingClients: boolean = false;
+  isLoading: boolean = false;
+  invoice!: InvoiceComplete;
 
   private readonly _dialogRef = inject(
     MatDialogRef<CreateInvoiceDialogComponent>
@@ -86,6 +87,7 @@ export class CreateInvoiceDialogComponent implements OnInit {
     this.form = this._fb.group({
       invoiceTypeId: ['', Validators.required],
       userId: ['', Validators.required],
+      observations: ['', [Validators.maxLength(500)]],
       invoiceElectronic: [false, Validators.required],
       paidTypeId: ['', Validators.required],
       payTypeId: ['', Validators.required]
@@ -110,6 +112,7 @@ export class CreateInvoiceDialogComponent implements OnInit {
     this._invoiceService.getInvoiceToEdit(invoiceId).subscribe({
       next: (res) => {
         if (res.data) {
+          this.invoice = res.data;
           this.patchForm(res.data);
         }
         this.isLoading = false;
@@ -124,6 +127,7 @@ export class CreateInvoiceDialogComponent implements OnInit {
     this.form.patchValue({
       invoiceTypeId: invoice.invoiceType?.invoiceTypeId,
       userId: invoice.user?.userId,
+      observations: invoice.observations,
       invoiceElectronic: invoice.invoiceElectronic,
       payTypeId: invoice.payType?.payTypeId,
       paidTypeId: invoice.paidType?.paidTypeId
@@ -244,22 +248,37 @@ export class CreateInvoiceDialogComponent implements OnInit {
     console.log('Actualizando con ID', this.data.invoiceId);
     if (!this.data.invoiceId) return;
 
+    // ✅ USAR getRawValue() para obtener valores de campos deshabilitados también
     const formValue = this.form.getRawValue();
 
     const updatePayload = {
-      invoiceId: this.data.invoiceId, // ✅ Este campo es obligatorio para el backend
+      invoiceId: this.data.invoiceId,
       payTypeId: formValue.payTypeId,
+      observations: formValue.observations,
       paidTypeId: formValue.paidTypeId,
       invoiceElectronic: formValue.invoiceElectronic
     };
 
+    console.log('Payload a enviar:', updatePayload); // Para debug
+
     this._invoiceService
       .updateInvoice(this.data.invoiceId, updatePayload)
       .subscribe({
-        next: () => {
+        next: (response) => {
+          console.log('Respuesta del servidor:', response); // Para debug
+          this.isLoading = false;
           this._dialogRef.close(true);
+        },
+        error: (error) => {
+          console.error('Error al actualizar:', error);
+          this.isLoading = false;
         }
       });
+  }
+
+  // ✅ AGREGAR ESTE GETTER PARA EL CONTADOR DE CARACTERES
+  get observationsLength(): number {
+    return this.form.get('observations')?.value?.length || 0;
   }
 
   private createInvoice(): void {

@@ -21,6 +21,7 @@ export interface createInvoiceRelatedData {
 export interface Invoice {
   invoiceId: number;
   code: string;
+  observations?: string;
   subtotalWithoutTax: string;
   subtotalWithTax: string;
   total: string;
@@ -57,6 +58,7 @@ export interface EditInvoice {
 export interface InvoiceComplete {
   invoiceId: number;
   code: string;
+  observations?: string;
   subtotalWithoutTax: string;
   subtotalWithTax: string;
   total: string;

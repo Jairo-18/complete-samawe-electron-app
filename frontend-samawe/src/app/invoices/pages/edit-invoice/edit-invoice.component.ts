@@ -35,6 +35,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { InvoiceDetaillService } from '../../services/invoiceDetaill.service';
+import { CreateInvoiceDialogComponent } from '../../components/create-invoice-dialog/create-invoice-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-edit-invoice',
@@ -65,6 +67,7 @@ export class EditInvoiceComponent implements OnInit {
     InvoiceDetaillService
   );
   private readonly _route: ActivatedRoute = inject(ActivatedRoute);
+  private readonly _dialog: MatDialog = inject(MatDialog);
 
   @ViewChild('invoiceToPrint') invoicePdfComp!: ElementRef;
   @ViewChild(InvoiceDetaillComponent)
@@ -111,6 +114,29 @@ export class EditInvoiceComponent implements OnInit {
     if (this.invoiceId) {
       this.getInvoiceToEdit(this.invoiceId, false);
     }
+  }
+
+  openEditInvoiceDialog(): void {
+    if (!this.invoiceId) return;
+
+    const isMobile = window.innerWidth <= 768;
+
+    this._dialog
+      .open(CreateInvoiceDialogComponent, {
+        width: isMobile ? '90vw' : '60vw',
+        data: {
+          editMode: true,
+          invoiceId: this.invoiceId,
+          relatedData: {
+            payType: this.payTypes,
+            paidType: this.paidTypes
+          }
+        }
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) this.getInvoiceToEdit(this.invoiceId!, false);
+      });
   }
 
   onItemDeleted(): void {

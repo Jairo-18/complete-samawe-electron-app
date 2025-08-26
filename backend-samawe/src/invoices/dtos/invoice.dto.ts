@@ -18,6 +18,7 @@ import {
   IsArray,
   IsUUID,
   IsBoolean,
+  IsString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateInvoiceDetailDto } from './invoiceDetaill.dto';
@@ -36,6 +37,15 @@ export class CreateInvoiceDto {
   @IsNumber()
   @IsNotEmpty({ message: 'El tipo es requerido' })
   invoiceTypeId: number;
+
+  @ApiProperty({
+    example: 'Excursión a la montaña con guía y refrigerios',
+    description: 'Descripción de la excursión',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  observations?: string;
 
   @ApiProperty({
     example: 'eae05031-a181-4175-b09c-90177ef87f9b',
@@ -114,6 +124,15 @@ export class UpdateInvoiceDto {
   @IsNumber()
   @IsNotEmpty()
   invoiceId: number;
+
+  @ApiProperty({
+    example: 'Excursión a la montaña con guía y refrigerios',
+    description: 'Descripción de la excursión',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  observations?: string;
 
   @ApiProperty({
     example: 1,
@@ -248,6 +267,9 @@ export class GetInvoiceWithDetailsDto {
 
   @ApiProperty()
   code: string;
+
+  @ApiProperty()
+  observations: string;
 
   @ApiProperty()
   invoiceElectronic: boolean;

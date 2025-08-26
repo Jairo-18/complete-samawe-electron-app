@@ -234,6 +234,7 @@ export class InvoiceService {
           code,
           invoiceElectronic: dto.invoiceElectronic,
           startDate: dto.startDate,
+          observations: dto.observations,
           endDate: dto.endDate,
           subtotalWithoutTax,
           subtotalWithTax,
@@ -359,6 +360,7 @@ export class InvoiceService {
     return {
       invoiceId: invoice.invoiceId,
       code: invoice.code,
+      observations: invoice.observations,
       invoiceElectronic: invoice.invoiceElectronic,
       subtotalWithoutTax: invoice.subtotalWithoutTax.toString(),
       subtotalWithTax: invoice.subtotalWithTax.toString(),
@@ -446,7 +448,13 @@ export class InvoiceService {
   }
 
   async update(updateDto: UpdateInvoiceDto): Promise<GetInvoiceWithDetailsDto> {
-    const { invoiceId, payTypeId, paidTypeId, invoiceElectronic } = updateDto;
+    const {
+      invoiceId,
+      payTypeId,
+      paidTypeId,
+      invoiceElectronic,
+      observations,
+    } = updateDto;
 
     const queryRunner =
       this._invoiceRepository.manager.connection.createQueryRunner();
@@ -459,13 +467,18 @@ export class InvoiceService {
         relations: ['payType', 'paidType'],
       });
 
-      if (!invoice) throw new NotFoundException('Factura no encontrada');
+      if (!invoice) {
+        throw new NotFoundException('Factura no encontrada');
+      }
 
+      // Actualiza los campos solo si están definidos en el DTO
       if (payTypeId !== undefined) {
         const payType = await queryRunner.manager.findOne(PayType, {
           where: { payTypeId },
         });
-        if (!payType) throw new BadRequestException('Tipo de pago no válido');
+        if (!payType) {
+          throw new BadRequestException('Tipo de pago no válido');
+        }
         invoice.payType = payType;
       }
 
@@ -473,13 +486,19 @@ export class InvoiceService {
         const paidType = await queryRunner.manager.findOne(PaidType, {
           where: { paidTypeId },
         });
-        if (!paidType)
+        if (!paidType) {
           throw new BadRequestException('Estado de pago no válido');
+        }
         invoice.paidType = paidType;
       }
 
       if (invoiceElectronic !== undefined) {
         invoice.invoiceElectronic = invoiceElectronic;
+      }
+
+      // ⭐ ¡Añade esta línea para actualizar observations! ⭐
+      if (observations !== undefined) {
+        invoice.observations = observations;
       }
 
       await queryRunner.manager.save(invoice);

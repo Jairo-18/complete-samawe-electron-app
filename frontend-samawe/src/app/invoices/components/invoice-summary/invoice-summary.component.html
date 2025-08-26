@@ -86,25 +86,52 @@
     </div>
   </div>
 
+  <div class="border border-[#06a606] w-full h-[1px] my-6"></div>
+
+  <div class="flex flex-col">
+    <div class="flex justify-start w-full">
+      <span class="font-bold">Observaciones</span>
+    </div>
+    <div
+      class="flex justify-start w-full p-1 border border-[#06a606] rounded-lg"
+    >
+      <span class="font-medium text-[#06a606]">{{
+        invoiceData.observations || 'No hay observaciones'
+      }}</span>
+    </div>
+  </div>
+
   <div><span>Los precios incluyen impuestos</span></div>
-  <div class="hidden md:flex">
-    <button
-      class="!w-full !rounded-lg"
-      mat-fab
-      extended="true"
-      (click)="onPrint()"
-    >
-      Imprimir factura
-    </button>
-  </div>
-  <div class="flex md:hidden">
-    <button
-      class="!w-full !rounded-lg"
-      mat-fab
-      extended="true"
-      (click)="onDownload()"
-    >
-      Descargar PDF
-    </button>
-  </div>
+  <section class="flex flex-col gap-y-2">
+    <div class="flex">
+      <button
+        mat-fab
+        extended="true"
+        class="!w-full !rounded-lg"
+        (click)="onEdit()"
+      >
+        Editar factura
+      </button>
+    </div>
+    <div class="hidden md:flex">
+      <button
+        class="!w-full !rounded-lg"
+        mat-fab
+        extended="true"
+        (click)="onPrint()"
+      >
+        Imprimir factura
+      </button>
+    </div>
+    <div class="flex md:hidden">
+      <button
+        class="!w-full !rounded-lg"
+        mat-fab
+        extended="true"
+        (click)="onDownload()"
+      >
+        Descargar PDF
+      </button>
+    </div>
+  </section>
 </article>

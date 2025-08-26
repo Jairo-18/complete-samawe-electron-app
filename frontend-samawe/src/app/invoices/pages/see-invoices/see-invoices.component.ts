@@ -229,6 +229,7 @@ export class SeeInvoicesComponent implements OnInit {
         data: {
           editMode: true,
           invoiceId: invoiceId,
+
           relatedData: {
             payType: this.getOptions('payTypeId'),
             paidType: this.getOptions('paidTypeId')
@@ -320,6 +321,7 @@ export class SeeInvoicesComponent implements OnInit {
             ? `${invoice.user.firstName} ${invoice.user.lastName}`
             : '---',
           clientIdentification: invoice.user?.identificationNumber || '---',
+          observations: invoice.observations,
           clientIdentificationType:
             invoice.user?.identificationType?.name || '---',
           employeeName: invoice.employee

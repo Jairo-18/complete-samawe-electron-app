@@ -25,6 +25,9 @@ export class Invoice {
   @Column('varchar', { length: 255, nullable: false })
   code: string;
 
+  @Column('varchar', { length: 500, nullable: true })
+  observations?: string;
+
   @ManyToOne(() => InvoiceType)
   @JoinColumn({ name: 'invoiceTypeId' })
   invoiceType: InvoiceType;

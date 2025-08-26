@@ -19,6 +19,15 @@ export class PaginatedListInvoicesParamsDto extends ParamsPaginationDto {
   invoiceTypeId?: number;
 
   @ApiProperty({
+    example: 'Excursión a la montaña con guía y refrigerios',
+    description: 'Descripción de la excursión',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  observations?: string;
+
+  @ApiProperty({
     example: 'EXC-001',
     description: 'Código de la factura',
     required: false,

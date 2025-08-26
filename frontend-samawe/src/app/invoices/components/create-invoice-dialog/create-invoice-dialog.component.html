@@ -123,6 +123,19 @@
       </mat-select>
       <mat-icon matPrefix>monetization_on</mat-icon>
     </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Observaciones</mat-label>
+      <textarea
+        matInput
+        formControlName="observations"
+        rows="3"
+        #descTextarea
+        maxlength="500"
+      ></textarea>
+      <mat-icon matPrefix>notes</mat-icon>
+      <mat-hint align="end"> {{ observationsLength }}/500 caracteres</mat-hint>
+    </mat-form-field>
     } @else {
     <app-loader></app-loader>
     }

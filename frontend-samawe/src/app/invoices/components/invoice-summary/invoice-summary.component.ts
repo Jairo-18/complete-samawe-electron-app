@@ -21,6 +21,7 @@ export class InvoiceSummaryComponent {
   @Input() payTypes: PayType[] = [];
   @Output() printRequested = new EventEmitter<void>();
   @Output() downloadRequested = new EventEmitter<void>();
+  @Output() editRequested = new EventEmitter<void>();
 
   onPrint() {
     this.printRequested.emit();
@@ -28,5 +29,9 @@ export class InvoiceSummaryComponent {
 
   onDownload() {
     this.downloadRequested.emit();
+  }
+
+  onEdit() {
+    this.editRequested.emit();
   }
 }
