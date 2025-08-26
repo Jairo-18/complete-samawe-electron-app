@@ -10,8 +10,7 @@ import {
   FormBuilder,
   FormGroup,
   Validators,
-  ReactiveFormsModule,
-  FormControl
+  ReactiveFormsModule
 } from '@angular/forms';
 import {
   CategoryType,
@@ -77,20 +76,13 @@ export class AddExcursionComponent {
   isLoadingExcursions: boolean = false;
 
   constructor() {
-    const now = new Date();
-    const nowLocal = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
-
     this.form = this._fb.group({
       excursionName: ['', Validators.required],
       excursionId: [null, Validators.required],
       priceSale: [{ value: '', disabled: true }],
       priceWithoutTax: [null, Validators.required],
-      amount: [1, [Validators.required, Validators.min(1)]],
-      taxeTypeId: [null, Validators.required],
-      startDate: new FormControl(null),
-      endDate: [nowLocal, Validators.required]
+      taxeTypeId: [2],
+      amount: [1, [Validators.required, Validators.min(1)]]
     });
 
     this.form
@@ -124,8 +116,7 @@ export class AddExcursionComponent {
     this.form.patchValue({
       excursionId: exc.excursionId,
       priceWithoutTax: exc.priceSale,
-      priceSale: exc.priceSale,
-      taxeTypeId: exc.taxeTypeId
+      priceSale: exc.priceSale
     });
   }
 
@@ -140,11 +131,6 @@ export class AddExcursionComponent {
   }
 
   resetForm() {
-    const now = new Date();
-    const nowLocal = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
-
     this.form.reset();
     Object.keys(this.form.controls).forEach((key) => {
       const control = this.form.get(key);
@@ -152,9 +138,8 @@ export class AddExcursionComponent {
     });
 
     this.form.patchValue({
-      amount: 1,
-      startDate: nowLocal,
-      endDate: nowLocal
+      taxeTypeId: 2,
+      amount: 1
     });
 
     this._router.navigate([], {
@@ -181,6 +166,10 @@ export class AddExcursionComponent {
     if (this.form.valid) {
       const formValue = this.form.value;
 
+      // ✅ Generar fecha actual en el momento del envío
+      const startDate = new Date();
+      const endDate = new Date(startDate.getTime() + 60000);
+
       const payload: CreateInvoiceDetaill = {
         productId: 0,
         accommodationId: 0,
@@ -189,8 +178,8 @@ export class AddExcursionComponent {
         priceBuy: Number(formValue.priceBuy) || 0,
         priceWithoutTax: Number(formValue.priceWithoutTax),
         taxeTypeId: formValue.taxeTypeId,
-        startDate: new Date(formValue.startDate).toISOString(),
-        endDate: new Date(formValue.endDate).toISOString()
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
       };
 
       this.tempDetailAdded.emit(payload);

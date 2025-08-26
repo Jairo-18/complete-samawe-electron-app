@@ -83,14 +83,6 @@ export class SharedModule {
 
             const sslEnabled = configService.get('DB_SSL') === 'true';
 
-            console.log(`🚀 Configurando TypeORM para: ${environment}`);
-            console.log(
-              `📊 Base de datos: ${configService.get('DB_HOST')}:${configService.get('DB_PORT')}/${configService.get('DB_DATABASE')}`,
-            );
-            console.log(
-              `🔒 SSL: ${sslEnabled ? 'habilitado' : 'deshabilitado'}`,
-            );
-
             const config: any = {
               type: 'postgres',
               host: configService.get('DB_HOST'),

@@ -287,23 +287,23 @@
                   <mat-icon>delete</mat-icon>
                 </button>
                 } -->
-                   @if (canEditUser(user)) {
-            <button
-              mat-icon-button
-              color="primary"
-              [routerLink]="['..', user.userId, 'edit']"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
-            } @if (canDeleteUser(user)) {
-            <button
-              mat-icon-button
-              color="warn"
-              (click)="openDeleteUserDialog(user.userId)"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-            }
+                @if (canEditUser(user)) {
+                <button
+                  mat-icon-button
+                  color="primary"
+                  [routerLink]="['..', user.userId, 'edit']"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                } @if (canDeleteUser(user)) {
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="openDeleteUserDialog(user.userId)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+                }
               </td>
             </ng-container>
 

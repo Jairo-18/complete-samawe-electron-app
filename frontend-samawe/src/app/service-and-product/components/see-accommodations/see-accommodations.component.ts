@@ -263,7 +263,7 @@ export class SeeAccommodationsComponent implements OnInit {
   validateIfCanEditUserOrDelete(user: UserComplete): boolean {
     return (
       this.userLogged?.roleType?.name === 'Administrador' &&
-      user.roleType?.name === 'Usuario'
+      user.roleType?.name === 'Cliente'
     );
   }
 }

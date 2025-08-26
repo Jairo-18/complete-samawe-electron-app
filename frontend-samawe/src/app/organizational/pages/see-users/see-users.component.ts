@@ -330,10 +330,10 @@ export class SeeUsersComponent implements OnInit {
       return isCurrentUser; // Si es el mismo usuario, NO permitir eliminación (o edición si fuera el caso)
     }
 
-    // Un empleado solo puede editar/eliminar usuarios con rol 'Usuario' y no a sí mismo.
-    if (loggedInRoleName === 'Empleado') {
+    // Un Recepcionista solo puede editar/eliminar usuarios con rol 'Usuario' y no a sí mismo.
+    if (loggedInRoleName === 'Recepcionista') {
       return (
-        userToActOnRoleName !== 'Usuario' || // No permitir si no es un usuario "regular"
+        userToActOnRoleName !== 'Cliente' || // No permitir si no es un usuario "regular"
         isCurrentUser // No permitir si es el mismo usuario
       );
     }
@@ -344,13 +344,14 @@ export class SeeUsersComponent implements OnInit {
 
   canEditUser(user: UserComplete): boolean {
     const loggedInRoleName = this.userLogged?.roleType?.name;
-    const userToActOnRoleName = this.getRoleName(user.roleType?.name || ''); // 👈 usar helper
+    const userToActOnRoleName = user.roleType?.name;
     const isCurrentUser = this.userLogged?.userId === user.userId;
 
     if (loggedInRoleName === 'Administrador') return true;
 
-    if (loggedInRoleName === 'Empleado') {
-      return userToActOnRoleName === 'Usuario' || isCurrentUser;
+    if (loggedInRoleName === 'Recepcionista') {
+      // Solo puede editar clientes y a sí mismo
+      return userToActOnRoleName === 'Cliente' || isCurrentUser;
     }
 
     return false;
@@ -358,15 +359,16 @@ export class SeeUsersComponent implements OnInit {
 
   canDeleteUser(user: UserComplete): boolean {
     const loggedInRoleName = this.userLogged?.roleType?.name;
-    const userToActOnRoleName = this.getRoleName(user.roleType?.name || ''); // 👈 usar helper
+    const userToActOnRoleName = user.roleType?.name;
     const isCurrentUser = this.userLogged?.userId === user.userId;
 
     if (isCurrentUser) return false;
 
     if (loggedInRoleName === 'Administrador') return true;
 
-    if (loggedInRoleName === 'Empleado') {
-      return userToActOnRoleName === 'Usuario';
+    if (loggedInRoleName === 'Recepcionista') {
+      // Solo puede eliminar clientes
+      return userToActOnRoleName === 'Cliente';
     }
 
     return false;

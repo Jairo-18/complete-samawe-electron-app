@@ -167,6 +167,19 @@ export class InvoiceController {
     };
   }
 
+  // @Post('invoice/:invoiceId/details')
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBody({ type: CreateInvoiceDetailDto })
+  // async createSingleDetail(
+  //   @Param('invoiceId') invoiceId: number,
+  //   @Body() createDetailDto: CreateInvoiceDetailDto,
+  // ): Promise<void> {
+  //   await this._invoiceDetaillMultiple.createMultipleDetails(invoiceId, [
+  //     createDetailDto,
+  //   ]);
+  // }
+
   @Delete('details/:detailId')
   @ApiBearerAuth()
   @UseGuards(AuthGuard())

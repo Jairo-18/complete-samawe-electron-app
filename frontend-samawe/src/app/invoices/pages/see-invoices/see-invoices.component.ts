@@ -422,12 +422,12 @@ export class SeeInvoicesComponent implements OnInit {
   }
 
   /**
-   * Método para validar que el empleado o admin puedan eliminar o editar facturas
+   * Método para validar que el Recepcionista o admin puedan eliminar o editar facturas
    */
   validateIfCanEditUserOrDelete(user: UserComplete): boolean {
     return (
       this.userLogged?.roleType?.name === 'Administrador' &&
-      user.roleType?.name === 'Usuario'
+      user.roleType?.name === 'Cliente'
     );
   }
 

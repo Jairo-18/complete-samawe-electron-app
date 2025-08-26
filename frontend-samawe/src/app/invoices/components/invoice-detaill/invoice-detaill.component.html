@@ -25,6 +25,7 @@
         }}
       </td>
     </ng-container>
+
     <!-- Start Date -->
     <ng-container matColumnDef="startDate">
       <th mat-header-cell *matHeaderCellDef class="center-text">
@@ -71,11 +72,9 @@
 
     <!-- Price With Tax -->
     <ng-container matColumnDef="priceWithTax">
-      <th mat-header-cell *matHeaderCellDef class="center-text">
-        P. con impuesto
-      </th>
+      <th mat-header-cell *matHeaderCellDef class="center-text">Impuesto</th>
       <td mat-cell *matCellDef="let detail" class="right-text">
-        {{ detail.priceWithTax | formatCop }}
+        {{ +detail.priceWithTax - +detail.priceWithoutTax | formatCop }}
       </td>
     </ng-container>
 
@@ -103,10 +102,16 @@
     <!-- Header and Row -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
 
-  <!-- Paginador -->
+    <!-- Mensaje cuando no hay datos -->
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell text-center" [attr.colspan]="displayedColumns.length">
+        Aún no hay items
+      </td>
+    </tr>
+  </table>
 </div>
+
 <div class="flex w-full justify-end">
   <mat-paginator
     [length]="paginationParams.total"

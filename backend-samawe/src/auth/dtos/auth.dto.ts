@@ -115,7 +115,7 @@ export class AuthTokenResponseDto {
       },
       roleType: {
         roleTypeId: '53ec2766-ea95-4dab-ad9a-',
-        name: 'Usuario',
+        name: 'Clientes',
       },
     },
   })
@@ -156,7 +156,7 @@ export class RefreshTokenResponseDto implements BaseResponseDto {
         userId: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2Vyb',
         roleType: {
           roleTypeId: 'eyJhbGUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2Vyb',
-          name: 'Usuario',
+          name: 'Clientes',
         },
       },
     },

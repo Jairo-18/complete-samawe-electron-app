@@ -88,14 +88,53 @@ export class CreateOrEditUsersComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getRelatedData();
+    // ✅ Primero obtenemos el usuario logueado
     this.userLogged = this._authService.getUserLoggedIn();
+
+    // ✅ Luego obtenemos los datos relacionados (que ya usan this.userLogged)
+    this.getRelatedData();
+
     this.userId = this._activatedRoute.snapshot.params['id'];
     this.isEditMode = !!this.userId;
 
     if (this.isEditMode) {
       this.getUserToEdit(this.userId);
     }
+  }
+
+  /**
+   * @param getRelatedData - Obtiene los tipos de identificación.
+   */
+  getRelatedData(): void {
+    this.loading = true;
+
+    this._relatedDataService.createUserRelatedData().subscribe({
+      next: (res) => {
+        const allRoles = res.data?.roleType || [];
+
+        // ✅ Ahora this.userLogged ya está disponible
+        const roleName = this.userLogged?.roleType?.name;
+
+        if (roleName === 'Recepcionista') {
+          // Si es Recepcionista, solo puede ver el rol Cliente
+          this.roleType = allRoles.filter((r) => r.name === 'Cliente');
+        } else if (roleName === 'Empleado') {
+          // Si es Empleado, solo puede ver el rol Cliente
+          this.roleType = allRoles.filter((r) => r.name === 'Cliente');
+        } else {
+          // Administradores ven todos los roles
+          this.roleType = allRoles;
+        }
+
+        this.identificationType = res.data?.identificationType || [];
+        this.phoneCode = res.data?.phoneCode || [];
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar datos relacionados:', error);
+        this.loading = false;
+      }
+    });
   }
 
   setPassword() {
@@ -134,35 +173,6 @@ export class CreateOrEditUsersComponent implements OnInit {
       error: (err) => {
         console.error('Error al obtener usuario:', err.error?.message || err);
       }
-    });
-  }
-
-  /**
-   * @param getRelatedData - Obtiene los tipos de identificación.
-   */
-  getRelatedData(): void {
-    this.loading = true;
-
-    this._relatedDataService.createUserRelatedData().subscribe({
-      next: (res) => {
-        const allRoles = res.data?.roleType || [];
-
-        // Usamos el rol del usuario logueado
-        const roleName = this.userLogged?.roleType?.name;
-
-        if (roleName === 'Empleado') {
-          // Si es empleado, solo puede ver el rol Usuario
-          this.roleType = allRoles.filter((r) => r.name === 'Usuario');
-        } else {
-          this.roleType = allRoles;
-        }
-
-        this.identificationType = res.data?.identificationType || [];
-        this.phoneCode = res.data?.phoneCode || [];
-        this.loading = false;
-      },
-      error: (error) =>
-        console.error('Error al cargar datos relacionados:', error)
     });
   }
 

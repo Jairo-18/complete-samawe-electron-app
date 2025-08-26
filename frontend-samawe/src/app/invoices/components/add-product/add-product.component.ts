@@ -4,8 +4,7 @@ import {
   EventEmitter,
   Input,
   Output,
-  inject,
-  OnInit
+  inject
 } from '@angular/core';
 import {
   FormBuilder,
@@ -53,7 +52,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'
 })
-export class AddProductComponent implements OnInit {
+export class AddProductComponent {
   @Input() categoryTypes: CategoryType[] = [];
   @Input() taxeTypes: TaxeType[] = [];
   @Output() tempDetailAdded = new EventEmitter<CreateInvoiceDetaill>();
@@ -78,9 +77,8 @@ export class AddProductComponent implements OnInit {
       priceSale: [{ value: '', disabled: true }],
       priceBuy: [0, [Validators.required, Validators.min(0)]],
       priceWithoutTax: [null, Validators.required],
-      taxeTypeId: [null, Validators.required],
+      taxeTypeId: [2],
       amount: [1, [Validators.required, Validators.min(1)]]
-      // categoryId: [null, Validators.required]
     });
 
     this.form
@@ -97,13 +95,6 @@ export class AddProductComponent implements OnInit {
       .subscribe((res) => {
         this.filteredProducts = res.data ?? [];
       });
-  }
-
-  ngOnInit(): void {
-    const ivaTaxe = this.taxeTypes.find((t) => t.name === 'IVA');
-    if (ivaTaxe) {
-      this.form.patchValue({ taxeTypeId: ivaTaxe.taxeTypeId });
-    }
   }
 
   getInvoiceIdFromRoute(route: ActivatedRoute): string | null {
@@ -133,21 +124,18 @@ export class AddProductComponent implements OnInit {
       priceSale: product.priceSale,
       priceBuy: product.priceBuy ?? 0,
       priceWithoutTax: product.priceSale,
-      // No toques taxeTypeId
       categoryId: product.categoryTypeId
     });
   }
 
   resetForm(): void {
-    const ivaTaxe = this.taxeTypes.find((t) => t.name === 'IVA');
-
     this.form.reset({
       productName: '',
       productId: null,
       priceSale: { value: '', disabled: true },
       priceBuy: 0,
       priceWithoutTax: null,
-      taxeTypeId: ivaTaxe?.taxeTypeId ?? null,
+      taxeTypeId: 2,
       amount: 1,
       categoryId: null
     });

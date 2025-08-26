@@ -66,10 +66,12 @@
 
   <div class="flex content-between">
     <div class="flex justify-start w-[50%]">
-      <span class="font-bold">IVA:</span>
+      <span class="font-bold">Impuesto:</span>
     </div>
     <div class="flex justify-end w-[50%]">
-      <span>{{ invoiceData.subtotalWithTax | formatCop }}</span>
+      <span>
+        {{ +invoiceData.total - +invoiceData.subtotalWithoutTax | formatCop }}
+      </span>
     </div>
   </div>
 

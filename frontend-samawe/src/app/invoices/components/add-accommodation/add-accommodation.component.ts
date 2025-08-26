@@ -1,8 +1,10 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
+  OnInit,
   Output,
   inject
 } from '@angular/core';
@@ -25,7 +27,6 @@ import {
   CategoryType,
   TaxeType
 } from '../../../shared/interfaces/relatedDataGeneral';
-import { InvoiceDetaillService } from '../../services/invoiceDetaill.service';
 import { AccommodationsService } from '../../../service-and-product/services/accommodations.service';
 import {
   AddedAccommodationInvoiceDetaill,
@@ -35,6 +36,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 
 @Component({
   selector: 'app-add-accommodation',
@@ -51,12 +53,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatNativeDateModule,
     MatDatepickerModule,
     MatIcon,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTimepickerModule,
+    MatDatepickerModule
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './add-accommodation.component.html',
   styleUrl: './add-accommodation.component.scss'
 })
-export class AddAccommodationComponent {
+export class AddAccommodationComponent implements OnInit {
   @Input() categoryTypes: CategoryType[] = [];
   @Input() taxeTypes: TaxeType[] = [];
   @Output() accommodationAdded = new EventEmitter<void>();
@@ -65,10 +70,6 @@ export class AddAccommodationComponent {
   private readonly _accommodationsService: AccommodationsService = inject(
     AccommodationsService
   );
-  private readonly _invoiceDetaillService: InvoiceDetaillService = inject(
-    InvoiceDetaillService
-  );
-  private readonly _activateRoute: ActivatedRoute = inject(ActivatedRoute);
   private readonly _fb: FormBuilder = inject(FormBuilder);
   private readonly _router: Router = inject(Router);
   private readonly _cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
@@ -77,21 +78,46 @@ export class AddAccommodationComponent {
   isLoading: boolean = false;
   filteredAccommodations: AddedAccommodationInvoiceDetaill[] = [];
   isLoadingAccommodations: boolean = false;
+  value!: Date;
+
+  ngOnInit() {
+    this.form.valueChanges.subscribe((val) => {
+      if (val.startDate && val.startTime) {
+        this.form.patchValue(
+          {
+            startDateTime: this.combineDateAndTime(val.startDate, val.startTime)
+          },
+          { emitEvent: false }
+        );
+      }
+
+      if (val.endDate && val.endTime) {
+        this.form.patchValue(
+          { endDateTime: this.combineDateAndTime(val.endDate, val.endTime) },
+          { emitEvent: false }
+        );
+      }
+    });
+  }
 
   constructor() {
     const now = new Date();
-    const nowLocal = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
+
     this.form = this._fb.group({
       accommodationName: ['', Validators.required],
       accommodationId: [null, Validators.required],
       priceSale: [{ value: '', disabled: true }],
       priceWithoutTax: [null, Validators.required],
+      taxeTypeId: [2],
       amount: [1, [Validators.required, Validators.min(1)]],
-      taxeTypeId: [null, Validators.required],
-      startDate: [nowLocal, Validators.required],
-      endDate: [nowLocal, Validators.required]
+
+      startDate: [now, Validators.required],
+      startTime: [now, Validators.required],
+      endDate: [null, Validators.required],
+      endTime: [null, Validators.required],
+
+      startDateTime: [null, Validators.required],
+      endDateTime: [null, Validators.required]
     });
 
     this.form
@@ -108,6 +134,13 @@ export class AddAccommodationComponent {
       .subscribe((res) => {
         this.filteredAccommodations = res.data ?? [];
       });
+  }
+
+  combineDateAndTime(date: Date, time: Date): Date {
+    const d = new Date(date);
+    const t = new Date(time);
+    d.setHours(t.getHours(), t.getMinutes(), 0, 0);
+    return d;
   }
 
   onAccommodationFocus() {
@@ -127,8 +160,7 @@ export class AddAccommodationComponent {
     this.form.patchValue({
       accommodationId: acc.accommodationId,
       priceWithoutTax: acc.priceSale,
-      priceSale: acc.priceSale,
-      taxeTypeId: acc.taxeTypeId
+      priceSale: acc.priceSale
     });
   }
 
@@ -144,9 +176,6 @@ export class AddAccommodationComponent {
 
   resetForm() {
     const now = new Date();
-    const nowLocal = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
 
     this.form.reset();
     Object.keys(this.form.controls).forEach((key) => {
@@ -155,9 +184,12 @@ export class AddAccommodationComponent {
     });
 
     this.form.patchValue({
+      taxeTypeId: 2,
       amount: 1,
-      startDate: nowLocal,
-      endDate: nowLocal
+      startDate: now,
+      startTime: now,
+      endDate: now,
+      endTime: now
     });
 
     this._router.navigate([], {
@@ -191,8 +223,8 @@ export class AddAccommodationComponent {
         priceBuy: Number(formValue.priceBuy) || 0,
         priceWithoutTax: Number(formValue.priceWithoutTax),
         taxeTypeId: formValue.taxeTypeId,
-        startDate: new Date(formValue.startDate).toISOString(),
-        endDate: new Date(formValue.endDate).toISOString()
+        startDate: new Date(formValue.startDateTime).toISOString(),
+        endDate: new Date(formValue.endDateTime).toISOString()
       };
 
       this.tempDetailAdded.emit(invoiceDetailPayload);

@@ -3,11 +3,11 @@ import { DashboardCard } from '../interface/card.interface';
 export const DASHBOARD_CARDS: DashboardCard[] = [
   {
     icon: 'person',
-    title: 'Usuarios',
+    title: 'Clientes',
     description: 'Administra usuarios, roles y permisos del sistema',
     route: '/organizational/users/list',
     iconNext: 'navigate_next',
-    allowedRoles: ['Empleado', 'Administrador']
+    allowedRoles: ['Recepcionista', 'Administrador']
   },
   {
     icon: 'store',
@@ -16,7 +16,7 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     route: '/service-and-product/general',
     queryParams: { editProduct: true },
     iconNext: 'navigate_next',
-    allowedRoles: ['Empleado', 'Administrador']
+    allowedRoles: ['Recepcionista', 'Administrador']
   },
   {
     icon: 'hotel',
@@ -25,7 +25,7 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     route: '/service-and-product/general',
     queryParams: { editAccommodation: true },
     iconNext: 'navigate_next',
-    allowedRoles: ['Empleado', 'Administrador']
+    allowedRoles: ['Recepcionista', 'Administrador']
   },
   {
     icon: 'tour',
@@ -34,7 +34,7 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     route: '/service-and-product/general',
     queryParams: { editExcursion: true },
     iconNext: 'navigate_next',
-    allowedRoles: ['Empleado', 'Administrador']
+    allowedRoles: ['Recepcionista', 'Administrador']
   },
   {
     icon: 'note',
@@ -42,7 +42,7 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     description: 'Genera y gestiona facturas, pagos y cobros',
     route: '/invoice/invoices/list',
     iconNext: 'navigate_next',
-    allowedRoles: ['Empleado', 'Administrador']
+    allowedRoles: ['Recepcionista', 'Administrador']
   },
   {
     icon: 'attach_money',
@@ -50,7 +50,7 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     description: 'Analiza el rendimiento con reportes detallados',
     route: '/sales/earnings-sumary',
     iconNext: 'navigate_next',
-    allowedRoles: ['Empleado', 'Administrador']
+    allowedRoles: ['Recepcionista', 'Administrador']
   },
   {
     icon: 'settings',

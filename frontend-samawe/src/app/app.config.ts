@@ -7,6 +7,7 @@ import {
 import { provideRouter } from '@angular/router';
 import {
   ErrorStateMatcher,
+  MAT_DATE_LOCALE,
   MAT_NATIVE_DATE_FORMATS,
   provideNativeDateAdapter
 } from '@angular/material/core';
@@ -44,6 +45,7 @@ export const appConfig: ApplicationConfig = {
       useValue: { maxWidth: '700px', width: '95vw', padding: '40px' }
     },
     { provide: LOCALE_ID, useValue: 'es' },
+    { provide: MAT_DATE_LOCALE, useValue: 'es-CO' },
     { provide: ErrorStateMatcher, useValue: new MyErrorStateMatcher() },
     provideHttpClient(
       withInterceptors([authInterceptor, notificationsInterceptorInterceptor])

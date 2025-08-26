@@ -24,7 +24,7 @@ export class InvoiceDetaillService {
     invoiceDetaill: CreateInvoiceDetaill
   ): Observable<ApiResponseCreateInterface> {
     return this._httpClient.post<ApiResponseCreateInterface>(
-      `${environment.apiUrl}invoices/invoice/${invoiceId}/details/bulk`,
+      `${environment.apiUrl}invoices/invoice/${invoiceId}/details`,
       invoiceDetaill
     );
   }

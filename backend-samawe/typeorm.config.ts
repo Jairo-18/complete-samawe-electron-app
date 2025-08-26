@@ -1,7 +1,6 @@
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
 
-// Cargar variables de entorno según el NODE_ENV
 const envFile =
   process.env.NODE_ENV === 'production'
     ? '.env.production'
@@ -9,12 +8,6 @@ const envFile =
 
 config({ path: envFile });
 
-console.log(`🔧 Cargando configuración desde: ${envFile}`);
-console.log(
-  `📊 Base de datos: ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`,
-);
-
-// Configuración SSL
 const sslEnabled = process.env.DB_SSL === 'true';
 
 const dataSourceConfig: any = {
@@ -34,10 +27,9 @@ const dataSourceConfig: any = {
   },
 };
 
-// Configurar SSL solo si está habilitado
 if (sslEnabled) {
   dataSourceConfig.ssl = {
-    rejectUnauthorized: false, // Para Neon y otros servicios cloud
+    rejectUnauthorized: false,
   };
   console.log('🔒 SSL habilitado');
 } else {

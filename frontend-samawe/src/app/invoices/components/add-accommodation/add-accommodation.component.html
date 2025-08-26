@@ -1,4 +1,5 @@
 <form [formGroup]="form" class="w-full mt-3">
+  <!-- Buscar hospedaje -->
   <mat-form-field appearance="outline" class="w-full">
     <mat-label>Buscar Hospedaje</mat-label>
     <input
@@ -10,7 +11,7 @@
     />
     <mat-icon matPrefix>home</mat-icon>
 
-    <!-- Botón para limpiar -->
+    <!-- Botón limpiar -->
     <button
       *ngIf="
         form.get('accommodationName')?.enabled &&
@@ -51,6 +52,7 @@
     </mat-autocomplete>
   </mat-form-field>
 
+  <!-- Precio y Cantidad -->
   <div class="flex flex-col md:flex-row gap-0 md:gap-2">
     <mat-form-field appearance="outline" class="w-full">
       <mat-label>Precio</mat-label>
@@ -71,20 +73,74 @@
     </mat-form-field>
   </div>
 
+  <!-- Fechas y horas -->
   <div class="flex flex-col md:flex-row gap-0 md:gap-2">
+    <!-- Fecha entrada -->
     <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Fecha y hora de entrada</mat-label>
-      <input matInput type="datetime-local" formControlName="startDate" />
-      <mat-icon matPrefix>event_available</mat-icon>
+      <mat-label>Fecha de entrada</mat-label>
+      <input
+        matInput
+        [matDatepicker]="startDatePicker"
+        formControlName="startDate"
+      />
+      <mat-datepicker #startDatePicker></mat-datepicker>
+      <mat-datepicker-toggle
+        [for]="startDatePicker"
+        matSuffix
+      ></mat-datepicker-toggle>
+      <mat-icon matPrefix>event</mat-icon>
     </mat-form-field>
 
+    <!-- Hora entrada -->
     <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Fecha y hora de salida</mat-label>
-      <input matInput type="datetime-local" formControlName="endDate" />
-      <mat-icon matPrefix>event_busy</mat-icon>
+      <mat-label>Hora de entrada</mat-label>
+      <input
+        matInput
+        [matTimepicker]="startTimePicker"
+        formControlName="startTime"
+      />
+      <mat-timepicker #startTimePicker format="12h"></mat-timepicker>
+      <mat-timepicker-toggle
+        [for]="startTimePicker"
+        matSuffix
+      ></mat-timepicker-toggle>
+      <mat-icon matPrefix>access_time</mat-icon>
+    </mat-form-field>
+
+    <!-- Fecha salida -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Fecha de salida</mat-label>
+      <input
+        matInput
+        [matDatepicker]="endDatePicker"
+        formControlName="endDate"
+      />
+      <mat-datepicker #endDatePicker></mat-datepicker>
+      <mat-datepicker-toggle
+        [for]="endDatePicker"
+        matSuffix
+      ></mat-datepicker-toggle>
+      <mat-icon matPrefix>event</mat-icon>
+    </mat-form-field>
+
+    <!-- Hora salida -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Hora de salida</mat-label>
+      <input
+        matInput
+        [matTimepicker]="endTimePicker"
+        formControlName="endTime"
+      />
+      <mat-timepicker #endTimePicker format="12h"></mat-timepicker>
+      <mat-timepicker-toggle
+        [for]="endTimePicker"
+        matSuffix
+      ></mat-timepicker-toggle>
+      <mat-icon matPrefix>access_time</mat-icon>
     </mat-form-field>
   </div>
 
+  <!-- Tipo impuesto -->
   <mat-form-field appearance="outline" class="w-full">
     <mat-label>Tipo de impuesto</mat-label>
     <mat-select formControlName="taxeTypeId">
@@ -95,6 +151,7 @@
     <mat-icon matPrefix>calculate</mat-icon>
   </mat-form-field>
 
+  <!-- Botón -->
   <button
     class="!w-full !rounded-lg"
     mat-fab

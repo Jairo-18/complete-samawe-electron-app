@@ -2,7 +2,7 @@ import { MenuInterface } from '../interfaces/menu.interface';
 
 export const MENU_CONST: MenuInterface[] = [
   {
-    module: 'Panel de empleado',
+    module: 'Panel de Recepcionista',
     icon: 'view_list',
     order: 1,
     items: [
@@ -14,7 +14,7 @@ export const MENU_CONST: MenuInterface[] = [
         subItems: []
       },
       {
-        name: 'Usuarios',
+        name: 'Clientes',
         route: '/organizational/users/list',
         icon: 'supervised_user_circle',
         order: 2,
@@ -60,15 +60,15 @@ export const MENU_CONST: MenuInterface[] = [
 
 export const ROLE_PERMISSIONS: Record<string, string[]> = {
   Usuario: [''],
-  Empleado: [
-    'Usuarios',
+  Recepcionista: [
+    'Clientes',
     'Productos y servicios',
     'Facturas',
     'Reportes / Ganancias',
     'Inicio'
   ],
   Administrador: [
-    'Usuarios',
+    'Clientes',
     'Productos y servicios',
     'Gestión',
     'Facturas',
