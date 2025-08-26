@@ -10,9 +10,9 @@ import {
   IsNotEmpty,
   IsString,
   IsOptional,
-  IsPositive,
   IsNumber,
   IsBoolean,
+  Min,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -51,29 +51,32 @@ export class CreateProductDto {
   @ApiProperty({
     example: 10,
     description: 'Cantidad disponible',
-    required: true,
+    required: false,
   })
   @IsNumber()
-  @IsNotEmpty({ message: 'La cantidad es requerida' })
+  @Min(0)
+  @IsOptional()
   amount: number;
 
   @ApiProperty({
-    example: 1500.0,
+    example: 150000,
     description: 'Precio de compra',
-    required: true,
+    required: false,
   })
   @IsNumber()
-  @IsPositive()
-  priceBuy: number;
+  @Min(0) // ahora acepta 0 o números positivos
+  @IsOptional()
+  priceBuy?: number;
 
   @ApiProperty({
-    example: 2000.0,
+    example: 200000,
     description: 'Precio de venta',
-    required: true,
+    required: false,
   })
   @IsNumber()
-  @IsPositive()
-  priceSale: number;
+  @Min(0) // acepta 0 o números positivos
+  @IsOptional()
+  priceSale?: number;
 
   @ApiProperty({
     example: true,
@@ -122,19 +125,27 @@ export class UpdateProductDto {
 
   @ApiProperty({ example: 10, description: 'Cantidad disponible' })
   @IsOptional()
-  @IsPositive()
+  @Min(0) // ahora acepta 0 o números positivos
   @IsNumber()
   amount?: number;
 
-  @ApiProperty({ example: 1500.0, description: 'Precio de compra' })
+  @ApiProperty({
+    example: 150000,
+    description: 'Precio de compra',
+    required: false,
+  })
   @IsNumber()
-  @IsPositive()
+  @Min(0) // ahora acepta 0 o números positivos
   @IsOptional()
   priceBuy?: number;
 
-  @ApiProperty({ example: 2000.0, description: 'Precio de venta' })
+  @ApiProperty({
+    example: 200000,
+    description: 'Precio de venta',
+    required: false,
+  })
   @IsNumber()
-  @IsPositive()
+  @Min(0) // acepta 0 o números positivos
   @IsOptional()
   priceSale?: number;
 

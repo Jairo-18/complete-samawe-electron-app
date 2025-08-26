@@ -1,3 +1,4 @@
+<!-- Tabla principal de items guardados -->
 <div class="overflow-auto m-4 md:m-0">
   <table mat-table [dataSource]="dataSource">
     <!-- Code Column -->
@@ -102,17 +103,7 @@
     <!-- Header and Row -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-
-    <!-- Mensaje cuando no hay datos -->
-    <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell text-center" [attr.colspan]="displayedColumns.length">
-        Aún no hay items
-      </td>
-    </tr>
   </table>
-</div>
-
-<div class="flex w-full justify-end">
   <mat-paginator
     [length]="paginationParams.total"
     [pageSize]="paginationParams.perPage"

@@ -3,6 +3,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnInit,
   Output,
   inject
 } from '@angular/core';
@@ -52,27 +53,35 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'
 })
-export class AddProductComponent {
+export class AddProductComponent implements OnInit {
   @Input() categoryTypes: CategoryType[] = [];
   @Input() taxeTypes: TaxeType[] = [];
-  @Output() tempDetailAdded = new EventEmitter<CreateInvoiceDetaill>();
+  @Output() itemSaved = new EventEmitter<void>();
 
   private readonly _producsService: ProductsService = inject(ProductsService);
   private readonly _invoiceDetaillService: InvoiceDetaillService = inject(
     InvoiceDetaillService
   );
-  private readonly _route: ActivatedRoute = inject(ActivatedRoute);
+  private readonly _activateRouter: ActivatedRoute = inject(ActivatedRoute);
   private readonly _router: Router = inject(Router);
   private readonly _cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
   private readonly _fb: FormBuilder = inject(FormBuilder);
-
-  form: FormGroup;
   isLoading: boolean = false;
+  invoiceId?: number;
+  form: FormGroup;
   filteredProducts: AddedProductInvoiceDetaill[] = [];
+
+  ngOnInit(): void {
+    const id = this._activateRouter.snapshot.paramMap.get('id');
+    if (id) {
+      this.invoiceId = Number(id);
+      console.log('✅ Invoice ID obtenido:', this.invoiceId);
+    }
+  }
 
   constructor() {
     this.form = this._fb.group({
-      productName: ['', Validators.required],
+      name: ['', Validators.required],
       productId: [null, Validators.required],
       priceSale: [{ value: '', disabled: true }],
       priceBuy: [0, [Validators.required, Validators.min(0)]],
@@ -82,7 +91,7 @@ export class AddProductComponent {
     });
 
     this.form
-      .get('productName')
+      .get('name')
       ?.valueChanges.pipe(
         debounceTime(500),
         switchMap((name: string) => {
@@ -130,7 +139,7 @@ export class AddProductComponent {
 
   resetForm(): void {
     this.form.reset({
-      productName: '',
+      name: '',
       productId: null,
       priceSale: { value: '', disabled: true },
       priceBuy: 0,
@@ -156,7 +165,7 @@ export class AddProductComponent {
 
   clearProductSelection(): void {
     this.form.patchValue({
-      productName: '',
+      name: '',
       productId: null,
       priceSale: '',
       priceBuy: 0,
@@ -168,12 +177,13 @@ export class AddProductComponent {
   }
 
   addProduct(): void {
-    console.log('>>> addProduct() ejecutado');
-    console.log('Form value:', this.form.getRawValue()); // incluye disabled
-    console.log('Form status:', this.form.status); // "VALID" | "INVALID" | "PENDING"
+    if (!this.form.value.productId) {
+      this.form.get('name')?.setErrors({ required: true });
+      this.form.markAllAsTouched();
+      return;
+    }
 
     if (this.form.invalid) {
-      console.warn('Formulario inválido - detalles de errores:');
       Object.keys(this.form.controls).forEach((key) => {
         const control = this.form.get(key);
         if (control?.invalid) {
@@ -185,32 +195,45 @@ export class AddProductComponent {
           );
         }
       });
-    }
-
-    if (this.form.valid) {
-      const formValue = this.form.value;
-      const now = new Date();
-      const endDate = new Date(now);
-      endDate.setMinutes(endDate.getMinutes() + 5);
-
-      const invoiceDetailPayload: CreateInvoiceDetaill = {
-        productId: formValue.productId,
-        accommodationId: 0,
-        excursionId: 0,
-        amount: formValue.amount,
-        priceBuy: Number(formValue.priceBuy) || 0,
-        priceWithoutTax: Number(formValue.priceWithoutTax),
-        taxeTypeId: formValue.taxeTypeId,
-        startDate: now.toISOString(),
-        endDate: endDate.toISOString()
-      };
-
-      console.log('✅ Payload emitido:', invoiceDetailPayload);
-      this.tempDetailAdded.emit(invoiceDetailPayload);
-      this.resetForm();
-    } else {
-      console.log('❌ Formulario inválido -> se marcarán todos los campos');
       this.form.markAllAsTouched();
+      return;
     }
+
+    const formValue = this.form.value;
+    const now = new Date();
+    const endDate = new Date(now);
+    endDate.setMinutes(endDate.getMinutes() + 5);
+
+    const invoiceDetailPayload: CreateInvoiceDetaill = {
+      productId: formValue.productId,
+      accommodationId: 0,
+      excursionId: 0,
+      amount: formValue.amount,
+      priceBuy: Number(formValue.priceBuy) || 0,
+      priceWithoutTax: Number(formValue.priceWithoutTax),
+      taxeTypeId: formValue.taxeTypeId,
+      startDate: now.toISOString(),
+      endDate: endDate.toISOString()
+    };
+
+    if (!this.invoiceId) {
+      console.error('❌ No hay invoiceId definido');
+      return;
+    }
+
+    this.isLoading = true;
+    this._invoiceDetaillService
+      .createInvoiceDetaill(this.invoiceId, invoiceDetailPayload)
+      .subscribe({
+        next: () => {
+          this.resetForm();
+          this.isLoading = false;
+          this.itemSaved.emit();
+        },
+        error: (err) => {
+          console.error('❌ Error al guardar detalle:', err);
+          this.isLoading = false;
+        }
+      });
   }
 }

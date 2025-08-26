@@ -3,6 +3,7 @@ import { InvoiceDetaillMultiple } from './../services/invoiceDetaillMultiple.ser
 import { PaginatedListInvoicesParamsDto } from './../dtos/paginatedInvoice.dto';
 import { Invoice } from './../../shared/entities/invoice.entity';
 import {
+  CreateInvoiceDetailDto,
   CreateMultipleInvoiceDetailsDto,
   CreateRelatedDataInvoiceResponseDto,
 } from './../dtos/invoiceDetaill.dto';
@@ -130,6 +131,22 @@ export class InvoiceController {
     };
   }
 
+  @Post('invoice/:invoiceId/details')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  @ApiBody({ type: CreateInvoiceDetailDto })
+  async createSingleDetail(
+    @Param('invoiceId') invoiceId: number,
+    @Body() createDetailDto: any,
+  ): Promise<{ ok: boolean }> {
+    await this._invoiceDetaillMultiple.createMultipleDetails(invoiceId, [
+      createDetailDto,
+    ]);
+
+    // Devuelve un OK explícito
+    return { ok: true };
+  }
+
   @Patch(':id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard())
@@ -166,19 +183,6 @@ export class InvoiceController {
       statusCode: HttpStatus.CREATED,
     };
   }
-
-  // @Post('invoice/:invoiceId/details')
-  // @ApiBearerAuth()
-  // @UseGuards(AuthGuard())
-  // @ApiBody({ type: CreateInvoiceDetailDto })
-  // async createSingleDetail(
-  //   @Param('invoiceId') invoiceId: number,
-  //   @Body() createDetailDto: CreateInvoiceDetailDto,
-  // ): Promise<void> {
-  //   await this._invoiceDetaillMultiple.createMultipleDetails(invoiceId, [
-  //     createDetailDto,
-  //   ]);
-  // }
 
   @Delete('details/:detailId')
   @ApiBearerAuth()

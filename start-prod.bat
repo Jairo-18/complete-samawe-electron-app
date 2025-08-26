@@ -44,17 +44,14 @@ if %errorlevel% equ 0 (
       -d postgres:13 -c ssl=off
 )
 
-echo Esperando inicializacion de PostgreSQL (20 segundos)...
-timeout /t 20 >nul
-
-:: Verificar PostgreSQL
-echo Verificando conexion a PostgreSQL PROD...
-docker exec %DB_CONTAINER% psql -U samawe -d %DB_NAME% -c "SELECT version();" >nul 2>&1
+:: Esperar hasta que PostgreSQL responda
+echo Esperando a que PostgreSQL se inicie...
+:WAIT_FOR_DB
+docker exec %DB_CONTAINER% psql -U samawe -d %DB_NAME% -c "SELECT 1;" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ERROR: PostgreSQL PROD no responde.
-    docker logs %DB_CONTAINER%
-    pause
-    exit /b 1
+    echo PostgreSQL aun no esta listo, esperando 5 segundos...
+    timeout /t 5 >nul
+    goto WAIT_FOR_DB
 )
 echo PostgreSQL PROD funcionando correctamente.
 
@@ -74,7 +71,7 @@ call npm run build
 echo Ejecutando migraciones PROD...
 call npm run migration:run:prod
 if %errorlevel% neq 0 (
-    echo ADVERTENCIA: Las migraciones pueden ya estar ejecutadas
+    echo ADVERTENCIA: Las migraciones pueden ya estar ejecutadas o fallaron
 )
 
 echo Iniciando backend PROD...

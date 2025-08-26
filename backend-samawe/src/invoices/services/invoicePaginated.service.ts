@@ -98,10 +98,27 @@ export class InvoicedPaginatedService {
       query.andWhere('invoice.createdAt <= :to', { to: params.createdAtTo });
     }
 
-    if (params.startDate) {
-      query.andWhere('invoice.startDate = :startDate', {
-        startDate: params.startDate,
+    // Filtrar por rango de fechas de salida
+    // Filtrar por rango de fechas de salida
+    if (params.startDate && params.endDate) {
+      const start = `${params.startDate} 00:00:00`;
+      const end = `${params.endDate} 23:59:59`;
+
+      query.andWhere('invoice.startDate BETWEEN :start AND :end', {
+        start,
+        end,
       });
+    } else if (params.startDate) {
+      const start = `${params.startDate} 00:00:00`;
+      const end = `${params.startDate} 23:59:59`;
+
+      query.andWhere('invoice.startDate BETWEEN :start AND :end', {
+        start,
+        end,
+      });
+    } else if (params.endDate) {
+      const end = `${params.endDate} 23:59:59`;
+      query.andWhere('invoice.startDate <= :end', { end });
     }
 
     if (params.taxeTypeId) {

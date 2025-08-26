@@ -3,7 +3,7 @@
     <mat-label>Buscar pasadía</mat-label>
     <input
       matInput
-      formControlName="excursionName"
+      formControlName="name"
       [matAutocomplete]="auto"
       placeholder="Paseo cascada..."
       (focus)="onExcursionFocus()"
@@ -13,8 +13,8 @@
     <!-- Botón para limpiar -->
     <button
       *ngIf="
-        form.get('excursionName')?.enabled &&
-        form.get('excursionName')?.value &&
+        form.get('name')?.enabled &&
+        form.get('name')?.value &&
         !isLoadingExcursions
       "
       matSuffix

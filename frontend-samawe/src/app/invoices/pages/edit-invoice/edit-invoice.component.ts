@@ -30,12 +30,11 @@ import { InvoiceSummaryComponent } from '../../components/invoice-summary/invoic
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { InvoicePdfComponent } from '../../components/invoice-pdf/invoice-pdf.component';
 import html2pdf from 'html2pdf.js';
-import { CreateInvoiceDetaill } from '../../interface/invoiceDetaill.interface';
-import { InvoiceDetaillService } from '../../services/invoiceDetaill.service';
+
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { FormatCopPipe } from '../../../shared/pipes/format-cop.pipe';
+import { InvoiceDetaillService } from '../../services/invoiceDetaill.service';
 
 @Component({
   selector: 'app-edit-invoice',
@@ -53,8 +52,7 @@ import { FormatCopPipe } from '../../../shared/pipes/format-cop.pipe';
     InvoicePdfComponent,
     MatButtonModule,
     MatTableModule,
-    MatIconModule,
-    FormatCopPipe
+    MatIconModule
   ],
   templateUrl: './edit-invoice.component.html',
   styleUrl: './edit-invoice.component.scss'
@@ -63,21 +61,14 @@ export class EditInvoiceComponent implements OnInit {
   private readonly _relatedDataService: RelatedDataService =
     inject(RelatedDataService);
   private readonly _invoiceService: InvoiceService = inject(InvoiceService);
-  private readonly _route: ActivatedRoute = inject(ActivatedRoute);
   private readonly _invoiceDetaillService: InvoiceDetaillService = inject(
     InvoiceDetaillService
   );
+  private readonly _route: ActivatedRoute = inject(ActivatedRoute);
 
   @ViewChild('invoiceToPrint') invoicePdfComp!: ElementRef;
-
-  tempColumns: string[] = [
-    'tipo',
-    'amount',
-    'priceWithoutTax',
-    'startDate',
-    'endDate',
-    'actions'
-  ];
+  @ViewChild(InvoiceDetaillComponent)
+  invoiceDetaillComponent!: InvoiceDetaillComponent;
 
   categoryTypes: CategoryType[] = [];
   paidTypes: PaidType[] = [];
@@ -116,34 +107,13 @@ export class EditInvoiceComponent implements OnInit {
     this.taxeTypes = res.data.taxeType || [];
   }
 
-  onProductAdded(): void {
-    if (this.invoiceId) {
-      this.reloadInvoiceDetails = true;
-
-      setTimeout(() => {
-        this.getInvoiceToEdit(this.invoiceId!, false);
-        this.reloadInvoiceDetails = false;
-      }, 600);
-    }
-  }
-
-  onAccommodationAdded(): void {
+  onItemSaved(): void {
     if (this.invoiceId) {
       this.getInvoiceToEdit(this.invoiceId, false);
-      this.reloadInvoiceDetails = true;
-      setTimeout(() => (this.reloadInvoiceDetails = false), 100);
     }
   }
 
-  onExcursionAdded(): void {
-    if (this.invoiceId) {
-      this.getInvoiceToEdit(this.invoiceId, false);
-      this.reloadInvoiceDetails = true;
-      setTimeout(() => (this.reloadInvoiceDetails = false), 100);
-    }
-  }
-
-  onItemDelete(): void {
+  onItemDeleted(): void {
     if (this.invoiceId) {
       this.getInvoiceToEdit(this.invoiceId, false);
       this.reloadInvoiceDetails = true;
@@ -215,35 +185,11 @@ export class EditInvoiceComponent implements OnInit {
 
     html2pdf().set(options).from(element).save();
   }
-  tempInvoiceDetails: CreateInvoiceDetaill[] = [];
 
-  addTempProduct(detail: CreateInvoiceDetaill): void {
-    this.tempInvoiceDetails.push(detail);
-  }
-
-  addTempInvoiceDetail(detail: CreateInvoiceDetaill): void {
-    this.tempInvoiceDetails.push(detail);
-  }
-
-  saveAllInvoiceDetails(): void {
-    if (!this.invoiceId || this.tempInvoiceDetails.length === 0) return;
-
-    this._invoiceDetaillService
-      .createInvoiceDetaillMultiple(this.invoiceId, this.tempInvoiceDetails)
-      .subscribe({
-        next: () => {
-          this.tempInvoiceDetails = [];
-          this.getInvoiceToEdit(this.invoiceId!); // Recarga detalles reales
-        },
-        error: (err) => console.error('Error al guardar detalles:', err)
-      });
-  }
-
-  removeTempItem(detail: CreateInvoiceDetaill): void {
-    const index = this.tempInvoiceDetails.indexOf(detail);
-    if (index !== -1) {
-      this.tempInvoiceDetails.splice(index, 1);
-      this.tempInvoiceDetails = [...this.tempInvoiceDetails]; // fuerza detección de cambio
+  // Método para manejar cuando se guardan todos los items desde el componente hijo
+  onAllItemsSaved(): void {
+    if (this.invoiceId) {
+      this.getInvoiceToEdit(this.invoiceId, false);
     }
   }
 }

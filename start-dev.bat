@@ -44,17 +44,14 @@ if %errorlevel% equ 0 (
       -d postgres:13 -c ssl=off
 )
 
-echo Esperando inicializacion de PostgreSQL (15 segundos)...
-timeout /t 15 >nul
-
-:: Verificar PostgreSQL
-echo Verificando conexion a PostgreSQL DEV...
-docker exec %DB_CONTAINER% psql -U samawe -d %DB_NAME% -c "SELECT version();" >nul 2>&1
+:: Esperar hasta que PostgreSQL responda
+echo Esperando a que PostgreSQL se inicie...
+:WAIT_FOR_DB
+docker exec %DB_CONTAINER% psql -U samawe -d %DB_NAME% -c "SELECT 1;" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ERROR: PostgreSQL DEV no responde.
-    docker logs %DB_CONTAINER%
-    pause
-    exit /b 1
+    echo PostgreSQL aun no esta listo, esperando 5 segundos...
+    timeout /t 5 >nul
+    goto WAIT_FOR_DB
 )
 echo PostgreSQL DEV funcionando correctamente.
 
@@ -70,6 +67,9 @@ if not exist "node_modules" (
 
 echo Ejecutando migraciones DEV...
 call npm run migration:run
+if %errorlevel% neq 0 (
+    echo ADVERTENCIA: Las migraciones pueden ya estar ejecutadas o fallaron
+)
 
 echo Iniciando backend DEV...
 start "Backend Samawe DEV" cmd /k "npm run start:dev"

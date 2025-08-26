@@ -3,6 +3,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnInit,
   Output,
   inject
 } from '@angular/core';
@@ -54,11 +55,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './add-excursion.component.html',
   styleUrl: './add-excursion.component.scss'
 })
-export class AddExcursionComponent {
+export class AddExcursionComponent implements OnInit {
   @Input() categoryTypes: CategoryType[] = [];
   @Input() taxeTypes: TaxeType[] = [];
-  @Output() excursionAdded = new EventEmitter<void>();
-  @Output() tempDetailAdded = new EventEmitter<CreateInvoiceDetaill>();
+  @Output() itemSaved = new EventEmitter<void>();
 
   private readonly _excursionsService: ExcursionsService =
     inject(ExcursionsService);
@@ -74,10 +74,19 @@ export class AddExcursionComponent {
   isLoading: boolean = false;
   filteredExcursions: AddedExcursionInvoiceDetaill[] = [];
   isLoadingExcursions: boolean = false;
+  invoiceId?: number;
+
+  ngOnInit(): void {
+    const id = this._activateRouter.snapshot.paramMap.get('id');
+    if (id) {
+      this.invoiceId = Number(id);
+      console.log('✅ Invoice ID obtenido:', this.invoiceId);
+    }
+  }
 
   constructor() {
     this.form = this._fb.group({
-      excursionName: ['', Validators.required],
+      name: ['', Validators.required],
       excursionId: [null, Validators.required],
       priceSale: [{ value: '', disabled: true }],
       priceWithoutTax: [null, Validators.required],
@@ -86,7 +95,7 @@ export class AddExcursionComponent {
     });
 
     this.form
-      .get('excursionName')
+      .get('name')
       ?.valueChanges.pipe(
         debounceTime(500),
         switchMap((name: string) => {
@@ -153,7 +162,7 @@ export class AddExcursionComponent {
 
   clearExcursionSelection(): void {
     this.form.patchValue({
-      excursionName: '',
+      name: '',
       excursionId: null,
       priceSale: 0,
       priceWithoutTax: 0
@@ -163,6 +172,12 @@ export class AddExcursionComponent {
   }
 
   addExcursion(): void {
+    if (!this.form.value.excursionId) {
+      this.form.get('name')?.setErrors({ required: true });
+      this.form.markAllAsTouched();
+      return;
+    }
+
     if (this.form.valid) {
       const formValue = this.form.value;
 
@@ -182,11 +197,25 @@ export class AddExcursionComponent {
         endDate: endDate.toISOString()
       };
 
-      this.tempDetailAdded.emit(payload);
-      this.resetForm();
-    } else {
-      console.log('Formulario inválido');
-      this.form.markAllAsTouched();
+      if (!this.invoiceId) {
+        console.error('❌ No hay invoiceId definido');
+        return;
+      }
+
+      this.isLoading = true;
+      this._invoiceDetaillService
+        .createInvoiceDetaill(this.invoiceId, payload)
+        .subscribe({
+          next: () => {
+            this.resetForm();
+            this.isLoading = false;
+            this.itemSaved.emit();
+          },
+          error: (err) => {
+            console.error('❌ Error al guardar detalle:', err);
+            this.isLoading = false;
+          }
+        });
     }
   }
 }

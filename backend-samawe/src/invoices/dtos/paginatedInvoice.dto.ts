@@ -88,6 +88,15 @@ export class PaginatedListInvoicesParamsDto extends ParamsPaginationDto {
   startDate?: string;
 
   @ApiProperty({
+    example: '2024-06-15',
+    description: 'Fecha de salida (startDate)',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+
+  @ApiProperty({
     example: 1,
     description: 'ID del tipo de pago',
     required: false,

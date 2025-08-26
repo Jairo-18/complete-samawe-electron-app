@@ -5,7 +5,7 @@
     <input
       matInput
       [matAutocomplete]="auto"
-      formControlName="productName"
+      formControlName="name"
       placeholder="Coca Cola..."
       (focus)="onProductFocus()"
     />
@@ -13,11 +13,7 @@
 
     <!-- Botón para limpiar el campo -->
     <button
-      *ngIf="
-        form.get('productName')?.enabled &&
-        form.get('productName')?.value &&
-        !isLoading
-      "
+      *ngIf="form.get('name')?.enabled && form.get('name')?.value && !isLoading"
       matSuffix
       mat-icon-button
       type="button"

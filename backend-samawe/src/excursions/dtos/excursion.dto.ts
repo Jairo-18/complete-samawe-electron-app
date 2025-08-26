@@ -10,8 +10,8 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
+  Min,
 } from 'class-validator';
 
 export class CreateExcursionDto {
@@ -42,18 +42,25 @@ export class CreateExcursionDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ example: 150000, description: 'Precio de compra' })
+  @ApiProperty({
+    example: 150000,
+    description: 'Precio de compra',
+    required: false,
+  })
   @IsNumber()
-  @IsPositive()
-  @IsNotEmpty({ message: 'El precio de compra es requerido' })
-  priceBuy: number;
+  @Min(0) // ahora acepta 0 o números positivos
+  @IsOptional()
+  priceBuy?: number;
 
-  @ApiProperty({ example: 200000, description: 'Precio de venta' })
+  @ApiProperty({
+    example: 200000,
+    description: 'Precio de venta',
+    required: false,
+  })
   @IsNumber()
-  @IsPositive()
-  @IsNotEmpty({ message: 'El precio de venta es requerido' })
-  priceSale: number;
-
+  @Min(0) // acepta 0 o números positivos
+  @IsOptional()
+  priceSale?: number;
   @ApiProperty({
     example: 1,
     description: 'ID del estado (relación con StateType)',
@@ -100,23 +107,23 @@ export class UpdateExcursionDto {
   description?: string;
 
   @ApiProperty({
-    example: 3000.0,
+    example: 150000,
     description: 'Precio de compra',
     required: false,
   })
-  @IsOptional()
   @IsNumber()
-  @IsPositive()
+  @Min(0) // ahora acepta 0 o números positivos
+  @IsOptional()
   priceBuy?: number;
 
   @ApiProperty({
-    example: 4500.0,
+    example: 200000,
     description: 'Precio de venta',
     required: false,
   })
-  @IsOptional()
   @IsNumber()
-  @IsPositive()
+  @Min(0) // acepta 0 o números positivos
+  @IsOptional()
   priceSale?: number;
 
   @ApiProperty({

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { InvoiceService } from './../../services/invoice.service';
 import {
   Component,
@@ -62,27 +63,22 @@ export class SeeInvoicesComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(SearchFieldsComponent) searchComponent!: SearchFieldsComponent;
 
-  // Inyecciones
   private readonly _matDialog: MatDialog = inject(MatDialog);
   private readonly _invoiceService: InvoiceService = inject(InvoiceService);
   private readonly _relatedDataService: RelatedDataService =
     inject(RelatedDataService);
   private readonly _authService: AuthService = inject(AuthService);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectedInvoice: any = null;
-
-  // Variable para manejar los datos de la factura
   invoiceToPrintData?: Invoice;
 
-  // Columnas de la tabla
   displayedColumns: string[] = [
     'invoiceType',
     'code',
-    'identificationType',
-    'clientName',
     'clientIdentification',
+    'clientName',
     'employeeName',
+    'startDate',
     'payType',
     'paidType',
     'invoiceElectronic',
@@ -92,31 +88,15 @@ export class SeeInvoicesComponent implements OnInit {
     'actions'
   ];
 
-  // Declaramos el formulario reactivo
   form!: FormGroup;
-
-  // Variable para llenar la tabla
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dataSource = new MatTableDataSource<any>([]);
-
-  // Variable para saber si es mobile
   isMobile: boolean = false;
-
-  // Variable para saber si esta cargando la información
   loading: boolean = false;
-
-  // Variable para limpiar filtros
   showClearButton: boolean = false;
-
-  // Variable para saber si está loggeado el usuario
   userLogged: UserInterface;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: any = {};
-
-  // Variable para cambiar paginación
   selectedTabIndex: number = 0;
 
-  // Variable para datos básicos de paginación
   paginationParams: PaginationInterface = {
     page: 1,
     perPage: 5,
@@ -126,7 +106,6 @@ export class SeeInvoicesComponent implements OnInit {
     hasNextPage: false
   };
 
-  // Buscadores para facturas
   searchFields: SearchField[] = [
     {
       name: 'search',
@@ -135,19 +114,16 @@ export class SeeInvoicesComponent implements OnInit {
       placeholder: ' '
     },
     {
+      name: 'startDate',
+      label: 'Fecha de creación',
+      type: 'date'
+    },
+    {
       name: 'invoiceTypeId',
       label: 'Tipo de factura',
       type: 'select',
       options: [],
       placeholder: 'Buscar por tipo de factura'
-    },
-
-    {
-      name: 'identificationTypeId',
-      label: 'Tipo identificación Cliente',
-      type: 'select',
-      options: [],
-      placeholder: 'Buscar por tipo de identificación'
     },
     {
       name: 'paidTypeId',
@@ -182,26 +158,17 @@ export class SeeInvoicesComponent implements OnInit {
     }
   ];
 
-  /**
-   * Constructor para saber en que pantalla se esta renderizando y para obtener el usuario loggeado
-   */
   constructor(private _invoicePrintService: InvoicePrintService) {
     this.isMobile = window.innerWidth <= 768;
     if (this.isMobile) this.paginationParams.perPage = 5;
     this.userLogged = this._authService.getUserLoggedIn();
   }
 
-  /**
-   * Cargamos las facturas y sus datos relacionados para los selects.
-   */
   ngOnInit(): void {
     this.loadInvoices();
     this.loadRelatedData();
   }
 
-  /**
-   * Cargamos datos relacionados
-   */
   loadRelatedData(): void {
     this._relatedDataService.createInvoiceRelatedData().subscribe({
       next: (res) => {
@@ -215,20 +182,17 @@ export class SeeInvoicesComponent implements OnInit {
 
         this.searchFields = this.searchFields.map((field) => {
           const key = field.name as keyof typeof optionMap;
-
           const options = optionMap[key];
           if (options) {
-            // Verificamos si encontramos opciones para este campo
             return {
               ...field,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               options: options.map((t: any) => ({
                 value: t[key],
                 label: t.name ?? 'Sin nombre'
               }))
             };
           }
-          return field; // Si no hay opciones (como en 'invoiceElectronic'), lo devolvemos como está
+          return field;
         });
       },
       error: (err) => {
@@ -237,12 +201,8 @@ export class SeeInvoicesComponent implements OnInit {
     });
   }
 
-  /**
-   * Abrimos dialogo de creación de factura
-   */
   openCreateDialog(): void {
     const isMobile = window.innerWidth <= 768;
-
     this._matDialog
       .open(CreateInvoiceDialogComponent, {
         width: isMobile ? '90vw' : '60vw',
@@ -261,12 +221,8 @@ export class SeeInvoicesComponent implements OnInit {
       });
   }
 
-  /**
-   * Abrimos dialogo de edición de factura
-   */
   openEditDialog(invoiceId: number): void {
     const isMobile = window.innerWidth <= 768;
-
     this._matDialog
       .open(CreateInvoiceDialogComponent, {
         width: isMobile ? '90vw' : '60vw',
@@ -285,10 +241,6 @@ export class SeeInvoicesComponent implements OnInit {
       });
   }
 
-  /**
-   * Obtenemos opciones para enviarselas a los dialogos y ahorrar peticiones
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private getOptions(fieldName: string): any[] {
     const field = this.searchFields.find((f) => f.name === fieldName);
     return (
@@ -299,51 +251,58 @@ export class SeeInvoicesComponent implements OnInit {
     );
   }
 
-  /**
-   * Botón de buscar
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSearchSubmit(values: any): void {
-    const formattedParams = { ...values };
-    for (const key in formattedParams) {
-      if (key.endsWith('Id') && formattedParams[key]) {
-        formattedParams[key] = Number(formattedParams[key]);
-      }
-    }
-    this.params = formattedParams;
+    this.params = this.formatParams(values);
     this.paginationParams.page = 1;
     this.loadInvoices();
   }
 
-  /**
-   * Botón para cambiar paginación
-   */
+  onSearchChange(form: any): void {
+    this.showClearButton = !!form.length;
+    this.params = this.formatParams(form?.value);
+    this.loadInvoices();
+  }
+
+  private formatParams(values: any): any {
+    const formattedParams: any = {};
+    Object.keys(values).forEach((key) => {
+      const val = values[key];
+      if (val === null || val === '' || val === undefined) return;
+
+      // Convertir IDs a número
+      if (key.endsWith('Id')) {
+        formattedParams[key] = Number(val);
+        return;
+      }
+
+      // Convertir fechas a YYYY-MM-DD
+      if (this.searchFields.find((f) => f.name === key)?.type === 'date') {
+        formattedParams[key] = this.formatDateISO(val);
+        return;
+      }
+
+      // Otros valores
+      formattedParams[key] = val;
+    });
+    return formattedParams;
+  }
+
+  private formatDateISO(date: any): string {
+    if (!date) return '';
+    const d = date instanceof Date ? date : new Date(date);
+    return d.toISOString().split('T')[0];
+  }
+
   onChangePagination(event: PageEvent): void {
     this.paginationParams.page = event.pageIndex + 1;
     this.paginationParams.perPage = event.pageSize;
     this.loadInvoices();
   }
 
-  /**
-   * Botón para cambiar de tab en mobile
-   */
   onTabChange(index: number): void {
     this.selectedTabIndex = index;
   }
 
-  /**
-   * Método para saber si alguien escribe y busca
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSearchChange(form: any): void {
-    this.showClearButton = !!form.length;
-    this.params = form?.value;
-    this.loadInvoices();
-  }
-
-  /**
-   * Carga facturas de manera paginada
-   */
   loadInvoices(filter: string = ''): void {
     this.loading = true;
     const query = {
@@ -355,7 +314,6 @@ export class SeeInvoicesComponent implements OnInit {
 
     this._invoiceService.getInvoiceWithPagination(query).subscribe({
       next: (res) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const transformedData = res.data.map((invoice: any) => ({
           ...invoice,
           clientName: invoice.user
@@ -368,7 +326,6 @@ export class SeeInvoicesComponent implements OnInit {
             ? `${invoice.employee.firstName} ${invoice.employee.lastName}`
             : '---',
           taxeType: invoice.invoiceDetails?.[0]?.taxeType || null,
-          // <-- CAMBIO: Normalizar el valor de invoiceElectronic a un booleano puro
           invoiceElectronic:
             invoice.invoiceElectronic === true ||
             invoice.invoiceElectronic === 'true' ||
@@ -386,9 +343,6 @@ export class SeeInvoicesComponent implements OnInit {
     });
   }
 
-  /**
-   * Método para eliminar factura
-   */
   private deleteInvoice(invoiceId: number): void {
     this.loading = true;
     this._invoiceService.deleteInvoice(invoiceId).subscribe({
@@ -403,9 +357,6 @@ export class SeeInvoicesComponent implements OnInit {
     });
   }
 
-  /**
-   * Método para abrir dialogo de eliminar factura
-   */
   openDeleteInvoiceDialog(id: number): void {
     const dialogRef = this._matDialog.open(YesNoDialogComponent, {
       data: {
@@ -421,9 +372,6 @@ export class SeeInvoicesComponent implements OnInit {
     });
   }
 
-  /**
-   * Método para validar que el Recepcionista o admin puedan eliminar o editar facturas
-   */
   validateIfCanEditUserOrDelete(user: UserComplete): boolean {
     return (
       this.userLogged?.roleType?.name === 'Administrador' &&
@@ -431,9 +379,6 @@ export class SeeInvoicesComponent implements OnInit {
     );
   }
 
-  /**
-   * Método imprimir factura
-   */
   async onPrintInvoice(invoiceId: number): Promise<void> {
     const res = await this._invoicePrintService['_invoiceService']
       .getInvoiceToEdit(invoiceId)
@@ -451,9 +396,6 @@ export class SeeInvoicesComponent implements OnInit {
     }, 300);
   }
 
-  /**
-   * Método para descargar factura
-   */
   async onDownloadInvoice(invoiceId: number): Promise<void> {
     const res = await this._invoicePrintService['_invoiceService']
       .getInvoiceToEdit(invoiceId)

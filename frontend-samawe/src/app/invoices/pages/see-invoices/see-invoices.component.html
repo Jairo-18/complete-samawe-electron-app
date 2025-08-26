@@ -97,16 +97,6 @@
           </td>
         </ng-container>
 
-        <!-- Tipo de identificación del cliente -->
-        <ng-container matColumnDef="identificationType">
-          <th mat-header-cell *matHeaderCellDef class="center-text">
-            Tipo Iden
-          </th>
-          <td mat-cell *matCellDef="let invoice" class="center-text">
-            {{ invoice.user?.identificationType?.code || '---' }}
-          </td>
-        </ng-container>
-
         <!-- Nombre del Recepcionista -->
         <ng-container matColumnDef="employeeName">
           <th mat-header-cell *matHeaderCellDef class="center-text">
@@ -136,11 +126,24 @@
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="startDate">
+          <th mat-header-cell *matHeaderCellDef class="center-text">Fecha</th>
+          <td mat-cell *matCellDef="let invoice" class="right-text">
+            {{
+              invoice.startDate
+                ? (invoice.startDate | date : 'dd/MM/yyyy  ')
+                : 'N/A'
+            }}
+          </td>
+        </ng-container>
+
         <!-- IVA de la factura -->
         <ng-container matColumnDef="subtotalWithTax">
-          <th mat-header-cell *matHeaderCellDef class="center-text">IVA</th>
+          <th mat-header-cell *matHeaderCellDef class="center-text">
+            Impuesto
+          </th>
           <td mat-cell *matCellDef="let invoice" class="right-text">
-            {{ invoice.subtotalWithTax | formatCop }}
+            {{ +invoice?.total - +invoice?.subtotalWithoutTax | formatCop }}
           </td>
         </ng-container>
 
@@ -342,21 +345,23 @@
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="identificationType">
-            <th mat-header-cell *matHeaderCellDef class="center-text">
-              Tipo Iden
-            </th>
-            <td mat-cell *matCellDef="let invoice" class="center-text">
-              {{ invoice.user?.identificationType?.code || '---' }}
-            </td>
-          </ng-container>
-
           <ng-container matColumnDef="clientIdentification">
             <th mat-header-cell *matHeaderCellDef class="center-text">
               Identificación Cliente
             </th>
             <td mat-cell *matCellDef="let invoice">
               {{ invoice.clientIdentification || '---' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="startDate">
+            <th mat-header-cell *matHeaderCellDef class="center-text">Fecha</th>
+            <td mat-cell *matCellDef="let invoice" class="right-text">
+              {{
+                invoice.startDate
+                  ? (invoice.startDate | date : 'dd/MM/yyyy  ')
+                  : 'N/A'
+              }}
             </td>
           </ng-container>
 

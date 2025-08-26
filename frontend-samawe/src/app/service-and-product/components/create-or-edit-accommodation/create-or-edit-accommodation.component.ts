@@ -127,19 +127,11 @@ export class CreateOrEditAccommodationComponent implements OnChanges {
       ],
       priceBuy: [
         0,
-        [
-          Validators.required,
-          Validators.pattern(/^\d+(\.\d{1,2})?$/),
-          Validators.min(0.01)
-        ]
+        [Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.0)]
       ],
       priceSale: [
         0,
-        [
-          Validators.required,
-          Validators.pattern(/^\d+(\.\d{1,2})?$/),
-          Validators.min(0.01)
-        ]
+        [Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.0)]
       ],
       stateTypeId: [null, Validators.required]
     });

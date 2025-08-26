@@ -106,27 +106,15 @@ export class CreateOrEditProductComponent implements OnChanges {
       description: ['', [Validators.maxLength(500)]],
       amount: [
         0,
-        [
-          Validators.required,
-          Validators.pattern(/^\d+(\.\d{1,2})?$/),
-          Validators.min(0.01)
-        ]
+        [Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.0)]
       ],
       priceBuy: [
         0,
-        [
-          Validators.required,
-          Validators.pattern(/^\d+(\.\d{1,2})?$/),
-          Validators.min(0.01)
-        ]
+        [Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.0)]
       ],
       priceSale: [
         0,
-        [
-          Validators.required,
-          Validators.pattern(/^\d+(\.\d{1,2})?$/),
-          Validators.min(0.01)
-        ]
+        [Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.0)]
       ],
       isActive: [false, Validators.required]
     });

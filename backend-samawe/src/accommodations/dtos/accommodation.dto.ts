@@ -10,10 +10,10 @@ import {
   IsNotEmpty,
   IsString,
   IsOptional,
-  IsPositive,
   IsInt,
   IsNumber,
   IsBoolean,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -63,15 +63,25 @@ export class CreateAccommodationDto {
   @IsNotEmpty({ message: 'La cantidad de baños es requerida' })
   amountBathroom: number;
 
-  @ApiProperty({ example: 1500.0, description: 'Precio de compra' })
+  @ApiProperty({
+    example: 150000,
+    description: 'Precio de compra',
+    required: false,
+  })
   @IsNumber()
-  @IsPositive()
-  priceBuy: number;
+  @Min(0) // ahora acepta 0 o números positivos
+  @IsOptional()
+  priceBuy?: number;
 
-  @ApiProperty({ example: 2000.0, description: 'Precio de venta' })
+  @ApiProperty({
+    example: 200000,
+    description: 'Precio de venta',
+    required: false,
+  })
   @IsNumber()
-  @IsPositive()
-  priceSale: number;
+  @Min(0) // acepta 0 o números positivos
+  @IsOptional()
+  priceSale?: number;
 
   @ApiProperty({
     example: 1,
@@ -139,15 +149,23 @@ export class UpdateAccommodationDto {
   @IsOptional()
   amountBathroom?: number;
 
-  @ApiProperty({ example: 1500.0, description: 'Precio de compra' })
+  @ApiProperty({
+    example: 150000,
+    description: 'Precio de compra',
+    required: false,
+  })
   @IsNumber()
-  @IsPositive()
+  @Min(0) // ahora acepta 0 o números positivos
   @IsOptional()
   priceBuy?: number;
 
-  @ApiProperty({ example: 2000.0, description: 'Precio de venta' })
+  @ApiProperty({
+    example: 200000,
+    description: 'Precio de venta',
+    required: false,
+  })
   @IsNumber()
-  @IsPositive()
+  @Min(0) // acepta 0 o números positivos
   @IsOptional()
   priceSale?: number;
 

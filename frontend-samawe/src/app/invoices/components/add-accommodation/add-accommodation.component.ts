@@ -37,6 +37,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTimepickerModule } from '@angular/material/timepicker';
+import { InvoiceDetaillService } from '../../services/invoiceDetaill.service';
 
 @Component({
   selector: 'app-add-accommodation',
@@ -64,8 +65,7 @@ import { MatTimepickerModule } from '@angular/material/timepicker';
 export class AddAccommodationComponent implements OnInit {
   @Input() categoryTypes: CategoryType[] = [];
   @Input() taxeTypes: TaxeType[] = [];
-  @Output() accommodationAdded = new EventEmitter<void>();
-  @Output() tempDetailAdded = new EventEmitter<CreateInvoiceDetaill>();
+  @Output() itemSaved = new EventEmitter<void>();
 
   private readonly _accommodationsService: AccommodationsService = inject(
     AccommodationsService
@@ -73,14 +73,25 @@ export class AddAccommodationComponent implements OnInit {
   private readonly _fb: FormBuilder = inject(FormBuilder);
   private readonly _router: Router = inject(Router);
   private readonly _cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+  private readonly _activateRouter: ActivatedRoute = inject(ActivatedRoute);
+  private readonly _invoiceDetaillService: InvoiceDetaillService = inject(
+    InvoiceDetaillService
+  );
 
   form: FormGroup;
   isLoading: boolean = false;
   filteredAccommodations: AddedAccommodationInvoiceDetaill[] = [];
   isLoadingAccommodations: boolean = false;
   value!: Date;
+  invoiceId?: number;
 
   ngOnInit() {
+    const id = this._activateRouter.snapshot.paramMap.get('id');
+    if (id) {
+      this.invoiceId = Number(id);
+      console.log('✅ Invoice ID obtenido:', this.invoiceId);
+    }
+
     this.form.valueChanges.subscribe((val) => {
       if (val.startDate && val.startTime) {
         this.form.patchValue(
@@ -104,7 +115,7 @@ export class AddAccommodationComponent implements OnInit {
     const now = new Date();
 
     this.form = this._fb.group({
-      accommodationName: ['', Validators.required],
+      name: ['', Validators.required],
       accommodationId: [null, Validators.required],
       priceSale: [{ value: '', disabled: true }],
       priceWithoutTax: [null, Validators.required],
@@ -121,7 +132,7 @@ export class AddAccommodationComponent implements OnInit {
     });
 
     this.form
-      .get('accommodationName')
+      .get('name')
       ?.valueChanges.pipe(
         debounceTime(500),
         switchMap((name: string) => {
@@ -203,7 +214,7 @@ export class AddAccommodationComponent implements OnInit {
 
   clearAccommodationSelection(): void {
     this.form.patchValue({
-      accommodationName: '',
+      name: '',
       accommodationId: null,
       priceSale: 0
     });
@@ -212,6 +223,12 @@ export class AddAccommodationComponent implements OnInit {
   }
 
   addAccommodation(): void {
+    if (!this.form.value.accommodationId) {
+      this.form.get('name')?.setErrors({ required: true });
+      this.form.markAllAsTouched();
+      return;
+    }
+
     if (this.form.valid) {
       const formValue = this.form.value;
 
@@ -226,12 +243,25 @@ export class AddAccommodationComponent implements OnInit {
         startDate: new Date(formValue.startDateTime).toISOString(),
         endDate: new Date(formValue.endDateTime).toISOString()
       };
+      if (!this.invoiceId) {
+        console.error('❌ No hay invoiceId definido');
+        return;
+      }
 
-      this.tempDetailAdded.emit(invoiceDetailPayload);
-      this.resetForm();
-    } else {
-      console.log('Formulario inválido');
-      this.form.markAllAsTouched();
+      this.isLoading = true;
+      this._invoiceDetaillService
+        .createInvoiceDetaill(this.invoiceId, invoiceDetailPayload)
+        .subscribe({
+          next: () => {
+            this.resetForm();
+            this.isLoading = false;
+            this.itemSaved.emit();
+          },
+          error: (err) => {
+            console.error('❌ Error al guardar detalle:', err);
+            this.isLoading = false;
+          }
+        });
     }
   }
 }

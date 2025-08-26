@@ -4,7 +4,7 @@
     <mat-label>Buscar Hospedaje</mat-label>
     <input
       matInput
-      formControlName="accommodationName"
+      formControlName="name"
       [matAutocomplete]="auto"
       placeholder="Cabaña del lago..."
       (focus)="onAccommodationFocus()"
@@ -14,8 +14,8 @@
     <!-- Botón limpiar -->
     <button
       *ngIf="
-        form.get('accommodationName')?.enabled &&
-        form.get('accommodationName')?.value &&
+        form.get('name')?.enabled &&
+        form.get('name')?.value &&
         !isLoadingAccommodations
       "
       matSuffix

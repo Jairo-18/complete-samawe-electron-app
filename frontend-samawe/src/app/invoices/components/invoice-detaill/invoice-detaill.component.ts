@@ -41,8 +41,10 @@ import { FormatCopPipe } from '../../../shared/pipes/format-cop.pipe';
 })
 export class InvoiceDetaillComponent implements OnChanges, AfterViewInit {
   @Input() invoiceDetails: InvoiceDetail[] = [];
+  @Input() invoiceId?: number;
   @Input() reload: boolean = false;
   @Output() itemDelete = new EventEmitter<void>();
+  @Output() allItemsSaved = new EventEmitter<void>();
 
   private readonly _matDialog: MatDialog = inject(MatDialog);
   private readonly _invoiceDetaillService: InvoiceDetaillService = inject(
@@ -70,6 +72,7 @@ export class InvoiceDetaillComponent implements OnChanges, AfterViewInit {
     'subtotal',
     'actions'
   ];
+
   dataSource = new MatTableDataSource<InvoiceDetail>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -91,7 +94,7 @@ export class InvoiceDetaillComponent implements OnChanges, AfterViewInit {
 
           if (lastPageIndex >= 0) {
             this.paginator.pageIndex = lastPageIndex;
-            this.paginator._changePageSize(this.paginator.pageSize); // Forzar recarga de vista
+            this.paginator._changePageSize(this.paginator.pageSize);
           }
         });
       }
@@ -115,8 +118,23 @@ export class InvoiceDetaillComponent implements OnChanges, AfterViewInit {
     this.paginationParams.perPage = event.pageSize;
   }
 
+  addItem(detail: InvoiceDetail): void {
+    if (!detail) return;
+
+    // Agrega el item directamente al dataSource
+    this.dataSource.data = [...this.dataSource.data, detail];
+
+    // Opcional: mover a la última página si hay paginación
+    if (this.paginator) {
+      const totalItems = this.dataSource.data.length;
+      const pageSize = this.paginator.pageSize;
+      this.paginator.pageIndex = Math.floor((totalItems - 1) / pageSize);
+      this.paginator._changePageSize(pageSize);
+    }
+  }
+
   /**
-   * @param _deleteUser - Ellimina un usuario.
+   * @param _deleteUser - Elimina un usuario.
    */
   private deleteItem(invoiceDetailId: number): void {
     this.loading = true;

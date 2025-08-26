@@ -93,7 +93,7 @@
       </mat-form-field>
 
       <!-- Descripción -->
-      <mat-form-field appearance="outline" class="w-full">
+      <!-- <mat-form-field appearance="outline" class="w-full">
         <mat-label>Descripción</mat-label>
         <textarea
           matInput
@@ -106,10 +106,8 @@
         <mat-hint align="end">
           {{ descTextarea.value ? descTextarea.value.length : 0 }}/250
         </mat-hint>
-      </mat-form-field>
-    </section>
+      </mat-form-field> -->
 
-    <section class="flex flex-col w-full md:w-[50%] gap-[25px] md:gap-2">
       <!-- Cantidad de personas -->
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Capacidad de personas</mat-label>
@@ -121,7 +119,9 @@
           Campo requerido
         </mat-error>
       </mat-form-field>
+    </section>
 
+    <section class="flex flex-col w-full md:w-[50%] gap-[25px] md:gap-2">
       <!-- Jacuzzi -->
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>¿Tiene jacuzzi?</mat-label>
@@ -169,14 +169,13 @@
           formControlName="priceBuy"
           appCurrencyFormat
           class="text-right"
-          required
         />
         <mat-icon matSuffix>shopping_cart</mat-icon>
-        <mat-error
+        <!-- <mat-error
           *ngIf="accommodationForm.get('priceBuy')?.hasError('required')"
         >
           Precio de compra requerido
-        </mat-error>
+        </mat-error> -->
       </mat-form-field>
 
       <!-- Precio de venta -->
@@ -187,14 +186,13 @@
           formControlName="priceSale"
           appCurrencyFormat
           class="text-right"
-          required
         />
         <mat-icon matSuffix>attach_money</mat-icon>
-        <mat-error
+        <!-- <mat-error
           *ngIf="accommodationForm.get('priceSale')?.hasError('required')"
         >
           Precio de venta requerido
-        </mat-error>
+        </mat-error> -->
       </mat-form-field>
     </section>
   </div>
