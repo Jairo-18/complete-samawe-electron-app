@@ -1,18 +1,21 @@
 @echo off
 chcp 65001 >nul
 echo ========================================
-echo Iniciando Samawe PRODUCTION
+echo Iniciando Samawe PRODUCTION con Docker
 echo ========================================
 echo.
 
 :: CONFIGURACION PRODUCTION
-set DOCKER_PORT=5451
-set DB_PORT=5451
 set DB_CONTAINER=samawe-postgres-prod
 set DB_VOLUME=samawe_data_prod
 set DB_NAME=samawe_db_prod
+set DB_PORT=5451
+set DB_USER=samawe
+set DB_PASS=samawe123
 
-:: Verificar Docker
+:: ==============================
+:: VERIFICAR DOCKER
+:: ==============================
 echo Verificando Docker...
 docker version >nul 2>&1
 if %errorlevel% neq 0 (
@@ -21,25 +24,21 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-:: Gestionar contenedor PostgreSQL
+:: ==============================
+:: BASE DE DATOS
+:: ==============================
 echo Verificando contenedor %DB_CONTAINER%...
 docker ps -a | findstr "%DB_CONTAINER%" >nul 2>&1
 if %errorlevel% equ 0 (
-    echo Contenedor existente encontrado.
-    docker ps | findstr "%DB_CONTAINER%" >nul 2>&1
-    if %errorlevel% neq 0 (
-        echo Iniciando contenedor existente...
-        docker start %DB_CONTAINER%
-    ) else (
-        echo Contenedor ya esta ejecutandose.
-    )
+    echo Contenedor DB existente encontrado.
+    docker start %DB_CONTAINER% >nul
 ) else (
     echo Creando nuevo contenedor PostgreSQL PROD...
     docker run --name %DB_CONTAINER% ^
-      -e POSTGRES_USER=samawe ^
-      -e POSTGRES_PASSWORD=samawe123 ^
+      -e POSTGRES_USER=%DB_USER% ^
+      -e POSTGRES_PASSWORD=%DB_PASS% ^
       -e POSTGRES_DB=%DB_NAME% ^
-      -p %DOCKER_PORT%:5432 ^
+      -p %DB_PORT%:5432 ^
       -v %DB_VOLUME%:/var/lib/postgresql/data ^
       -d postgres:13 -c ssl=off
 )
@@ -47,64 +46,60 @@ if %errorlevel% equ 0 (
 :: Esperar hasta que PostgreSQL responda
 echo Esperando a que PostgreSQL se inicie...
 :WAIT_FOR_DB
-docker exec %DB_CONTAINER% psql -U samawe -d %DB_NAME% -c "SELECT 1;" >nul 2>&1
+docker exec %DB_CONTAINER% psql -U %DB_USER% -d %DB_NAME% -c "SELECT 1;" >nul 2>&1
 if %errorlevel% neq 0 (
     echo PostgreSQL aun no esta listo, esperando 5 segundos...
     timeout /t 5 >nul
     goto WAIT_FOR_DB
 )
 echo PostgreSQL PROD funcionando correctamente.
-
-:: BACKEND PROD
 echo.
-echo Configurando backend PROD...
+
+:: ==============================
+:: BACKEND (en host)
+:: ==============================
 cd backend-samawe
 
 if not exist "node_modules" (
     echo Instalando dependencias backend...
-    call npm install
+    call pnpm install
 )
 
-echo Compilando backend para produccion...
-call npm run build
-
-echo Ejecutando migraciones PROD...
-call npm run migration:run:prod
-if %errorlevel% neq 0 (
-    echo ADVERTENCIA: Las migraciones pueden ya estar ejecutadas o fallaron
-)
-
-echo Iniciando backend PROD...
-start "Backend Samawe PROD" cmd /k "npm run start:prod"
+echo Iniciando backend PROD en nueva terminal...
+start "Backend Samawe PROD" cmd /k "pnpm run build && pnpm run migration:run:prod && pnpm run start:prod"
 
 cd ..
-
-:: FRONTEND PROD
+echo Backend levantado en http://localhost:3001
 echo.
-echo Configurando frontend PROD...
+
+:: ==============================
+:: FRONTEND (en host)
+:: ==============================
 cd frontend-samawe
 
 if not exist "node_modules" (
     echo Instalando dependencias frontend...
-    call npm install
+    call npm install --legacy-peer-deps
 )
 
-echo Iniciando frontend PROD...
-start "Frontend Samawe PROD" cmd /k "npm start"
+echo Iniciando frontend PROD en nueva terminal...
+start "Frontend Samawe PROD" cmd /k "ng s"
 
 cd ..
-
-:: Final
+echo Frontend levantado en http://localhost:4200
 echo.
+
+:: ==============================
+:: FINAL
+:: ==============================
 echo ========================================
 echo PRODUCTION INICIADO
 echo ========================================
 echo PostgreSQL: localhost:%DB_PORT%
-echo Backend: http://localhost:3001
-echo Frontend: http://localhost:4200
+echo Backend:   http://localhost:3001
+echo Frontend:  http://localhost:4200
 echo ========================================
 echo.
 timeout /t 3 >nul
 start http://localhost:4200
-echo Presiona cualquier tecla para salir...
 pause
