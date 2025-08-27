@@ -43,19 +43,19 @@ export const MENU_CONST: MenuInterface[] = [
       }
     ]
   },
-  {
-    module: 'Panel de administrador',
-    icon: 'work',
-    order: 1,
-    items: [
-      {
-        name: 'Gestión',
-        route: '/organizational/types/manage',
-        icon: 'category',
-        order: 1
-      }
-    ]
-  }
+  // {
+  //   module: 'Panel de administrador',
+  //   icon: 'work',
+  //   order: 1,
+  //   items: [
+  //     {
+  //       name: 'Gestión',
+  //       route: '/organizational/types/manage',
+  //       icon: 'category',
+  //       order: 1
+  //     }
+  //   ]
+  // }
 ];
 
 export const ROLE_PERMISSIONS: Record<string, string[]> = {
