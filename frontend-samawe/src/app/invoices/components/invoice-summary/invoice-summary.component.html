@@ -70,7 +70,7 @@
     </div>
     <div class="flex justify-end w-[50%]">
       <span>
-        {{ +invoiceData.total - +invoiceData.subtotalWithoutTax | formatCop }}
+        {{ invoiceData.totalTaxes ?? 0 | formatCop }}
       </span>
     </div>
   </div>
@@ -85,6 +85,36 @@
       }}</span>
     </div>
   </div>
+
+  <!-- Efectivo -->
+  @if (invoiceData.cash && invoiceData.cash > 0) {
+  <div class="border border-[#06a606] w-full h-[1px] my-6"></div>
+
+  <div class="flex content-between">
+    <div class="flex justify-start w-[50%]">
+      <span class="font-bold">Efectivo:</span>
+    </div>
+    <div class="flex justify-end w-[50%]">
+      <span class="text-[#06a606] font-medium">
+        {{ invoiceData.cash | formatCop }}
+      </span>
+    </div>
+  </div>
+  }
+
+  <!-- Transferencia -->
+  @if (invoiceData.transfer && invoiceData.transfer > 0) {
+  <div class="flex content-between">
+    <div class="flex justify-start w-[50%]">
+      <span class="font-bold">Transferencia:</span>
+    </div>
+    <div class="flex justify-end w-[50%]">
+      <span class="text-[#06a606] font-medium">
+        {{ invoiceData.transfer | formatCop }}
+      </span>
+    </div>
+  </div>
+  }
 
   <div class="border border-[#06a606] w-full h-[1px] my-6"></div>
 
@@ -102,6 +132,7 @@
   </div>
 
   <div><span>Los precios incluyen impuestos</span></div>
+
   <section class="flex flex-col gap-y-2">
     <div class="flex">
       <button

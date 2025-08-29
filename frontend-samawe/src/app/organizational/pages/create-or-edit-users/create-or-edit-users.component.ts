@@ -78,7 +78,7 @@ export class CreateOrEditUsersComponent implements OnInit {
       identificationNumber: ['', [Validators.required]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      email: [''],
+      email: ['', [Validators.email]],
       phoneCodeId: ['', Validators.required],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{1,15}$/)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -227,5 +227,12 @@ export class CreateOrEditUsersComponent implements OnInit {
       console.error('Formulario no válido', this.userForm);
       this.userForm.markAllAsTouched();
     }
+  }
+
+  onEmailInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.userForm
+      .get('email')
+      ?.setValue(input.value.toLowerCase(), { emitEvent: false });
   }
 }

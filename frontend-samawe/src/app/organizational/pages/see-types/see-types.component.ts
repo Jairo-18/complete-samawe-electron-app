@@ -51,7 +51,7 @@ export class SeeTypesComponent implements OnInit {
   loading: boolean = false;
   showClearButton: boolean = false;
   isMobile: boolean = false;
-  selectedType: string = 'additionalType';
+  selectedType: string = 'categoryType';
   params: any = {};
   paginationParams: PaginationInterface = {
     page: 1,
@@ -62,7 +62,7 @@ export class SeeTypesComponent implements OnInit {
     hasNextPage: false
   };
   buttons: Record<string, string> = TYPE_ENTITY_LABELS_ES;
-  buttonsControll: FormControl = new FormControl('additionalType');
+  buttonsControll: FormControl = new FormControl('categoryType');
 
   form!: FormGroup;
 

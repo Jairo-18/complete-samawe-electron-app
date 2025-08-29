@@ -1,5 +1,4 @@
 export const TYPE_ENTITY_LABELS_ES: Record<string, string> = {
-  // additionalType: 'Addicional',
   bedType: 'Camas',
   categoryType: 'Categorías',
   identificationType: 'Identificaciones',
@@ -10,4 +9,9 @@ export const TYPE_ENTITY_LABELS_ES: Record<string, string> = {
   roleType: 'Roles',
   stateType: 'Estados hab / pas'
   // taxeType: 'Impuestos'
+};
+
+export const TYPE_ACCOMMODATION_LABELS_ES: Record<string, string> = {
+  additionalType: 'Addicional',
+  discountType: 'Descuentos'
 };

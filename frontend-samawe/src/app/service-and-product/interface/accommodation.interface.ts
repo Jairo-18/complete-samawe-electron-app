@@ -14,6 +14,7 @@ export interface CreateAccommodationPanel {
   amountRoom: number;
   amountBathroom: number;
   priceBuy: number;
+  taxe?: number;
   priceSale: number;
   categoryTypeId: number;
   bedTypeId: number;
@@ -31,6 +32,7 @@ export interface AccommodationComplete {
   amountBathroom: number;
   priceBuy: number;
   priceSale: number;
+  taxe?: number;
   categoryType: CategoryType;
   bedType: BedType;
   stateType?: StateType;

@@ -34,6 +34,7 @@ import {
 } from '../../interface/invoiceDetaill.interface';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CurrencyFormatDirective } from '../../../shared/directives/currency-format.directive';
 
 @Component({
   selector: 'app-add-product',
@@ -48,7 +49,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     CommonModule,
     MatSelectModule,
     MatIcon,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    CurrencyFormatDirective
   ],
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'
@@ -75,19 +77,33 @@ export class AddProductComponent implements OnInit {
     const id = this._activateRouter.snapshot.paramMap.get('id');
     if (id) {
       this.invoiceId = Number(id);
-      console.log('✅ Invoice ID obtenido:', this.invoiceId);
     }
+    // Recalcular total cuando cambien entradas relevantes
+    this.form
+      .get('amountSale')
+      ?.valueChanges.subscribe(() => this.updateFinalPrice());
+    this.form
+      .get('priceSale')
+      ?.valueChanges.subscribe(() => this.updateFinalPrice());
+    this.form
+      .get('priceWithoutTax')
+      ?.valueChanges.subscribe(() => this.updateFinalPrice());
+    this.form
+      .get('taxeTypeId')
+      ?.valueChanges.subscribe(() => this.updateFinalPrice());
   }
 
   constructor() {
     this.form = this._fb.group({
       name: ['', Validators.required],
       productId: [null, Validators.required],
-      priceSale: [{ value: '', disabled: true }],
+      priceSale: [0],
       priceBuy: [0, [Validators.required, Validators.min(0)]],
       priceWithoutTax: [null, Validators.required],
-      taxeTypeId: [2],
-      amount: [1, [Validators.required, Validators.min(1)]]
+      taxeTypeId: [3],
+      amountSale: [1, [Validators.required, Validators.min(1)]],
+      finalPrice: [0],
+      amount: [0]
     });
 
     this.form
@@ -133,8 +149,10 @@ export class AddProductComponent implements OnInit {
       priceSale: product.priceSale,
       priceBuy: product.priceBuy ?? 0,
       priceWithoutTax: product.priceSale,
+      amount: product.amount,
       categoryId: product.categoryTypeId
     });
+    this.updateFinalPrice();
   }
 
   resetForm(): void {
@@ -144,9 +162,10 @@ export class AddProductComponent implements OnInit {
       priceSale: { value: '', disabled: true },
       priceBuy: 0,
       priceWithoutTax: null,
-      taxeTypeId: 2,
-      amount: 1,
-      categoryId: null
+      taxeTypeId: 3,
+      amountSale: 1,
+      categoryId: null,
+      finalPrice: 0
     });
 
     Object.keys(this.form.controls).forEach((key) => {
@@ -161,6 +180,46 @@ export class AddProductComponent implements OnInit {
     });
 
     this._cdr.detectChanges();
+  }
+
+  private getTaxRate(): number {
+    const id = this.form.get('taxeTypeId')?.value;
+    const tax = this.taxeTypes?.find((t) => t.taxeTypeId === id);
+    if (!tax || tax.percentage == null) return 0;
+
+    let rate =
+      typeof tax.percentage === 'string'
+        ? parseFloat(tax.percentage)
+        : tax.percentage;
+
+    if (!isFinite(rate) || rate < 0) return 0;
+    // Si viene como 12 en lugar de 0.12, normalizar
+    if (rate > 1) rate = rate / 100;
+    return rate;
+  }
+
+  /** Calcula finalPrice = (precio_sin_IVA * (1+IVA)) * cantidad */
+  private updateFinalPrice() {
+    const base = Number(
+      this.form.get('priceWithoutTax')?.value ??
+        this.form.get('priceSale')?.value ??
+        0
+    );
+    const amountSale = Number(this.form.get('amountSale')?.value ?? 0);
+    const taxRate = this.getTaxRate();
+
+    const unitWithTax = base * (1 + taxRate);
+    const total = unitWithTax * amountSale;
+
+    this.form.patchValue(
+      { finalPrice: this.round(total, 2) },
+      { emitEvent: false }
+    );
+  }
+
+  private round(n: number, d = 2): number {
+    const p = Math.pow(10, d);
+    return Math.round((n + Number.EPSILON) * p) / p;
   }
 
   clearProductSelection(): void {
@@ -208,7 +267,7 @@ export class AddProductComponent implements OnInit {
       productId: formValue.productId,
       accommodationId: 0,
       excursionId: 0,
-      amount: formValue.amount,
+      amount: formValue.amountSale,
       priceBuy: Number(formValue.priceBuy) || 0,
       priceWithoutTax: Number(formValue.priceWithoutTax),
       taxeTypeId: formValue.taxeTypeId,

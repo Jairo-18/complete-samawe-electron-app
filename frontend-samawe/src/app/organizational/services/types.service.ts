@@ -6,7 +6,9 @@ import {
   ParamsPaginationInterface
 } from '../../shared/interfaces/pagination.interface';
 import {
+  AdditionalType,
   CreateType,
+  DiscountType,
   TypeForEditResponse,
   TypeItem
 } from '../../shared/interfaces/relatedDataGeneral';
@@ -65,5 +67,23 @@ export class TypesService {
 
   deleteType(type: string, id: string): Observable<unknown> {
     return this._httpClient.delete(`${environment.apiUrl}type/${type}/${id}`);
+  }
+
+  /**
+   * Obtiene todos los DiscountType (sin paginación)
+   */
+  getAllDiscountTypes(): Observable<ApiResponseInterface<DiscountType[]>> {
+    return this._httpClient.get<ApiResponseInterface<DiscountType[]>>(
+      `${environment.apiUrl}type/discountType/all`
+    );
+  }
+
+  /**
+   * Obtiene todos los AdditionalType (sin paginación)
+   */
+  getAllAdditionalTypes(): Observable<ApiResponseInterface<AdditionalType[]>> {
+    return this._httpClient.get<ApiResponseInterface<AdditionalType[]>>(
+      `${environment.apiUrl}type/additionalType/all`
+    );
   }
 }

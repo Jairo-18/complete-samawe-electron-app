@@ -83,7 +83,7 @@ export class SeeInvoicesComponent implements OnInit {
     'paidType',
     'invoiceElectronic',
     'subtotalWithoutTax',
-    'subtotalWithTax',
+    'totalTaxes',
     'total',
     'actions'
   ];
@@ -99,7 +99,7 @@ export class SeeInvoicesComponent implements OnInit {
 
   paginationParams: PaginationInterface = {
     page: 1,
-    perPage: 5,
+    perPage: 25,
     total: 0,
     pageCount: 0,
     hasPreviousPage: false,

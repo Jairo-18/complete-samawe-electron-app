@@ -96,7 +96,7 @@ export class SeeProductsComponent implements OnInit {
   selectedTabIndex: number = 0;
   paginationParams: PaginationInterface = {
     page: 1,
-    perPage: 5,
+    perPage: 25,
     total: 0,
     pageCount: 0,
     hasPreviousPage: false,

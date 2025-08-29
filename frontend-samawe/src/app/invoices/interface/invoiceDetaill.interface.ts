@@ -8,10 +8,11 @@ import {
 
 export interface InvoiceDetail {
   invoiceDetailId: number;
-  amount: string;
+  amountSale: string;
   priceWithoutTax: string;
   priceWithTax: string;
   subtotal: string;
+  taxe: number;
   startDate: string;
   endDate: string;
   createdAt: string;
@@ -29,6 +30,7 @@ export interface CreateInvoiceDetaill {
   excursionId?: number;
   amount: number;
   priceBuy: number;
+  taxe?: number;
   priceWithoutTax: number;
   taxeTypeId?: number;
   startDate?: string;

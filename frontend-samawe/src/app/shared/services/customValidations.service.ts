@@ -129,4 +129,12 @@ export class CustomValidationsService {
       return passwordRegex.test(control.value) ? null : { passwordRegex: true };
     };
   }
+
+  lowercaseValidator(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (value && value !== value.toLowerCase()) {
+      return { lowercase: true }; // error si no está en minúsculas
+    }
+    return null;
+  }
 }

@@ -63,27 +63,6 @@
           >
         </div>
       </div>
-      <div class="flex w-full content-between font-semibold">
-        <div class="flex w-[100%] justify-start">
-          <span>
-            Teléfono:
-            <span class="font-medium">
-              {{ invoiceData.user.phoneCode.code }}
-              {{ invoiceData.user.phone }}</span
-            ></span
-          >
-        </div>
-      </div>
-      <div class="flex w-full content-between font-semibold">
-        <div class="flex w-[50%] justify-start">
-          <span>
-            Identificación:
-            <span class="font-medium">
-              {{ invoiceData.user.identificationNumber }}
-            </span></span
-          >
-        </div>
-      </div>
     </div>
   </section>
   <div class="border border-[#06a606] w-full h-[1px] my-6"></div>
@@ -119,7 +98,12 @@
           {{ detail.priceWithoutTax | formatCop }}
         </td>
         <td class="border px-4 pb-4 text-right text-xs">
-          {{ +detail.priceWithTax - +detail.priceWithoutTax | formatCop }}
+          {{
+            detail.product?.taxe ||
+              detail.accommodation?.taxe ||
+              detail.excursion?.taxe ||
+              'N/A' | formatCop
+          }}
         </td>
         <td class="border px-4 pb-4 text-right text-xs">
           {{ detail.subtotal | formatCop }}
@@ -130,6 +114,33 @@
 
   <section class="flex flex-col h-full justify-center">
     <div class="border border-[#06a606] w-full h-[1px] my-6"></div>
+
+    @if (invoiceData.cash && invoiceData.cash > 0) {
+    <div class="flex content-between">
+      <div class="flex justify-start w-[50%]">
+        <span class="font-bold">Efectivo:</span>
+      </div>
+      <div class="flex justify-end w-[50%]">
+        <span class="text-[#06a606] font-medium">
+          {{ invoiceData.cash | formatCop }}
+        </span>
+      </div>
+    </div>
+    }
+
+    <!-- TRANSFER -->
+    @if (invoiceData.transfer && invoiceData.transfer > 0) {
+    <div class="flex content-between">
+      <div class="flex justify-start w-[50%]">
+        <span class="font-bold">Transferencia:</span>
+      </div>
+      <div class="flex justify-end w-[50%]">
+        <span class="text-[#06a606] font-medium">
+          {{ invoiceData.transfer | formatCop }}
+        </span>
+      </div>
+    </div>
+    }
 
     <div class="flex content-between">
       <div class="flex justify-start w-[50%]">
@@ -178,8 +189,7 @@
       </div>
       <div class="flex justify-end w-[50%]">
         <span class="font-medium">{{
-          +invoiceData.subtotalWithTax - +invoiceData.subtotalWithoutTax
-            | formatCop
+          invoiceData.totalTaxes ?? 0 | formatCop
         }}</span>
       </div>
     </div>

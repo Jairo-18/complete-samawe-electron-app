@@ -138,12 +138,12 @@
         </ng-container>
 
         <!-- IVA de la factura -->
-        <ng-container matColumnDef="subtotalWithTax">
+        <ng-container matColumnDef="totalTaxes">
           <th mat-header-cell *matHeaderCellDef class="center-text">
             Impuesto
           </th>
           <td mat-cell *matCellDef="let invoice" class="right-text">
-            {{ +invoice?.total - +invoice?.subtotalWithoutTax | formatCop }}
+            {{ invoice.totalTaxes ?? 0 | formatCop }}
           </td>
         </ng-container>
 
@@ -392,10 +392,13 @@
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="subtotalWithTax">
-            <th mat-header-cell *matHeaderCellDef class="center-text">IVA</th>
+          <!-- IVA de la factura -->
+          <ng-container matColumnDef="totalTaxes">
+            <th mat-header-cell *matHeaderCellDef class="center-text">
+              Impuesto
+            </th>
             <td mat-cell *matCellDef="let invoice" class="right-text">
-              {{ invoice.subtotalWithTax | formatCop }}
+              {{ invoice.totalTaxes ?? 0 | formatCop }}
             </td>
           </ng-container>
 

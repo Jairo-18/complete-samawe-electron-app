@@ -70,15 +70,6 @@ export interface IdentificationType {
   deletedAt?: Date;
 }
 
-export interface TaxeType {
-  taxeTypeId: string;
-  code?: string;
-  name?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt?: Date;
-}
-
 export interface PayType {
   payTypeId: string;
   code?: string;
@@ -107,7 +98,6 @@ export interface InvoiceType {
 }
 
 export interface AllTypes {
-  additionalType: TypeItem[];
   bedType: TypeItem[];
   categoryType: TypeItem[];
   identificationType: TypeItem[];
@@ -126,4 +116,34 @@ export interface TypeItem {
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
+}
+
+export interface AdditionalType {
+  additionalTypeId: number;
+  code: string;
+  name: string;
+  value: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+}
+
+export interface DiscountType {
+  discountTypeId: number;
+  code: string;
+  name: string;
+  percent: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+}
+
+export interface TaxeType {
+  taxeTypeId: number;
+  code?: string;
+  name?: string;
+  percentage?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }

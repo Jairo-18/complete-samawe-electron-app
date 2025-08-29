@@ -9,6 +9,7 @@ export interface CreateProductPanel {
   priceBuy: number;
   priceSale: number;
   isActive: boolean;
+  taxe?: number;
   categoryTypeId: number;
 }
 
@@ -18,6 +19,7 @@ export interface ProductComplete {
   name: string;
   description?: string;
   amount: number;
+  taxe?: number;
   priceBuy: number;
   priceSale: number;
   isActive: boolean;

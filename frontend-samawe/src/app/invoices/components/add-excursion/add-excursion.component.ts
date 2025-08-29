@@ -34,7 +34,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-// import { DatePickerComponent } from '../../../shared/components/date-picker/date-picker.component';
+import { CurrencyFormatDirective } from '../../../shared/directives/currency-format.directive';
 
 @Component({
   selector: 'app-add-excursion',
@@ -49,8 +49,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatButtonModule,
     CommonModule,
     MatIcon,
-    MatProgressSpinnerModule
-    // DatePickerComponent
+    MatProgressSpinnerModule,
+    CurrencyFormatDirective
   ],
   templateUrl: './add-excursion.component.html',
   styleUrl: './add-excursion.component.scss'
@@ -60,15 +60,12 @@ export class AddExcursionComponent implements OnInit {
   @Input() taxeTypes: TaxeType[] = [];
   @Output() itemSaved = new EventEmitter<void>();
 
-  private readonly _excursionsService: ExcursionsService =
-    inject(ExcursionsService);
-  private readonly _invoiceDetaillService: InvoiceDetaillService = inject(
-    InvoiceDetaillService
-  );
-  private readonly _activateRouter: ActivatedRoute = inject(ActivatedRoute);
-  private readonly _fb: FormBuilder = inject(FormBuilder);
-  private readonly _router: Router = inject(Router);
-  private readonly _cdr: ChangeDetectorRef = inject(ChangeDetectorRef);
+  private readonly _excursionsService = inject(ExcursionsService);
+  private readonly _invoiceDetaillService = inject(InvoiceDetaillService);
+  private readonly _activateRouter = inject(ActivatedRoute);
+  private readonly _fb = inject(FormBuilder);
+  private readonly _router = inject(Router);
+  private readonly _cdr = inject(ChangeDetectorRef);
 
   form: FormGroup;
   isLoading: boolean = false;
@@ -76,24 +73,18 @@ export class AddExcursionComponent implements OnInit {
   isLoadingExcursions: boolean = false;
   invoiceId?: number;
 
-  ngOnInit(): void {
-    const id = this._activateRouter.snapshot.paramMap.get('id');
-    if (id) {
-      this.invoiceId = Number(id);
-      console.log('✅ Invoice ID obtenido:', this.invoiceId);
-    }
-  }
-
   constructor() {
     this.form = this._fb.group({
       name: ['', Validators.required],
       excursionId: [null, Validators.required],
-      priceSale: [{ value: '', disabled: true }],
-      priceWithoutTax: [null, Validators.required],
+      priceSale: [0], // Precio unitario base (normalmente SIN IVA)
+      priceWithoutTax: [null, Validators.required], // Base sin IVA (lo que se envía)
       taxeTypeId: [2],
-      amount: [1, [Validators.required, Validators.min(1)]]
+      amount: [1, [Validators.required, Validators.min(1)]],
+      finalPrice: [0] // Total CON IVA (= unitario c/IVA * cantidad)
     });
 
+    // Búsqueda con debounce
     this.form
       .get('name')
       ?.valueChanges.pipe(
@@ -106,6 +97,25 @@ export class AddExcursionComponent implements OnInit {
       .subscribe((res) => {
         this.filteredExcursions = res.data ?? [];
       });
+  }
+
+  ngOnInit(): void {
+    const id = this._activateRouter.snapshot.paramMap.get('id');
+    if (id) this.invoiceId = Number(id);
+
+    // Recalcular total cuando cambien entradas relevantes
+    this.form
+      .get('amount')
+      ?.valueChanges.subscribe(() => this.updateFinalPrice());
+    this.form
+      .get('priceSale')
+      ?.valueChanges.subscribe(() => this.updateFinalPrice());
+    this.form
+      .get('priceWithoutTax')
+      ?.valueChanges.subscribe(() => this.updateFinalPrice());
+    this.form
+      .get('taxeTypeId')
+      ?.valueChanges.subscribe(() => this.updateFinalPrice());
   }
 
   onExcursionFocus() {
@@ -122,33 +132,65 @@ export class AddExcursionComponent implements OnInit {
     const exc = this.filteredExcursions.find((e) => e.name === name);
     if (!exc) return;
 
-    this.form.patchValue({
-      excursionId: exc.excursionId,
-      priceWithoutTax: exc.priceSale,
-      priceSale: exc.priceSale
-    });
+    // Asumimos que priceSale es el precio base SIN IVA
+    this.form.patchValue(
+      {
+        excursionId: exc.excursionId,
+        priceWithoutTax: exc.priceSale,
+        priceSale: exc.priceSale
+      },
+      { emitEvent: true }
+    );
+
+    this.updateFinalPrice();
   }
 
-  private getInvoiceIdFromRoute(route: ActivatedRoute): string | null {
-    let current = route;
-    while (current) {
-      const id = current.snapshot.paramMap.get('id');
-      if (id) return id;
-      current = current.parent!;
-    }
-    return null;
+  /** Devuelve el impuesto como fracción (0.12 para 12%) */
+  private getTaxRate(): number {
+    const id = this.form.get('taxeTypeId')?.value;
+    const tax = this.taxeTypes?.find((t) => t.taxeTypeId === id);
+    if (!tax || tax.percentage == null) return 0;
+
+    let rate =
+      typeof tax.percentage === 'string'
+        ? parseFloat(tax.percentage)
+        : tax.percentage;
+
+    if (!isFinite(rate) || rate < 0) return 0;
+    // Si viene como 12 en lugar de 0.12, normalizar
+    if (rate > 1) rate = rate / 100;
+    return rate;
+  }
+
+  /** Calcula finalPrice = (precio_sin_IVA * (1+IVA)) * cantidad */
+  private updateFinalPrice() {
+    const base = Number(
+      this.form.get('priceWithoutTax')?.value ??
+        this.form.get('priceSale')?.value ??
+        0
+    );
+    const amount = Number(this.form.get('amount')?.value ?? 0);
+    const taxRate = this.getTaxRate();
+
+    const unitWithTax = base * (1 + taxRate);
+    const total = unitWithTax * amount;
+
+    this.form.patchValue(
+      { finalPrice: this.round(total, 2) },
+      { emitEvent: false }
+    );
+  }
+
+  private round(n: number, d = 2): number {
+    const p = Math.pow(10, d);
+    return Math.round((n + Number.EPSILON) * p) / p;
   }
 
   resetForm() {
-    this.form.reset();
-    Object.keys(this.form.controls).forEach((key) => {
-      const control = this.form.get(key);
-      control?.setErrors(null);
-    });
-
-    this.form.patchValue({
+    this.form.reset({
       taxeTypeId: 2,
-      amount: 1
+      amount: 1,
+      finalPrice: 0
     });
 
     this._router.navigate([], {
@@ -165,9 +207,9 @@ export class AddExcursionComponent implements OnInit {
       name: '',
       excursionId: null,
       priceSale: 0,
-      priceWithoutTax: 0
+      priceWithoutTax: 0,
+      finalPrice: 0
     });
-
     this.filteredExcursions = [];
   }
 
@@ -179,9 +221,8 @@ export class AddExcursionComponent implements OnInit {
     }
 
     if (this.form.valid) {
-      const formValue = this.form.value;
+      const formValue = this.form.getRawValue();
 
-      // ✅ Generar fecha actual en el momento del envío
       const startDate = new Date();
       const endDate = new Date(startDate.getTime() + 60000);
 
@@ -190,7 +231,7 @@ export class AddExcursionComponent implements OnInit {
         accommodationId: 0,
         excursionId: formValue.excursionId,
         amount: formValue.amount,
-        priceBuy: Number(formValue.priceBuy) || 0,
+        priceBuy: 0,
         priceWithoutTax: Number(formValue.priceWithoutTax),
         taxeTypeId: formValue.taxeTypeId,
         startDate: startDate.toISOString(),

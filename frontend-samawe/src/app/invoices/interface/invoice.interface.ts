@@ -25,10 +25,13 @@ export interface Invoice {
   subtotalWithoutTax: string;
   subtotalWithTax: string;
   total: string;
+  totalTaxes?: number;
   startDate: string;
   endDate: string;
   user: UserComplete;
   employee: UserComplete;
+  cash?: number;
+  transfer?: number;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
@@ -44,6 +47,8 @@ export interface CreateInvoice {
   payTypeId: number;
   paidTypeId: number;
   invoiceElectronic: boolean;
+  cash?: number;
+  transfer?: number;
   startDate: string;
   endDate: string;
 }
@@ -53,6 +58,8 @@ export interface EditInvoice {
   payTypeId: number;
   paidTypeId: number;
   invoiceElectronic: boolean;
+  cash?: number;
+  transfer?: number;
 }
 
 export interface InvoiceComplete {
@@ -63,9 +70,12 @@ export interface InvoiceComplete {
   subtotalWithTax: string;
   total: string;
   startDate: string;
+  totalTaxes?: number;
   endDate: string;
   user: UserComplete;
   employee: UserComplete;
+  cash?: number;
+  transfer?: number;
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;

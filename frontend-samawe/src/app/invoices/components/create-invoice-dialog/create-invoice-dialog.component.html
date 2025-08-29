@@ -125,6 +125,28 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Efectivo</mat-label>
+      <input
+        matInput
+        formControlName="cash"
+        appCurrencyFormat
+        class="text-right"
+      />
+      <mat-icon matSuffix>attach_money</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Transferencia</mat-label>
+      <input
+        matInput
+        formControlName="transfer"
+        appCurrencyFormat
+        class="text-right"
+      />
+      <mat-icon matSuffix>attach_money</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>Observaciones</mat-label>
       <textarea
         matInput

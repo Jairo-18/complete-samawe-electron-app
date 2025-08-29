@@ -41,7 +41,7 @@ import { LoaderComponent } from '../../../shared/components/loader/loader.compon
 import { Router } from '@angular/router';
 import { PaginationPartialService } from '../../../shared/services/paginationPartial.service';
 import { PaginatedUserPartial } from '../../../shared/interfaces/paginatedPartial.interface';
-
+import { CurrencyFormatDirective } from '../../../shared/directives/currency-format.directive';
 @Component({
   selector: 'app-create-invoice-dialog',
   standalone: true,
@@ -57,7 +57,8 @@ import { PaginatedUserPartial } from '../../../shared/interfaces/paginatedPartia
     MatAutocompleteModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    LoaderComponent
+    LoaderComponent,
+    CurrencyFormatDirective
   ],
   templateUrl: './create-invoice-dialog.component.html',
   styleUrls: ['./create-invoice-dialog.component.scss']
@@ -90,7 +91,9 @@ export class CreateInvoiceDialogComponent implements OnInit {
       observations: ['', [Validators.maxLength(500)]],
       invoiceElectronic: [false, Validators.required],
       paidTypeId: ['', Validators.required],
-      payTypeId: ['', Validators.required]
+      payTypeId: ['', Validators.required],
+      cash: [0],
+      transfer: [0]
     });
   }
 
@@ -130,7 +133,9 @@ export class CreateInvoiceDialogComponent implements OnInit {
       observations: invoice.observations,
       invoiceElectronic: invoice.invoiceElectronic,
       payTypeId: invoice.payType?.payTypeId,
-      paidTypeId: invoice.paidType?.paidTypeId
+      paidTypeId: invoice.paidType?.paidTypeId,
+      cash: invoice.cash,
+      transfer: invoice.transfer
     });
 
     if (invoice.user) {
@@ -256,7 +261,9 @@ export class CreateInvoiceDialogComponent implements OnInit {
       payTypeId: formValue.payTypeId,
       observations: formValue.observations,
       paidTypeId: formValue.paidTypeId,
-      invoiceElectronic: formValue.invoiceElectronic
+      invoiceElectronic: formValue.invoiceElectronic,
+      cash: Math.abs(Number(formValue.cash)),
+      transfer: Math.abs(Number(formValue.transfer))
     };
 
     console.log('Payload a enviar:', updatePayload); // Para debug

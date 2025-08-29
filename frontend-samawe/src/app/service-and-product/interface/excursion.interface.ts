@@ -9,6 +9,7 @@ export interface CreateExcursionPanel {
   name: string;
   description?: string;
   priceBuy: number;
+  taxe?: number;
   priceSale: number;
   stateTypeId: number;
   categoryTypeId: number;
@@ -21,6 +22,7 @@ export interface ExcursionComplete {
   description?: string;
   priceBuy: number;
   priceSale: number;
+  taxe?: number;
   stateType: StateType;
   categoryType: CategoryType;
   updatedAt: Date;

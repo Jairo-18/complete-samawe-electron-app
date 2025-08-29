@@ -151,6 +151,7 @@ export class EditInvoiceComponent implements OnInit {
     this._invoiceService.getInvoiceToEdit(invoiceId).subscribe({
       next: (res) => {
         const invoice = res.data;
+
         this.invoiceData = {
           ...invoice,
           invoiceDetails: [...invoice.invoiceDetails]

@@ -87,7 +87,11 @@
       <section class="flex flex-col w-full md:w-[50%] gap-[25px] md:gap-2">
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>Correo Electrónico</mat-label>
-          <input matInput formControlName="email" />
+          <input
+            matInput
+            formControlName="email"
+            (input)="onEmailInput($event)"
+          />
           <mat-icon matPrefix>email</mat-icon>
         </mat-form-field>
 
