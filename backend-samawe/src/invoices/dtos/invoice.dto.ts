@@ -97,6 +97,24 @@ export class CreateInvoiceDto {
   @IsNotEmpty({ message: 'El estado de pago es requerido' })
   paidTypeId: number;
 
+  @ApiProperty({
+    example: 0,
+    description: 'Monto transferido',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  transfer?: number;
+
+  @ApiProperty({
+    example: 0,
+    description: 'Monto en efectivo',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  cash?: number;
+
   @ApiProperty()
   details?: CreateInvoiceDetailDto[];
 }
@@ -149,6 +167,24 @@ export class UpdateInvoiceDto {
   @IsNumber()
   @IsOptional()
   paidTypeId?: number;
+
+  @ApiProperty({
+    example: 0,
+    description: 'Monto transferido',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  transfer?: number;
+
+  @ApiProperty({
+    example: 0,
+    description: 'Monto en efectivo',
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  cash?: number;
 
   @ApiProperty({
     example: true,
@@ -245,6 +281,9 @@ export class InvoiceDetailDto {
   @ApiProperty()
   subtotal: string;
 
+  @ApiProperty()
+  taxe?: string;
+
   @ApiProperty({ required: false })
   startDate?: Date;
 
@@ -282,6 +321,15 @@ export class GetInvoiceWithDetailsDto {
 
   @ApiProperty()
   total: string;
+
+  @ApiProperty()
+  totalTaxes: number;
+
+  @ApiProperty({ example: 0 })
+  transfer: number;
+
+  @ApiProperty({ example: 0 })
+  cash: number;
 
   @ApiProperty({ type: () => InvoiceTypeDto })
   invoiceType: InvoiceTypeDto;

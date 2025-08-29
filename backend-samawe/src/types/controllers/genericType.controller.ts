@@ -62,49 +62,6 @@ export class GenericTypeController {
     this.validateTypeExists(type);
     return await this.genericTypeUC.paginatedList(params, type);
   }
-  // @Get('multiple/paginated')
-  // @ApiBearerAuth()
-  // @UseGuards(AuthGuard())
-  // @ApiOkResponse({
-  //   type: MultiplePaginatedResponseDto,
-  //   description: 'Paginación múltiple exitosa',
-  // })
-  // @ApiQuery({
-  //   name: 'types',
-  //   required: false,
-  //   description:
-  //     'Tipos separados por comas. Si se omite, consulta todos los tipos disponibles.',
-  //   example: 'roleType,phoneCode,payType',
-  //   type: String,
-  // })
-  // async getMultiplePaginated(
-  //   @Query() params: ParamsPaginationGenericDto,
-  //   @Query('types') typesParam?: string,
-  // ): Promise<MultiplePaginatedResponseDto> {
-  //   const results = await this.genericTypeUC.getMultiplePaginatedTypes(
-  //     params,
-  //     typesParam,
-  //   );
-
-  //   return {
-  //     statusCode: HttpStatus.OK,
-  //     message: `Consulta exitosa de múltiples tipos`,
-  //     data: results.data,
-  //   };
-  // }
-
-  // @Get('available-types')
-  // @ApiBearerAuth()
-  // @UseGuards(AuthGuard())
-  // async getAvailableTypes() {
-  //   const result = await this.genericTypeUC.getAvailableTypesWithCount();
-
-  //   return {
-  //     statusCode: HttpStatus.OK,
-  //     message: 'Tipos disponibles obtenidos exitosamente',
-  //     data: result,
-  //   };
-  // }
 
   @Post('create/:type')
   @ApiBearerAuth()
@@ -117,7 +74,7 @@ export class GenericTypeController {
   ): Promise<CreatedRecordResponseDto> {
     this.validateTypeExists(type);
 
-    const rowId = await this.genericTypeUC.createWithValidation(
+    const rowId = await this.genericTypeUC.createWithValidationAndGetId(
       type,
       createTypeDto,
     );
@@ -126,6 +83,34 @@ export class GenericTypeController {
       message: `Registro exitoso`,
       statusCode: HttpStatus.CREATED,
       data: { rowId },
+    };
+  }
+
+  // GET all additional types
+  @Get('additionalType/all')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  @ApiOkResponse({ description: 'Lista completa de AdditionalType' })
+  async getAllAdditionalTypes() {
+    const result = await this.genericTypeUC.getAll('additionalType');
+    return {
+      statusCode: HttpStatus.OK,
+
+      data: result,
+    };
+  }
+
+  // GET all discount types
+  @Get('discountType/all')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  @ApiOkResponse({ description: 'Lista completa de DiscountType' })
+  async getAllDiscountTypes() {
+    const result = await this.genericTypeUC.getAll('discountType');
+    return {
+      statusCode: HttpStatus.OK,
+
+      data: result,
     };
   }
 

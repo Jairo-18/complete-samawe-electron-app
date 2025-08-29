@@ -1,3 +1,4 @@
+import { ScheduleModule } from '@nestjs/schedule';
 import { ExcursionImageRepository } from './repositories/excursionImage.repository';
 import { AccommodationImageRepository } from './repositories/accommodationImage.repository';
 import { ProductImage } from './entities/productImage.entity';
@@ -10,7 +11,7 @@ import { InvoiceDetaillRepository } from './repositories/invoiceDetaill.reposito
 import { InvoiceRepository } from './repositories/invoice.repository';
 import { PayTypeRepository } from './repositories/payType.repository';
 import { PaidTypeRepository } from './repositories/paidType.repository';
-import { AdditionalRepository } from './repositories/additionalType.repository';
+import { AdditionalTypeRepository } from './repositories/additionalType.repository';
 import { ExcursionRepository } from './repositories/excursion.repository';
 import { StateTypeRepository } from './repositories/stateType.repository';
 import { BedTypeRepository } from './repositories/bedType.repository';
@@ -58,6 +59,8 @@ import { GeneralInvoiceDetaillService } from './services/generalInvoiceDetaill.s
 import { Notification } from './entities/notification.entity';
 import { AccommodationImage } from './entities/accommodationImage.entity';
 import { ExcursionImage } from './entities/escursionImage.entity';
+import { DiscountTypeRepository } from './repositories/discount.repository';
+import { DiscountType } from './entities/discountType.entity';
 
 @Module({})
 export class SharedModule {
@@ -65,6 +68,7 @@ export class SharedModule {
     return {
       module: SharedModule,
       imports: [
+        ScheduleModule.forRoot(),
         ConfigModule.forRoot({
           isGlobal: true,
           envFilePath:
@@ -79,7 +83,7 @@ export class SharedModule {
         TypeOrmModule.forRootAsync({
           inject: [ConfigService],
           useFactory: (configService: ConfigService) => {
-            const environment = process.env.NODE_ENV || 'development';
+            // const environment = process.env.NODE_ENV || 'development';
 
             const sslEnabled = configService.get('DB_SSL') === 'true';
 
@@ -93,13 +97,13 @@ export class SharedModule {
               entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
               autoLoadEntities: true,
               synchronize: false, // Siempre false, usar migraciones
-              logging:
-                environment === 'development' ? ['query', 'error'] : ['error'],
+              logging: false,
+
               extra: {
-                max: 10,
                 keepAlive: true,
-                connectionTimeoutMillis: 30000,
-                idleTimeoutMillis: 30000,
+                max: 20,
+                idleTimeoutMillis: 60000,
+                connectionTimeoutMillis: 60000,
               },
             };
 
@@ -140,6 +144,7 @@ export class SharedModule {
           ProductImage,
           AccommodationImage,
           ExcursionImage,
+          DiscountType,
         ]),
 
         JwtModule.registerAsync({
@@ -178,7 +183,7 @@ export class SharedModule {
       providers: [
         AccessSessionsRepository,
         AccommodationRepository,
-        AdditionalRepository,
+        AdditionalTypeRepository,
         BalanceRepository,
         BedTypeRepository,
         CategoryTypeRepository,
@@ -206,13 +211,14 @@ export class SharedModule {
         ProductImageRepository,
         AccommodationImageRepository,
         ExcursionImageRepository,
+        DiscountTypeRepository,
       ],
       exports: [
         TypeOrmModule,
         ConfigModule,
         AccessSessionsRepository,
         AccommodationRepository,
-        AdditionalRepository,
+        AdditionalTypeRepository,
         BalanceRepository,
         BedTypeRepository,
         CategoryTypeRepository,
@@ -240,6 +246,7 @@ export class SharedModule {
         ProductImageRepository,
         AccommodationImageRepository,
         ExcursionImageRepository,
+        DiscountTypeRepository,
       ],
     };
   }

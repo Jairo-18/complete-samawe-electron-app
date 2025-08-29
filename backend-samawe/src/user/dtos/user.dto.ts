@@ -2,7 +2,7 @@ import { GET_USER_EXAMPLE } from './../constants/examples.conts';
 import { User } from './../../shared/entities/user.entity';
 import { BaseResponseDto } from './../../shared/dtos/response.dto';
 import { NOT_EMPTY_MESSAGE_ID } from './../../shared/constants/validator-messages.const';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsEmail,
@@ -56,12 +56,9 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'El apellido es requerido' })
   lastName: string;
 
-  @ApiProperty({
-    example: 'test@gmail.com',
-    required: false,
-  })
+  @ApiPropertyOptional({ example: 'test@gmail.com' })
   @IsOptional()
-  @IsEmail()
+  // @IsEmail()
   email?: string;
 
   @ApiProperty({

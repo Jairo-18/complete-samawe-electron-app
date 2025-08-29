@@ -40,12 +40,14 @@ export class UserService {
 
   async create(user: CreateUserDto): Promise<{ rowId: string }> {
     // Validación por email
-    const existingUserByEmail = await this._userRepository.findOne({
-      where: { email: user.email },
-    });
+    if (user.email) {
+      const existingUserByEmail = await this._userRepository.findOne({
+        where: { email: user.email },
+      });
 
-    if (existingUserByEmail) {
-      throw new HttpException('El email ya está en uso', HttpStatus.CONFLICT);
+      if (existingUserByEmail) {
+        throw new HttpException('El email ya está en uso', HttpStatus.CONFLICT);
+      }
     }
 
     // Validación por tipo + número de identificación
@@ -117,13 +119,22 @@ export class UserService {
   async register(user: CreateUserDto): Promise<{ rowId: string }> {
     const salt = await bcrypt.genSalt();
 
-    // Validación por email
-    const existingUserByEmail = await this._userRepository.findOne({
-      where: { email: user.email },
-    });
+    if (!user.email || user.email.trim() === '') {
+      user.email = null;
+    } else {
+      // Normalizamos a minúsculas si tiene valor
+      user.email = user.email.toLowerCase();
+    }
 
-    if (existingUserByEmail) {
-      throw new HttpException('El email ya está en uso', HttpStatus.CONFLICT);
+    // Validación por email solo si hay valor
+    if (user.email) {
+      const existingUserByEmail = await this._userRepository.findOne({
+        where: { email: user.email },
+      });
+
+      if (existingUserByEmail) {
+        throw new HttpException('El email ya está en uso', HttpStatus.CONFLICT);
+      }
     }
 
     // Validación por tipo + número de identificación

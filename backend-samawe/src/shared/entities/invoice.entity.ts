@@ -73,6 +73,24 @@ export class Invoice {
     type: 'decimal',
     precision: 10,
     scale: 2,
+    nullable: true,
+    default: 0,
+  })
+  transfer: number;
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
+  cash: number;
+
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
     nullable: false,
     default: 0,
   })

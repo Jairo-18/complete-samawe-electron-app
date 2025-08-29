@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
-export class AdditionalRepository extends Repository<AdditionalType> {
+export class AdditionalTypeRepository extends Repository<AdditionalType> {
   constructor(dataSource: DataSource) {
     super(AdditionalType, dataSource.createEntityManager());
   }

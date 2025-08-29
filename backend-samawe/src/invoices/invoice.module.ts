@@ -21,5 +21,6 @@ import { InvoiceDetaillMultiple } from './services/invoiceDetaillMultiple.servic
     InvoicedPaginatedService,
     InvoiceDetaillMultiple,
   ],
+  exports: [InvoiceService, InvoiceDetailService],
 })
 export class InvoiceModule {}

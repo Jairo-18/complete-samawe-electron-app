@@ -1,14 +1,18 @@
-import { GenericTypeService } from './../services/genericType.service';
 import { Injectable } from '@nestjs/common';
+import { GenericTypeService } from './../services/genericType.service';
+import { RepositoryService } from './../../shared/services/repositoriry.service';
 import { ResponsePaginationDto } from 'src/shared/dtos/pagination.dto';
 import { DeepPartial } from 'typeorm';
 import { ParamsPaginationGenericDto, Type } from '../dtos/genericType.dto';
 
 @Injectable()
 export class GenericTypeUC<T extends object> {
-  constructor(private readonly genericTypeService: GenericTypeService<T>) {}
+  constructor(
+    private readonly genericTypeService: GenericTypeService<T>,
+    private readonly _repositoryService: RepositoryService,
+  ) {}
 
-  async createWithValidation(
+  async createWithValidationAndGetId(
     type: string,
     dto: DeepPartial<T>,
   ): Promise<string> {
@@ -49,27 +53,7 @@ export class GenericTypeUC<T extends object> {
     return await this.genericTypeService.paginatedList(params, type);
   }
 
-  // async getMultiplePaginatedTypes(
-  //   params: ParamsPaginationGenericDto,
-  //   typesParam?: string,
-  // ): Promise<{
-  //   data: MultiplePaginatedResponse;
-  //   typesCount: number;
-  // }> {
-  //   return await this.genericTypeService.getMultiplePaginatedTypesWithProcessing(
-  //     params,
-  //     typesParam,
-  //   );
-  // }
-
-  // async getAvailableTypesWithCount(): Promise<{
-  //   types: string[];
-  //   count: number;
-  // }> {
-  //   return await this.genericTypeService.getAvailableTypesWithCount();
-  // }
-
-  // async getAllTypes(): Promise<string[]> {
-  //   return this.genericTypeService.getAvailableTypes();
-  // }
+  async getAll(type: string): Promise<T[]> {
+    return await this.genericTypeService.findAllByType(type);
+  }
 }

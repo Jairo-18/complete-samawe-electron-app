@@ -1,22 +1,25 @@
 import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'AdditionalType' })
-export class AdditionalType {
+@Entity({ name: 'DiscountType' })
+export class DiscountType {
   @PrimaryGeneratedColumn()
-  additionalTypeId: number;
+  discountTypeId: number;
 
-  @Column('varchar', { length: 255, nullable: true })
-  code?: string;
+  @Column('varchar', { length: 255, nullable: false })
+  name: string;
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
-  value: number;
+  @Column('varchar', { length: 255, nullable: false })
+  code: string;
+
+  @Column('decimal', { precision: 5, scale: 2, default: 0 })
+  percent: number;
 
   @CreateDateColumn({
     type: 'timestamp',

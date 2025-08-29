@@ -1,7 +1,6 @@
 export const GET_ALL_TYPES_EXAMPLE = {
   statusCode: 200,
   data: {
-    additionalType: [],
     bedType: [],
     categoryType: [
       {

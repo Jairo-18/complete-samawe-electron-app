@@ -4,7 +4,7 @@ import { PaginatedListInvoicesParamsDto } from './../dtos/paginatedInvoice.dto';
 import { Invoice } from './../../shared/entities/invoice.entity';
 import {
   CreateInvoiceDetailDto,
-  CreateMultipleInvoiceDetailsDto,
+  // CreateMultipleInvoiceDetailsDto,
   CreateRelatedDataInvoiceResponseDto,
 } from './../dtos/invoiceDetaill.dto';
 import {
@@ -18,7 +18,7 @@ import {
   DeleteReCordResponseDto,
   DuplicatedResponseDto,
   NotFoundResponseDto,
-  SimpleSuccessResponseDto,
+  // SimpleSuccessResponseDto,
   UpdateRecordResponseDto,
 } from './../../shared/dtos/response.dto';
 import {
@@ -134,17 +134,19 @@ export class InvoiceController {
   @Post('invoice/:invoiceId/details')
   @ApiBearerAuth()
   @UseGuards(AuthGuard())
+  @ApiOkResponse({ type: CreatedRecordResponseDto })
   @ApiBody({ type: CreateInvoiceDetailDto })
   async createSingleDetail(
     @Param('invoiceId') invoiceId: number,
-    @Body() createDetailDto: any,
-  ): Promise<{ ok: boolean }> {
-    await this._invoiceDetaillMultiple.createMultipleDetails(invoiceId, [
-      createDetailDto,
-    ]);
+    @Body() dto: CreateInvoiceDetailDto,
+  ): Promise<CreatedRecordResponseDto> {
+    await this._invoiceUC.addDetail(invoiceId, dto);
 
-    // Devuelve un OK explícito
-    return { ok: true };
+    return {
+      data: null,
+      message: 'Item agregado exitosamente',
+      statusCode: HttpStatus.CREATED,
+    };
   }
 
   @Patch(':id')
@@ -159,30 +161,31 @@ export class InvoiceController {
     await this._invoiceUC.update({ invoiceId, ...invoiceData });
 
     return {
-      statusCode: HttpStatus.OK,
-    };
-  }
-
-  @Post('invoice/:invoiceId/details/bulk')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard())
-  @ApiBody({ type: CreateMultipleInvoiceDetailsDto }) // ✅ muestra el body esperado
-  @ApiOkResponse({ type: SimpleSuccessResponseDto }) // ✅ muestra la respuesta
-  @ApiNotFoundResponse({ type: NotFoundResponseDto })
-  async createBulkDetails(
-    @Param('invoiceId') invoiceId: number,
-    @Body() createMultipleDetailsDto: CreateMultipleInvoiceDetailsDto,
-  ): Promise<SimpleSuccessResponseDto> {
-    await this._invoiceDetaillMultiple.createMultipleDetails(
-      invoiceId,
-      createMultipleDetailsDto.details,
-    );
-
-    return {
-      message: 'Factura guardada',
+      message: 'Factura editada exitosamente',
       statusCode: HttpStatus.CREATED,
     };
   }
+
+  // @Post('invoice/:invoiceId/details/bulk')
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBody({ type: CreateMultipleInvoiceDetailsDto }) // ✅ muestra el body esperado
+  // @ApiOkResponse({ type: SimpleSuccessResponseDto }) // ✅ muestra la respuesta
+  // @ApiNotFoundResponse({ type: NotFoundResponseDto })
+  // async createBulkDetails(
+  //   @Param('invoiceId') invoiceId: number,
+  //   @Body() createMultipleDetailsDto: CreateMultipleInvoiceDetailsDto,
+  // ): Promise<SimpleSuccessResponseDto> {
+  //   await this._invoiceDetaillMultiple.createMultipleDetails(
+  //     invoiceId,
+  //     createMultipleDetailsDto.details,
+  //   );
+
+  //   return {
+  //     message: 'Factura guardada',
+  //     statusCode: HttpStatus.CREATED,
+  //   };
+  // }
 
   @Delete('details/:detailId')
   @ApiBearerAuth()
@@ -195,7 +198,7 @@ export class InvoiceController {
     await this._invoiceUC.deleteDetail(deleteDetailDto);
     return {
       statusCode: HttpStatus.OK,
-      message: 'Detalle eliminado correctamente',
+      message: 'Item eliminado correctamente',
     };
   }
 }

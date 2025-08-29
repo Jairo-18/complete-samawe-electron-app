@@ -1,6 +1,7 @@
+import { DiscountTypeRepository } from './../repositories/discount.repository';
+import { AdditionalTypeRepository } from './../repositories/additionalType.repository';
 import { PayTypeRepository } from './../repositories/payType.repository';
 import { PaidTypeRepository } from './../repositories/paidType.repository';
-import { AdditionalRepository } from './../repositories/additionalType.repository';
 import { StateTypeRepository } from './../repositories/stateType.repository';
 import { BedTypeRepository } from './../repositories/bedType.repository';
 import { RoleTypeRepository } from './../repositories/roleType.repository';
@@ -15,7 +16,6 @@ import { InvoiceTypeRepository } from '../repositories/invoiceType.repository';
 @Injectable()
 export class RepositoryService {
   public repositories: {
-    additionalType: AdditionalRepository;
     bedType: BedTypeRepository;
     categoryType: CategoryTypeRepository;
     identificationType: IdentificationTypeRepository;
@@ -26,10 +26,11 @@ export class RepositoryService {
     roleType: RoleTypeRepository;
     stateType: StateTypeRepository;
     taxeType: TaxeTypeRepository;
+    additionalType: AdditionalTypeRepository;
+    discountType: DiscountTypeRepository;
   };
 
   constructor(
-    private readonly _additionalRepository: AdditionalRepository,
     private readonly _bedTypeRepository: BedTypeRepository,
     private readonly _categoryTypeRepository: CategoryTypeRepository,
     private readonly _identificationTipeRepository: IdentificationTypeRepository,
@@ -40,9 +41,10 @@ export class RepositoryService {
     private readonly _roleRepository: RoleTypeRepository,
     private readonly _stateTypeRepository: StateTypeRepository,
     private readonly _taxeTypeRepository: TaxeTypeRepository,
+    private readonly _additionalTypeRepository: AdditionalTypeRepository,
+    private readonly _discountTypeRepository: DiscountTypeRepository,
   ) {
     this.repositories = {
-      additionalType: _additionalRepository,
       bedType: _bedTypeRepository,
       categoryType: _categoryTypeRepository,
       identificationType: _identificationTipeRepository,
@@ -53,6 +55,8 @@ export class RepositoryService {
       roleType: _roleRepository,
       stateType: _stateTypeRepository,
       taxeType: _taxeTypeRepository,
+      additionalType: _additionalTypeRepository,
+      discountType: _discountTypeRepository,
     };
   }
 

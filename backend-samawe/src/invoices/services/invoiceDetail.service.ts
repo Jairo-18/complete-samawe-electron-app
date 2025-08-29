@@ -85,7 +85,7 @@ export class InvoiceDetailService {
       const [invoice, taxeType] = await Promise.all([
         this._invoiceRepository.findOne({
           where: { invoiceId },
-          relations: ['invoiceType'],
+          relations: ['invoiceType', 'paidType'],
         }),
         dto.taxeTypeId
           ? this._taxeTypeRepository.findOne({
@@ -129,6 +129,7 @@ export class InvoiceDetailService {
       let priceBuy = 0;
       let priceWithoutTax = 0;
       let priceWithTax = 0;
+      let taxe = 0;
       let subtotal = 0;
       let isProduct = false;
       let product = null;
@@ -141,7 +142,6 @@ export class InvoiceDetailService {
           throw new NotFoundException('Producto no encontrado');
         }
 
-        // NUEVA VALIDACIÓN: Verificar si el producto está activo
         if (!product.isActive) {
           throw new BadRequestException('Este producto está inactivo');
         }
@@ -175,7 +175,9 @@ export class InvoiceDetailService {
         throw new BadRequestException('El precio sin impuesto no es válido');
       }
 
+      // Calcular el precio con impuesto
       priceWithTax = Number((priceWithoutTax * (1 + taxRate)).toFixed(2));
+      taxe = Number((priceWithTax - priceWithoutTax).toFixed(2));
       subtotal = Number((amount * priceWithTax).toFixed(2));
 
       const detail = this._invoiceDetaillRepository.create({
@@ -183,6 +185,7 @@ export class InvoiceDetailService {
         priceBuy,
         priceWithoutTax,
         priceWithTax,
+        taxe,
         subtotal,
         taxeType,
         invoice,
@@ -214,7 +217,6 @@ export class InvoiceDetailService {
       }
 
       if (accommodation) {
-        // Validación más robusta del estado
         if (!accommodation.stateType) {
           throw new BadRequestException(
             'El alojamiento no tiene un estado definido',
@@ -228,40 +230,60 @@ export class InvoiceDetailService {
           );
         }
 
-        // NUEVA VALIDACIÓN: Verificar si el hospedaje está disponible
-        if (stateName !== 'Disponible') {
-          let stateMessage = '';
+        // Verificar reservas existentes
+        if (dto.startDate && dto.endDate) {
+          const overlappingDetail = await this._invoiceDetaillRepository
+            .createQueryBuilder('detail')
+            .leftJoinAndSelect('detail.invoice', 'invoice')
+            .leftJoinAndSelect('invoice.paidType', 'paidType')
+            .where('detail.accommodation = :accommodationId', {
+              accommodationId: accommodation.accommodationId,
+            })
+            .andWhere(
+              'detail.startDate < :endDate AND detail.endDate > :startDate',
+              { startDate: dto.startDate, endDate: dto.endDate },
+            )
+            .getOne();
 
-          switch (stateName) {
-            case 'Mantenimiento':
-              stateMessage = 'El hospedaje está en mantenimiento';
-              break;
-            case 'Ocupado':
-              stateMessage = 'El hospedaje está ocupado';
-              break;
-            case 'Fuera de Servicio':
-              stateMessage = 'El hospedaje está fuera de servicio';
-              break;
-            default:
-              stateMessage = 'El hospedaje no está disponible';
+          if (
+            overlappingDetail &&
+            overlappingDetail.invoice?.paidType?.name &&
+            ['Reservado - Pagado', 'Reservado - Pendiente'].includes(
+              overlappingDetail.invoice.paidType.name.trim(),
+            )
+          ) {
+            throw new BadRequestException(
+              `El hospedaje ya está reservado entre ${dto.startDate} y ${dto.endDate}`,
+            );
           }
+        }
 
-          throw new BadRequestException(stateMessage);
+        if (stateName !== 'Disponible') {
+          throw new BadRequestException(
+            `El hospedaje no está disponible (estado actual: ${stateName})`,
+          );
         }
 
         detail.accommodation = accommodation;
 
-        // Cambiar estado a Ocupado
-        const ocupadoState = await this._stateTypeRepository.findOne({
-          where: { name: 'Ocupado' },
-        });
+        // ✅ Lógica: solo marcar Ocupado si la reserva es <= 7 días
+        if (dto.startDate) {
+          const diffDays = Math.ceil(
+            (new Date(dto.startDate).getTime() - new Date().getTime()) /
+              (1000 * 60 * 60 * 24),
+          );
 
-        if (!ocupadoState) {
-          throw new NotFoundException('No se encontró el estado "Ocupado"');
+          if (diffDays <= 7) {
+            const ocupadoState = await this._stateTypeRepository.findOne({
+              where: { name: 'Ocupado' },
+            });
+            if (!ocupadoState) {
+              throw new NotFoundException('No se encontró el estado "Ocupado"');
+            }
+            accommodation.stateType = ocupadoState;
+            await this._accommodationRepository.save(accommodation);
+          }
         }
-
-        accommodation.stateType = ocupadoState;
-        await this._accommodationRepository.save(accommodation); // Guardar inmediatamente
       }
 
       if (excursion) detail.excursion = excursion;
@@ -270,10 +292,11 @@ export class InvoiceDetailService {
 
       if (isProduct) {
         const currentAmount = Number(product.amount) || 0;
+
         if (invoice.invoiceType.code === 'FV') {
           if (currentAmount < amount) {
             throw new BadRequestException(
-              `No hay suficientes unidades para el producto ${product.name}`,
+              `No tienes stock del producto ${product.name}. Stock actual: ${currentAmount}, solicitado: ${amount}`,
             );
           }
           product.amount = currentAmount - amount;
@@ -370,9 +393,10 @@ export class InvoiceDetailService {
     }
 
     // ✅ ELIMINAR DETALLE Y ACTUALIZAR TOTAL EN PARALELO
-    ops.push(
-      this._invoiceDetaillRepository.remove(detail),
-      this._generalInvoiceDetaillService.updateInvoiceTotal(invoice.invoiceId),
+    await this._invoiceDetaillRepository.remove(detail);
+
+    await this._generalInvoiceDetaillService.updateInvoiceTotal(
+      invoice.invoiceId,
     );
 
     await Promise.all(ops);
@@ -386,5 +410,64 @@ export class InvoiceDetailService {
       invoiceId: invoice.invoiceId,
       deletedDetailId: invoiceDetailId,
     };
+  }
+
+  async handleScheduledReservation() {
+    const now = new Date();
+
+    // Buscar reservas que están en curso
+    const activeReservations = await this._invoiceDetaillRepository
+      .createQueryBuilder('detail')
+      .leftJoinAndSelect('detail.invoice', 'invoice')
+      .leftJoinAndSelect('invoice.paidType', 'paidType')
+      .leftJoinAndSelect('detail.accommodation', 'accommodation')
+      .leftJoinAndSelect('accommodation.stateType', 'stateType')
+      .where('detail.startDate <= :now AND detail.endDate >= :now', { now })
+      .getMany();
+
+    for (const reservation of activeReservations) {
+      if (
+        reservation.invoice?.paidType?.name &&
+        ['Reservado - Pagado', 'Reservado - Pendiente'].includes(
+          reservation.invoice.paidType.name.trim(),
+        )
+      ) {
+        if (
+          reservation.accommodation &&
+          reservation.accommodation.stateType?.name === 'Disponible'
+        ) {
+          const ocupadoState = await this._stateTypeRepository.findOne({
+            where: { name: 'Ocupado' },
+          });
+          if (ocupadoState) {
+            reservation.accommodation.stateType = ocupadoState;
+            await this._accommodationRepository.save(reservation.accommodation);
+          }
+        }
+      }
+    }
+
+    // 🆕 Buscar reservas que ya pasaron su fecha de fin
+    const expiredReservations = await this._invoiceDetaillRepository
+      .createQueryBuilder('detail')
+      .leftJoinAndSelect('detail.accommodation', 'accommodation')
+      .leftJoinAndSelect('accommodation.stateType', 'stateType')
+      .where('detail.endDate < :now', { now })
+      .getMany();
+
+    for (const reservation of expiredReservations) {
+      if (
+        reservation.accommodation &&
+        reservation.accommodation.stateType?.name === 'Ocupado'
+      ) {
+        const mantenimientoState = await this._stateTypeRepository.findOne({
+          where: { name: 'Mantenimiento' },
+        });
+        if (mantenimientoState) {
+          reservation.accommodation.stateType = mantenimientoState;
+          await this._accommodationRepository.save(reservation.accommodation);
+        }
+      }
+    }
   }
 }

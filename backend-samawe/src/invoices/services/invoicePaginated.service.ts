@@ -17,6 +17,7 @@ export class InvoicedPaginatedService {
     const skip = (params.page - 1) * params.perPage;
     const take = params.perPage;
 
+    // Primero, obtenemos las facturas paginadas
     const query = this._invoiceRepository
       .createQueryBuilder('invoice')
       .leftJoinAndSelect('invoice.user', 'user')
@@ -33,6 +34,7 @@ export class InvoicedPaginatedService {
       .leftJoinAndSelect('invoice.invoiceType', 'invoiceType')
       .where('1=1');
 
+    // Aplicar todos los filtros
     if (params.invoiceTypeId) {
       query.andWhere('invoice.invoiceType = :invoiceType', {
         invoiceType: params.invoiceTypeId,
@@ -98,8 +100,6 @@ export class InvoicedPaginatedService {
       query.andWhere('invoice.createdAt <= :to', { to: params.createdAtTo });
     }
 
-    // Filtrar por rango de fechas de salida
-    // Filtrar por rango de fechas de salida
     if (params.startDate && params.endDate) {
       const start = `${params.startDate} 00:00:00`;
       const end = `${params.endDate} 23:59:59`;
@@ -126,6 +126,7 @@ export class InvoicedPaginatedService {
         taxeTypeId: params.taxeTypeId,
       });
     }
+
     if (params.search) {
       const search = params.search.trim();
       const isNumeric = !isNaN(Number(search));
@@ -151,6 +152,7 @@ export class InvoicedPaginatedService {
       query.andWhere(`(${conditions.join(' OR ')})`, { searchStr });
     }
 
+    // Aplicar paginación
     query
       .skip(skip)
       .take(take)
@@ -158,7 +160,19 @@ export class InvoicedPaginatedService {
 
     const [items, itemCount] = await query.getManyAndCount();
 
+    // Calcular la suma de impuestos para cada factura
     const transformedItems = items.map((invoice) => {
+      // Calcular la suma de impuestos para esta factura
+      let totalTaxes = 0;
+      if (invoice.invoiceDetails && invoice.invoiceDetails.length > 0) {
+        totalTaxes = invoice.invoiceDetails.reduce((sum, detail) => {
+          // Calcular el monto de impuestos para este detalle
+          const taxAmount =
+            (detail.priceWithTax - detail.priceWithoutTax) * detail.amount;
+          return sum + taxAmount;
+        }, 0);
+      }
+
       const simplified: SimplifiedInvoiceResponse = {
         invoiceId: invoice.invoiceId,
         code: invoice.code,
@@ -175,6 +189,7 @@ export class InvoicedPaginatedService {
           typeof invoice.total === 'string'
             ? parseFloat(invoice.total) || 0
             : invoice.total || 0,
+        totalTaxes, // Agregar la suma de impuestos calculada
         startDate: invoice.startDate,
         endDate: invoice.endDate,
         user: invoice.user

@@ -34,12 +34,13 @@ export class GenericTypeService<T extends object> {
       payType: 'payTypeId',
       invoiceType: 'invoiceTypeId',
       paidType: 'paidTypeId',
-      additionalType: 'additionalTypeId',
       bedType: 'bedTypeId',
       categoryType: 'categoryTypeId',
       identificationType: 'identificationTypeId',
       stateType: 'stateTypeId',
       taxeType: 'taxeTypeId',
+      discountType: 'discountTypeId',
+      additionalType: 'additionalTypeId',
     };
     return idFieldByEntity[type] ?? 'id';
   }
@@ -51,7 +52,6 @@ export class GenericTypeService<T extends object> {
       invoiceType: ['name', 'code', 'invoiceTypeId'],
       payType: ['name', 'code', 'payTypeId'],
       paidType: ['name', 'code', 'paidTypeId'],
-      additionalType: ['name', 'code', 'additionalTypeId'],
       bedType: ['name', 'code', 'bedTypeId'],
       categoryType: ['name', 'code', 'categoryTypeId'],
       identificationType: ['name', 'code', 'identificationTypeId'],
@@ -108,7 +108,6 @@ export class GenericTypeService<T extends object> {
 
   private getPrimaryKeyForType(type: string): string {
     const map: Record<string, string> = {
-      additionalType: 'additionalTypeId',
       bedType: 'bedTypeId',
       invoiceType: 'invoiceTypeId',
       categoryType: 'categoryTypeId',
@@ -170,9 +169,6 @@ export class GenericTypeService<T extends object> {
       payType: [{ entity: 'Invoice', field: 'payTypeId' }],
       invoiceType: [{ entity: 'Invoice', field: 'invoiceTypeId' }],
       paidType: [{ entity: 'Invoice', field: 'paidTypeId' }],
-      additionalType: [
-        // No se usa en ninguna entidad según tu contexto
-      ],
       bedType: [{ entity: 'Accommodation', field: 'bedTypeId' }],
       categoryType: [
         { entity: 'Product', field: 'categoryTypeId' },
@@ -388,45 +384,8 @@ export class GenericTypeService<T extends object> {
     }
   }
 
-  // async getMultiplePaginatedTypes(
-  //   types: string[],
-  //   params: ParamsPaginationGenericDto,
-  // ): Promise<MultiplePaginatedResponse> {
-  //   const repositories = this.repositoryService.repositories;
-  //   const invalidTypes = types.filter((type) => !repositories[type]);
-  //   if (invalidTypes.length) {
-  //     throw new NotFoundException(
-  //       `Tipos no válidos: ${invalidTypes.join(', ')}`,
-  //     );
-  //   }
-
-  //   const promises = types.map(async (type) => {
-  //     const data = await this.paginatedList(params, type);
-  //     return [type, data] as [string, ResponsePaginationDto<any>];
-  //   });
-
-  //   const results = await Promise.all(promises);
-  //   return Object.fromEntries(results);
-  // }
-
-  // async getMultiplePaginatedTypesWithProcessing(
-  //   params: ParamsPaginationGenericDto,
-  //   typesParam?: string,
-  // ): Promise<{
-  //   data: MultiplePaginatedResponse;
-  //   typesCount: number;
-  // }> {
-  //   const types = this.processTypesParam(typesParam);
-  //   const data = await this.getMultiplePaginatedTypes(types, params);
-  //   return { data, typesCount: types.length };
-  // }
-
-  // getAvailableTypes(): string[] {
-  //   return Object.keys(this.repositoryService.repositories);
-  // }
-
-  // getAvailableTypesWithCount(): { types: string[]; count: number } {
-  //   const types = this.getAvailableTypes();
-  //   return { types, count: types.length };
-  // }
+  async findAllByType(type: string): Promise<T[]> {
+    const repo = this.getRepositoryByType(type);
+    return await repo.find();
+  }
 }

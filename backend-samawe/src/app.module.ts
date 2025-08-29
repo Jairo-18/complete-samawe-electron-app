@@ -1,3 +1,4 @@
+import { CronJobModule } from './cronJobs/cronJob.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { GenericTypeModule } from './types/genericType.module';
 import { ExcursionModule } from './excursions/excursion.module';
@@ -15,6 +16,7 @@ import { UserModule } from './user/user.module';
 import { AccommodationModule } from './accommodations/accommodation.module';
 import { InvoiceModule } from './invoices/invoice.module';
 import { EarningModule } from './earnings/earning.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { EarningModule } from './earnings/earning.module';
       isGlobal: true,
       load: [config],
     }),
+    ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
@@ -35,6 +38,7 @@ import { EarningModule } from './earnings/earning.module';
     InvoiceModule,
     EarningModule,
     CloudinaryModule,
+    CronJobModule,
   ],
   controllers: [AppController],
   providers: [AppService],

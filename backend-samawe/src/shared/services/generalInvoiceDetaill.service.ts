@@ -18,41 +18,27 @@ export class GeneralInvoiceDetaillService {
   ) {}
   async updateInvoiceTotal(invoiceId: number): Promise<void> {
     try {
-      const details = await this._invoiceDetaillRepository.find({
-        where: { invoice: { invoiceId } },
-      });
+      // ✅ Calcular totales directamente en la DB
+      const { subtotalWithoutTax, subtotalWithTax, total } =
+        await this._invoiceDetaillRepository
+          .createQueryBuilder('d')
+          .select(
+            'COALESCE(SUM(d.priceWithoutTax * d.amount), 0)',
+            'subtotalWithoutTax',
+          )
+          .addSelect(
+            'COALESCE(SUM((d.priceWithTax - d.priceWithoutTax) * d.amount), 0)',
+            'subtotalWithTax',
+          )
+          .addSelect('COALESCE(SUM(d.priceWithTax * d.amount), 0)', 'total')
+          .where('d.invoiceId = :invoiceId', { invoiceId })
+          .getRawOne();
 
-      let subtotalWithoutTax = 0;
-      let subtotalWithTax = 0;
-      let total = 0;
-
-      for (const detail of details) {
-        const priceWithoutTax = Number(detail.priceWithoutTax) || 0;
-        const priceWithTax = Number(detail.priceWithTax) || 0;
-        const amount = Number(detail.amount) || 0;
-
-        if (priceWithoutTax < 0 || priceWithTax < 0 || amount < 0) {
-          continue;
-        }
-
-        const lineSubtotalWithoutTax = priceWithoutTax * amount;
-        const lineSubtotalWithTax = priceWithTax * amount;
-        const taxAmount = lineSubtotalWithTax - lineSubtotalWithoutTax;
-
-        subtotalWithoutTax += lineSubtotalWithoutTax;
-        subtotalWithTax += taxAmount;
-        total += lineSubtotalWithTax;
-      }
-
-      // Redondear para evitar problemas de precisión decimal
-      subtotalWithoutTax = Math.round(subtotalWithoutTax * 100) / 100;
-      subtotalWithTax = Math.round(subtotalWithTax * 100) / 100;
-      total = Math.round(total * 100) / 100;
-
+      // ✅ Actualizar factura
       const updateResult = await this._invoiceRepository.update(invoiceId, {
-        subtotalWithoutTax,
-        subtotalWithTax,
-        total,
+        subtotalWithoutTax: Math.round(Number(subtotalWithoutTax) * 100) / 100,
+        subtotalWithTax: Math.round(Number(subtotalWithTax) * 100) / 100,
+        total: Math.round(Number(total) * 100) / 100,
       });
 
       if (updateResult.affected === 0) {

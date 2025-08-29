@@ -5,6 +5,7 @@ export interface SimplifiedInvoiceResponse {
   subtotalWithoutTax?: number;
   subtotalWithTax?: number;
   total: number;
+  totalTaxes?: number;
   startDate: Date;
   endDate: Date;
   user?: {

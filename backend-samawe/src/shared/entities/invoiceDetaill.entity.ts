@@ -44,6 +44,9 @@ export class InvoiceDetaill {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   priceWithoutTax: number;
 
+  @Column({ type: 'numeric', nullable: true, default: 0 })
+  taxe: number;
+
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   priceWithTax: number;
 

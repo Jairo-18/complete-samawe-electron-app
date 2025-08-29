@@ -35,7 +35,7 @@ export class InvoiceService {
     private readonly _taxeTypeRepository: TaxeTypeRepository,
     private readonly _payTypeRepository: PayTypeRepository,
     private readonly _paidTypeRepository: PaidTypeRepository,
-    private readonly _invoiceDetailRepository: InvoiceDetaillRepository,
+    private readonly _invoiceDetaillRepository: InvoiceDetaillRepository,
     private readonly _userRepository: UserRepository,
     private readonly _productRepository: ProductRepository,
     private readonly _accommodationRepository: AccommodationRepository,
@@ -112,7 +112,7 @@ export class InvoiceService {
       priceWithTax = Number((priceWithoutTax * (1 + taxRate)).toFixed(2));
       detailSubtotal = Number((amount * priceWithTax).toFixed(2));
 
-      const detail = this._invoiceDetailRepository.create({
+      const detail = this._invoiceDetaillRepository.create({
         amount,
         priceBuy,
         priceWithoutTax,
@@ -357,6 +357,16 @@ export class InvoiceService {
       throw new NotFoundException('Factura no encontrada');
     }
 
+    // 🔹 Calcular suma de impuestos (subtotalWithTax) directamente desde detalles
+    const { totalTaxes } = await this._invoiceDetaillRepository
+      .createQueryBuilder('d')
+      .select(
+        'COALESCE(SUM((d.priceWithTax - d.priceWithoutTax) * d.amount), 0)',
+        'totalTaxes',
+      )
+      .where('d.invoiceId = :invoiceId', { invoiceId })
+      .getRawOne();
+
     return {
       invoiceId: invoice.invoiceId,
       code: invoice.code,
@@ -364,7 +374,10 @@ export class InvoiceService {
       invoiceElectronic: invoice.invoiceElectronic,
       subtotalWithoutTax: invoice.subtotalWithoutTax.toString(),
       subtotalWithTax: invoice.subtotalWithTax.toString(),
+      cash: invoice.cash,
+      transfer: invoice.transfer,
       total: invoice.total.toString(),
+      totalTaxes: Number(totalTaxes),
       invoiceType: {
         invoiceTypeId: invoice.invoiceType.invoiceTypeId,
         code: invoice.invoiceType.code,
@@ -388,22 +401,21 @@ export class InvoiceService {
         phone: invoice.user.phone,
         phoneCode: invoice.user.phoneCode
           ? {
-              phoneCodeId: Number(invoice.user.phoneCode.phoneCodeId), // asegúrate de que sea número
+              phoneCodeId: Number(invoice.user.phoneCode.phoneCodeId),
               code: invoice.user.phoneCode.code,
-              name: invoice.user.phoneCode.name, // <--- este era el que faltaba
+              name: invoice.user.phoneCode.name,
             }
           : undefined,
         identificationType: invoice.user.identificationType
           ? {
               identificationTypeId: Number(
                 invoice.user.identificationType.identificationTypeId,
-              ), // <--- corregido a number
+              ),
               code: invoice.user.identificationType.code,
               name: invoice.user.identificationType.name,
             }
           : undefined,
       },
-
       employee: {
         userId: invoice.employee.userId,
         firstName: invoice.employee.firstName,
@@ -417,20 +429,24 @@ export class InvoiceService {
           priceWithoutTax: detail.priceWithoutTax.toString(),
           priceWithTax: detail.priceWithTax.toString(),
           subtotal: detail.subtotal.toString(),
+
           product: detail.product && {
             productId: detail.product.productId,
             name: detail.product.name,
             code: detail.product.code,
+            taxe: detail.taxe,
           },
           accommodation: detail.accommodation && {
             accommodationId: detail.accommodation.accommodationId,
             name: detail.accommodation.name,
             code: detail.accommodation.code,
+            taxe: detail.taxe,
           },
           excursion: detail.excursion && {
             excursionId: detail.excursion.excursionId,
             name: detail.excursion.name,
             code: detail.excursion.code,
+            taxe: detail.taxe,
           },
         };
 
@@ -453,6 +469,7 @@ export class InvoiceService {
       payTypeId,
       paidTypeId,
       invoiceElectronic,
+
       observations,
     } = updateDto;
 
@@ -500,6 +517,10 @@ export class InvoiceService {
       if (observations !== undefined) {
         invoice.observations = observations;
       }
+
+      if (updateDto.cash !== undefined) invoice.cash = updateDto.cash;
+      if (updateDto.transfer !== undefined)
+        invoice.transfer = updateDto.transfer;
 
       await queryRunner.manager.save(invoice);
       await queryRunner.commitTransaction();
