@@ -267,8 +267,10 @@ export class SeeExcursionsComponent implements OnInit {
 
   validateIfCanEditUserOrDelete(user: UserComplete): boolean {
     return (
-      this.userLogged?.roleType?.name === 'Administrador' &&
-      user.roleType?.name === 'Cliente'
+      this.userLogged?.roleType?.name === 'Administrador' ||
+      (this.userLogged?.roleType?.name === 'ADMINISTRADOR' &&
+        user.roleType?.name === 'Cliente') ||
+      user.roleType?.name === 'CLIENTE'
     );
   }
 }

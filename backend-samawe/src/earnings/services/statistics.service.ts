@@ -31,10 +31,15 @@ export class StatisticsService {
       .where('stateType.name IN (:...names)', {
         names: [
           'Disponible',
+          'DISPONIBLE',
           'Mantenimiento',
+          'MANTENIMIENTO',
           'Fuera de Servicio',
+          'FUERA DE SERVICIO',
           'Ocupado',
+          'OCUPADO',
           'Reservado',
+          'RESERVADO',
         ],
       })
       .groupBy('stateType.name')
@@ -48,7 +53,14 @@ export class StatisticsService {
       .select('stateType.name', 'state')
       .addSelect('COUNT(*)', 'count')
       .where('stateType.name IN (:...names)', {
-        names: ['Disponible', 'Mantenimiento', 'Fuera de Servicio'],
+        names: [
+          'Disponible',
+          'Mantenimiento',
+          'Fuera de Servicio',
+          'DISPONIBLE',
+          'MANTENIMIENTO',
+          'FUERA DE SERVICIO',
+        ],
       })
       .groupBy('stateType.name')
       .getRawMany();
@@ -65,7 +77,12 @@ export class StatisticsService {
       ])
       .where('detail.accommodationId IS NOT NULL')
       .andWhere('paidType.name IN (:...names)', {
-        names: ['Reservado - Pagado', 'Reservado - Pendiente'],
+        names: [
+          'Reservado - Pagado',
+          'Reservado - Pendiente',
+          'RESERVADO - PAGADO',
+          'RESERVADO - PENDIENTE',
+        ],
       })
       .getRawMany();
   }

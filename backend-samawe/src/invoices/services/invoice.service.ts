@@ -26,6 +26,7 @@ import {
   UpdateInvoiceDto,
 } from '../dtos/invoice.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { In } from 'typeorm';
 
 @Injectable()
 export class InvoiceService {
@@ -282,7 +283,9 @@ export class InvoiceService {
       let hasProducts = false;
 
       const disponibleState = await queryRunner.manager.findOne(StateType, {
-        where: { name: 'Disponible' },
+        where: {
+          name: In(['Disponible', 'DISPONIBLE']),
+        },
       });
 
       for (const detail of invoice.invoiceDetails) {

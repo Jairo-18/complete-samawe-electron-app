@@ -39,12 +39,16 @@
         {{ accommodation.name }}
         <span
           [ngClass]="{
-            'text-green-600': accommodation.stateType?.name === 'Disponible',
+            'text-green-600':
+              accommodation.stateType?.name === 'Disponible' ||
+              accommodation.stateType?.name === 'DISPONIBLE',
             'text-yellow-600':
-              accommodation.stateType?.name === 'Mantenimiento',
+              accommodation.stateType?.name === 'Mantenimiento' ||
+              accommodation.stateType?.name === 'MANTENIMIENTO',
             'text-red-600':
-              accommodation.stateType?.name === 'Fuera de Servicio',
-            'text-blue-600': accommodation.stateType?.name === 'Ocupado'
+              accommodation.stateType?.name === 'Fuera de Servicio' ||
+              accommodation.stateType?.name === 'FUERA DE SERVICIO',
+            'text-blue-600': accommodation.stateType?.name === 'Ocupado' || accommodation.stateType?.name === 'OCUPADO'
           }"
         >
           - {{ accommodation.stateType?.name }}
@@ -91,6 +95,32 @@
         class="text-right"
       />
       <mat-icon matSuffix>numbers</mat-icon>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-0 md:gap-2">
+    <!-- Tipo de Descuento -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Mínimo Personas</mat-label>
+      <input
+        matInput
+        formControlName="amountPerson"
+        appCurrencyFormat
+        class="text-right"
+      />
+      <mat-icon matSuffix>person</mat-icon>
+    </mat-form-field>
+
+    <!-- Tipo de Descuento -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Máximo Personas</mat-label>
+      <input
+        matInput
+        formControlName="amountBathroom"
+        appCurrencyFormat
+        class="text-right"
+      />
+      <mat-icon matSuffix>group</mat-icon>
     </mat-form-field>
   </div>
 

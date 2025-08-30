@@ -85,7 +85,6 @@ export class EarningController {
     return this._inventoryService.paginatedList(params);
   }
 
-  // Actualizar hospedajes ocupados con fecha caducada a mantenimiento
   @Get('update-accommodations')
   @ApiBearerAuth()
   @UseGuards(AuthGuard())

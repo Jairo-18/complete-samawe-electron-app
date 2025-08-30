@@ -9,7 +9,6 @@ import { CreateInvoiceDetaill } from '../interface/invoiceDetaill.interface';
 // Servicio injectable en el root del proyecto (singleton)
 @Injectable({ providedIn: 'root' })
 export class InvoiceDetaillService {
-  // Inyección del cliente HTTP para hacer peticiones al backend
   private readonly _httpClient: HttpClient = inject(HttpClient);
 
   /**

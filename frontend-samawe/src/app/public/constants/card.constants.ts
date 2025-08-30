@@ -7,7 +7,12 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     description: 'Administra usuarios, roles y permisos del sistema',
     route: '/organizational/users/list',
     iconNext: 'navigate_next',
-    allowedRoles: ['Recepcionista', 'Administrador']
+    allowedRoles: [
+      'Recepcionista',
+      'Administrador',
+      'ADMINISTRADOR',
+      'RECEPCIONISTA'
+    ]
   },
   {
     icon: 'store',
@@ -16,7 +21,12 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     route: '/service-and-product/general',
     queryParams: { editProduct: true },
     iconNext: 'navigate_next',
-    allowedRoles: ['Recepcionista', 'Administrador']
+    allowedRoles: [
+      'Recepcionista',
+      'Administrador',
+      'ADMINISTRADOR',
+      'RECEPCIONISTA'
+    ]
   },
   {
     icon: 'hotel',
@@ -25,7 +35,12 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     route: '/service-and-product/general',
     queryParams: { editAccommodation: true },
     iconNext: 'navigate_next',
-    allowedRoles: ['Recepcionista', 'Administrador']
+    allowedRoles: [
+      'Recepcionista',
+      'Administrador',
+      'ADMINISTRADOR',
+      'RECEPCIONISTA'
+    ]
   },
   {
     icon: 'tour',
@@ -34,7 +49,12 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     route: '/service-and-product/general',
     queryParams: { editExcursion: true },
     iconNext: 'navigate_next',
-    allowedRoles: ['Recepcionista', 'Administrador']
+    allowedRoles: [
+      'Recepcionista',
+      'Administrador',
+      'ADMINISTRADOR',
+      'RECEPCIONISTA'
+    ]
   },
   {
     icon: 'note',
@@ -42,7 +62,12 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     description: 'Genera y gestiona facturas, pagos y cobros',
     route: '/invoice/invoices/list',
     iconNext: 'navigate_next',
-    allowedRoles: ['Recepcionista', 'Administrador']
+    allowedRoles: [
+      'Recepcionista',
+      'Administrador',
+      'ADMINISTRADOR',
+      'RECEPCIONISTA'
+    ]
   },
   {
     icon: 'attach_money',
@@ -50,7 +75,12 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     description: 'Analiza el rendimiento con reportes detallados',
     route: '/sales/earnings-sumary',
     iconNext: 'navigate_next',
-    allowedRoles: ['Recepcionista', 'Administrador']
+    allowedRoles: [
+      'Recepcionista',
+      'Administrador',
+      'ADMINISTRADOR',
+      'RECEPCIONISTA'
+    ]
   },
   {
     icon: 'settings',
@@ -58,6 +88,11 @@ export const DASHBOARD_CARDS: DashboardCard[] = [
     description: 'Configuración y administración del sistema',
     route: '/organizational/types/manage',
     iconNext: 'navigate_next',
-    allowedRoles: ['Administrador']
+    allowedRoles: [
+      'Recepcionista',
+      'Administrador',
+      'ADMINISTRADOR',
+      'RECEPCIONISTA'
+    ]
   }
 ];

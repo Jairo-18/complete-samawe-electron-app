@@ -38,10 +38,18 @@
         {{ excursion.name }}
         <span
           [ngClass]="{
-            'text-green-600': excursion.stateType?.name === 'Disponible',
-            'text-yellow-600': excursion.stateType?.name === 'Mantenimiento',
-            'text-red-600': excursion.stateType?.name === 'Fuera de Servicio',
-            'text-blue-600': excursion.stateType?.name === 'Ocupado'
+            'text-green-600':
+              excursion.stateType?.name === 'Disponible' ||
+              excursion.stateType?.name === 'DISPONIBLE',
+            'text-yellow-600':
+              excursion.stateType?.name === 'Mantenimiento' ||
+              excursion.stateType?.name === 'MANTENIMIENTO',
+            'text-red-600':
+              excursion.stateType?.name === 'Fuera de Servicio' ||
+              excursion.stateType?.name === 'FUERA DE SERVICIO',
+            'text-blue-600':
+              excursion.stateType?.name === 'Ocupado' ||
+              excursion.stateType?.name === 'OCUPADO'
           }"
         >
           - {{ excursion.stateType?.name }}

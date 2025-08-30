@@ -184,11 +184,15 @@
             *matCellDef="let invoice"
             [ngClass]="{
               'text-green-700 font-bold':
-                invoice?.paidType?.name === 'Pagado' ||
-                invoice?.paidType?.name === 'Reservado - Pagado',
-              'text-red-700 font-bold':
-                invoice?.paidType?.name === 'Pendiente' ||
-                invoice?.paidType?.name === 'Reservado - Pendiente'
+                invoice.paidType.name === 'Pagado' ||
+                invoice.paidType.name === 'PAGADO' ||
+                invoice.paidType.name === 'RESERVADO - PAGADO' ||
+                invoice.paidType.name === 'Reservado - Pagado',
+              'text-red-600 font-bold':
+                invoice.paidType.name === 'PENDIENTE' ||
+                invoice.paidType.name === 'Pendiente' ||
+                invoice.paidType.name === 'RESERVADO - PENDIENTE' ||
+                invoice.paidType.name === 'Reservado - Pendiente'
             }"
           >
             {{ invoice.paidType?.name || '---' }}
@@ -436,11 +440,15 @@
               *matCellDef="let invoice"
               [ngClass]="{
                 'text-green-700 font-bold':
-                  invoice?.paidType?.name === 'Pagado' ||
-                  invoice?.paidType?.name === 'Reservado - Pagado',
-                'text-red-700 font-bold':
-                  invoice?.paidType?.name === 'Pendiente' ||
-                  invoice?.paidType?.name === 'Reservado - Pendiente'
+                  invoice.paidType.name === 'Pagado' ||
+                  invoice.paidType.name === 'PAGADO' ||
+                  invoice.paidType.name === 'RESERVADO - PAGADO' ||
+                  invoice.paidType.name === 'Reservado - Pagado',
+                'text-red-600 font-bold':
+                  invoice.paidType.name === 'PENDIENTE' ||
+                  invoice.paidType.name === 'Pendiente' ||
+                  invoice.paidType.name === 'RESERVADO - PENDIENTE' ||
+                  invoice.paidType.name === 'Reservado - Pendiente'
               }"
             >
               {{ invoice.paidType?.name || '---' }}

@@ -34,9 +34,13 @@
         [ngClass]="{
           'text-green-600':
             invoiceData.paidType.name === 'Pagado' ||
+            invoiceData.paidType.name === 'PAGADO' ||
+            invoiceData.paidType.name === 'RESERVADO - PAGADO' ||
             invoiceData.paidType.name === 'Reservado - Pagado',
           'text-red-600':
+            invoiceData.paidType.name === 'PENDIENTE' ||
             invoiceData.paidType.name === 'Pendiente' ||
+            invoiceData.paidType.name === 'RESERVADO - PENDIENTE' ||
             invoiceData.paidType.name === 'Reservado - Pendiente'
         }"
         >{{ invoiceData.paidType.name }}

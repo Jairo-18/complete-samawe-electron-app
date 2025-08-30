@@ -34,6 +34,7 @@ import {
 } from '../../interface/excursion.interface';
 import { ExcursionsService } from '../../services/excursions.service';
 import { SectionHeaderComponent } from '../../../shared/components/section-header/section-header.component';
+import { UppercaseDirective } from '../../../shared/directives/uppercase.directive';
 
 @Component({
   selector: 'app-create-or-edit-excursion',
@@ -51,7 +52,8 @@ import { SectionHeaderComponent } from '../../../shared/components/section-heade
     MatIcon,
     MatIconModule,
     CurrencyFormatDirective,
-    SectionHeaderComponent
+    SectionHeaderComponent,
+    UppercaseDirective
   ],
   templateUrl: './create-or-edit-excursion.component.html',
   styleUrl: './create-or-edit-excursion.component.scss'
@@ -65,7 +67,7 @@ export class CreateOrEditExcursionComponent implements OnChanges {
   set categoryTypes(value: CategoryType[]) {
     this._categoryTypes = value;
     this.visibleCategoryTypes = value.filter((c) =>
-      ['Pasadía', 'Servicios'].includes(c.name)
+      ['Pasadía', 'Servicios', 'PASADIA', 'SERVICIOS'].includes(c.name)
     );
 
     // CLAVE: Si ya tenemos una excursión cargada y ahora llegan las categorías,

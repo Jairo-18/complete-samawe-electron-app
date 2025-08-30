@@ -153,6 +153,8 @@ export class AddAccommodationComponent implements OnInit {
       startTime: [now, Validators.required],
       endDate: [null, Validators.required],
       endTime: [null, Validators.required],
+      amountPerson: [0],
+      amountBathroom: [0],
 
       startDateTime: [null, Validators.required],
       endDateTime: [null, Validators.required],
@@ -268,6 +270,7 @@ export class AddAccommodationComponent implements OnInit {
       {
         priceWithoutTax: this.subtotal,
         unitPrice: this.unitPrice,
+
         finalPrice: this.finalPrice
       },
       { emitEvent: false }
@@ -353,6 +356,8 @@ export class AddAccommodationComponent implements OnInit {
     this.form.patchValue({
       name: acc, // aquí se guarda el objeto en el form, pero displayWith muestra solo el nombre
       accommodationId: acc.accommodationId,
+      amountPerson: acc.amountPerson ?? 0,
+      amountBathroom: acc.amountBathroom ?? 0,
       priceSale: price
     });
 
@@ -383,7 +388,9 @@ export class AddAccommodationComponent implements OnInit {
         finalPrice: 0,
         unitPrice: 0,
         discountTypeId: null,
-        additionalTypeId: null
+        additionalTypeId: null,
+        amountPerson: 0,
+        amountBathroom: 0
       },
       { emitEvent: false }
     );
@@ -411,6 +418,8 @@ export class AddAccommodationComponent implements OnInit {
       priceSale: 0,
       finalPrice: 0,
       unitPrice: 0,
+      amountPerson: 0,
+      amountBathroom: 0,
       priceWithoutTax: 0
     });
 

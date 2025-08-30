@@ -28,6 +28,7 @@ import {
 import { BasePageComponent } from '../../../shared/components/base-page/base-page.component';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { UserInterface } from '../../../shared/interfaces/user.interface';
+import { UppercaseDirective } from '../../../shared/directives/uppercase.directive';
 
 @Component({
   selector: 'app-create-or-edit-users',
@@ -44,7 +45,8 @@ import { UserInterface } from '../../../shared/interfaces/user.interface';
     FontAwesomeModule,
     MatIcon,
     BasePageComponent,
-    LoaderComponent
+    LoaderComponent,
+    UppercaseDirective
   ],
   templateUrl: './create-or-edit-users.component.html',
   styleUrl: './create-or-edit-users.component.scss'
@@ -112,17 +114,23 @@ export class CreateOrEditUsersComponent implements OnInit {
       next: (res) => {
         const allRoles = res.data?.roleType || [];
 
-        // ✅ Ahora this.userLogged ya está disponible
         const roleName = this.userLogged?.roleType?.name;
 
-        if (roleName === 'Recepcionista') {
+        if (roleName === 'Recepcionista' || roleName === 'RECEPCIONISTA') {
           // Si es Recepcionista, solo puede ver el rol Cliente
-          this.roleType = allRoles.filter((r) => r.name === 'Cliente');
-        } else if (roleName === 'Empleado') {
+          this.roleType = allRoles.filter(
+            (r) => r.name === 'Cliente' || r.name === 'CLIENTE'
+          );
+        } else if (
+          roleName === 'Empleado' ||
+          roleName === 'RECEPCIONISTA' ||
+          roleName === 'recepcionista'
+        ) {
           // Si es Empleado, solo puede ver el rol Cliente
-          this.roleType = allRoles.filter((r) => r.name === 'Cliente');
+          this.roleType = allRoles.filter(
+            (r) => r.name === 'Cliente' || r.name === 'CLIENTE'
+          );
         } else {
-          // Administradores ven todos los roles
           this.roleType = allRoles;
         }
 

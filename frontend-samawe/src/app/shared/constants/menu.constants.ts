@@ -59,7 +59,7 @@ export const MENU_CONST: MenuInterface[] = [
 ];
 
 export const ROLE_PERMISSIONS: Record<string, string[]> = {
-  Usuario: [''],
+  Cliente: [''],
   Recepcionista: [
     'Clientes',
     'Productos y servicios',
@@ -68,6 +68,23 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     'Inicio'
   ],
   Administrador: [
+    'Clientes',
+    'Productos y servicios',
+    'Gestión',
+    'Facturas',
+    'Reportes / Ganancias',
+    'Inicio'
+  ],
+
+  CLLIENTE: [''],
+  RECEPCIONISTA: [
+    'Clientes',
+    'Productos y servicios',
+    'Facturas',
+    'Reportes / Ganancias',
+    'Inicio'
+  ],
+  ADMINISTRADOR: [
     'Clientes',
     'Productos y servicios',
     'Gestión',

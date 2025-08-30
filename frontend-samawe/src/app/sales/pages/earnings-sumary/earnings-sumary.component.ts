@@ -82,7 +82,7 @@ export class EarningsSumaryComponent implements OnInit {
   get availableAccommodationsCount(): number {
     return Number(
       this.dashboardSummary?.accommodations?.find(
-        (a) => a.state === 'Disponible'
+        (a) => a.state === 'Disponible' || a.state === 'DISPONIBLE'
       )?.count ?? 0
     );
   }
@@ -90,22 +90,24 @@ export class EarningsSumaryComponent implements OnInit {
   get maintenanceAccommodationsCount(): number {
     return Number(
       this.dashboardSummary?.accommodations?.find(
-        (a) => a.state === 'Mantenimiento'
+        (a) => a.state === 'Mantenimiento' || a.state === 'MANTENIMIENTO'
       )?.count ?? 0
     );
   }
 
   get occupiedAccommodationsCount(): number {
     return Number(
-      this.dashboardSummary?.accommodations?.find((a) => a.state === 'Ocupado')
-        ?.count ?? 0
+      this.dashboardSummary?.accommodations?.find(
+        (a) => a.state === 'Ocupado' || a.state === 'OCUPADO'
+      )?.count ?? 0
     );
   }
 
   get noServiceAccommodationsCount(): number {
     return Number(
       this.dashboardSummary?.accommodations?.find(
-        (a) => a.state === 'Fuera de Servicio'
+        (a) =>
+          a.state === 'Fuera de Servicio' || a.state === 'FUERA DE SERVICIO'
       )?.count ?? 0
     );
   }

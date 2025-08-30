@@ -30,6 +30,7 @@ import { CreateProductPanel } from '../../interface/product.interface';
 import { CurrencyFormatDirective } from '../../../shared/directives/currency-format.directive';
 import { CategoryType } from '../../../shared/interfaces/relatedDataGeneral';
 import { SectionHeaderComponent } from '../../../shared/components/section-header/section-header.component';
+import { UppercaseDirective } from '../../../shared/directives/uppercase.directive';
 
 @Component({
   selector: 'app-create-or-edit-product',
@@ -46,7 +47,8 @@ import { SectionHeaderComponent } from '../../../shared/components/section-heade
     FontAwesomeModule,
     MatIcon,
     CurrencyFormatDirective,
-    SectionHeaderComponent
+    SectionHeaderComponent,
+    UppercaseDirective
   ],
   templateUrl: './create-or-edit-product.component.html',
   styleUrl: './create-or-edit-product.component.scss',
@@ -60,7 +62,16 @@ export class CreateOrEditProductComponent implements OnChanges {
   set categoryTypes(value: CategoryType[]) {
     this._categoryTypes = value;
     this.visibleCategoryTypes = value.filter((c) =>
-      ['Bar', 'Restaurante', 'Otros', 'Mecato'].includes(c.name)
+      [
+        'Bar',
+        'Restaurante',
+        'Otros',
+        'Mecato',
+        'MECATO',
+        'BAR',
+        'RESTAURANTE',
+        'OTROS'
+      ].includes(c.name)
     );
 
     // CLAVE: Si ya tenemos un producto cargado y ahora llegan las categorías,

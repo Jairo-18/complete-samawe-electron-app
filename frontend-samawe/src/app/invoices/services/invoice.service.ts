@@ -15,10 +15,8 @@ import {
 import { HttpUtilitiesService } from '../../shared/utilities/http-utilities.service';
 import { PaginationInterface } from '../../shared/interfaces/pagination.interface';
 
-// Decorador que indica que este servicio será singleton (disponible globalmente)
 @Injectable({ providedIn: 'root' })
 export class InvoiceService {
-  // Inyección del cliente HTTP para las peticiones al backend
   private readonly _httpClient: HttpClient = inject(HttpClient);
 
   // Servicio utilitario para transformar objetos a parámetros HTTP

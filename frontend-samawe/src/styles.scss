@@ -19,3 +19,8 @@ body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+input.mat-input-element,
+textarea.mat-input-element {
+  text-transform: uppercase;
+}

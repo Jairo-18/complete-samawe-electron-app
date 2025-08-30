@@ -23,7 +23,10 @@ export const authGuard: CanActivateFn = (route, state) => {
       if (
         roleName === 'administrador' ||
         roleName === 'recepcionista' ||
-        roleName === 'Cliente'
+        roleName === 'Cliente' ||
+        roleName === 'ADMINISTRADOR' ||
+        roleName === 'RECEPCIONISTA' ||
+        roleName === 'CLIENTE'
       ) {
         return true;
       }

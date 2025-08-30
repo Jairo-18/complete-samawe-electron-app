@@ -1,5 +1,6 @@
 @if (isLoggedUser && (userInfo?.roleType?.name === 'Administrador' ||
-userInfo?.roleType?.name === 'Recepcionista')){
+userInfo?.roleType?.name === 'ADMINISTRADOR' || userInfo?.roleType?.name ===
+'Recepcionista' || userInfo?.roleType?.name === 'RECEPCIONISTA')){
 <app-base-page
   [showBorder]="false"
   [headerTitle]="'¡Bienvenido a tu Sistema Contable y Administrativo!'"

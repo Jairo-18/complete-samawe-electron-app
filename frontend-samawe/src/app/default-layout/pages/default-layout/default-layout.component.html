@@ -1,7 +1,8 @@
 <article class="flex relative">
   <!-- Sidebar para Administrador o Recepcionista -->
   @if (isLoggedUser && (userInfo?.roleType?.name === 'Administrador' ||
-  userInfo?.roleType?.name === 'Recepcionista')) {
+  userInfo?.roleType?.name === 'ADMINISTRADOR' || userInfo?.roleType?.name ===
+  'Recepcionista' || userInfo?.roleType?.name === 'RECEPCIONISTA')) {
   <app-side-bar
     [userRole]="userInfo"
     class="brand-side-bar"

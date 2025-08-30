@@ -34,7 +34,7 @@
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Código del producto</mat-label>
         <mat-icon matPrefix>qr_code</mat-icon>
-        <input matInput formControlName="code" required />
+        <input matInput formControlName="code" required appUppercase />
         <mat-error *ngIf="productForm.get('code')?.hasError('required')">
           Código del producto requerido
         </mat-error>
@@ -43,7 +43,7 @@
       <mat-form-field appearance="outline" class="w-full">
         <mat-label>Nombre del producto</mat-label>
         <mat-icon matPrefix>inventory</mat-icon>
-        <input matInput formControlName="name" required />
+        <input matInput formControlName="name" required appUppercase />
         <mat-error *ngIf="productForm.get('name')?.hasError('required')">
           Nombre del producto requerido
         </mat-error>

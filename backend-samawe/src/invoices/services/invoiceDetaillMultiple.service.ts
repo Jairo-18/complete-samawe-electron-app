@@ -11,6 +11,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { In } from 'typeorm';
 
 @Injectable()
 export class InvoiceDetaillMultiple {
@@ -250,16 +251,19 @@ export class InvoiceDetaillMultiple {
         throw new BadRequestException('El nombre del estado no está definido');
       }
 
-      if (stateName !== 'Disponible') {
+      if (stateName !== 'Disponible' || stateName !== 'DISPONIBLE') {
         let stateMessage = '';
         switch (stateName) {
           case 'Mantenimiento':
+          case 'MANTENIMIENTO':
             stateMessage = 'El hospedaje está en mantenimiento';
             break;
           case 'Ocupado':
+          case 'OCUPADO':
             stateMessage = 'El hospedaje está ocupado';
             break;
           case 'Fuera de Servicio':
+          case 'FUERA DE SERVICIO':
             stateMessage = 'El hospedaje está fuera de servicio';
             break;
           default:
@@ -270,9 +274,10 @@ export class InvoiceDetaillMultiple {
 
       detail.accommodation = accommodation;
 
-      // Cambiar estado a Ocupado
       const ocupadoState = await manager.getRepository('StateType').findOne({
-        where: { name: 'Ocupado' },
+        where: {
+          name: In(['Ocupado', 'OCUPADO']),
+        },
       });
 
       if (!ocupadoState) {

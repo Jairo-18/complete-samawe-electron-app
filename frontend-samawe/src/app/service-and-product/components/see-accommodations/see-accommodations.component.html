@@ -49,15 +49,20 @@
           *matCellDef="let accommodation"
           [ngClass]="{
             'text-yellow-700 font-bold':
-              accommodation?.stateType?.name === 'Mantenimiento',
+              accommodation?.stateType?.name === 'Mantenimiento' ||
+              accommodation?.stateType?.name === 'MANTENIMIENTO',
             'text-green-700 font-bold':
-              accommodation?.stateType?.name === 'Disponible',
+              accommodation?.stateType?.name === 'Disponible' ||
+              accommodation?.stateType?.name === 'DISPONIBLE',
             'text-blue-700 font-bold':
-              accommodation?.stateType?.name === 'Ocupado',
+              accommodation?.stateType?.name === 'Ocupado' ||
+              accommodation?.stateType?.name === 'OCUPADO',
             'text-red-700 font-bold':
-              accommodation?.stateType?.name === 'Fuera de Servicio',
+              accommodation?.stateType?.name === 'Fuera de Servicio' ||
+              accommodation?.stateType?.name === 'FUERA DE SERVICIO',
             'text-purple-700 font-bold':
-              accommodation?.stateType?.name === 'Reservado'
+              accommodation?.stateType?.name === 'Reservado' ||
+              accommodation?.stateType?.name === 'RESERVADO'
           }"
         >
           {{ accommodation?.stateType?.name || 'Sin estado' }}
@@ -244,15 +249,20 @@
               *matCellDef="let accommodation"
               [ngClass]="{
                 'text-yellow-700 font-bold':
-                  accommodation?.stateType?.name === 'Mantenimiento',
+                  accommodation?.stateType?.name === 'Mantenimiento' ||
+                  accommodation?.stateType?.name === 'MANTENIMIENTO',
                 'text-green-700 font-bold':
-                  accommodation?.stateType?.name === 'Disponible',
+                  accommodation?.stateType?.name === 'Disponible' ||
+                  accommodation?.stateType?.name === 'DISPONIBLE',
                 'text-blue-700 font-bold':
-                  accommodation?.stateType?.name === 'Ocupado',
+                  accommodation?.stateType?.name === 'Ocupado' ||
+                  accommodation?.stateType?.name === 'OCUPADO',
                 'text-red-700 font-bold':
-                  accommodation?.stateType?.name === 'Fuera de Servicio',
+                  accommodation?.stateType?.name === 'Fuera de Servicio' ||
+                  accommodation?.stateType?.name === 'FUERA DE SERVICIO',
                 'text-purple-700 font-bold':
-                  accommodation?.stateType?.name === 'Reservado'
+                  accommodation?.stateType?.name === 'Reservado' ||
+                  accommodation?.stateType?.name === 'RESERVADO'
               }"
             >
               {{ accommodation?.stateType?.name || 'Sin estado' }}

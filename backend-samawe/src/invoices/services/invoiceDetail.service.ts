@@ -26,6 +26,7 @@ import {
 } from '../dtos/invoiceDetaill.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GeneralInvoiceDetaillService } from 'src/shared/services/generalInvoiceDetaill.service';
+import { In } from 'typeorm';
 
 @Injectable()
 export class InvoiceDetailService {
@@ -248,9 +249,12 @@ export class InvoiceDetailService {
           if (
             overlappingDetail &&
             overlappingDetail.invoice?.paidType?.name &&
-            ['Reservado - Pagado', 'Reservado - Pendiente'].includes(
-              overlappingDetail.invoice.paidType.name.trim(),
-            )
+            [
+              'Reservado - Pagado',
+              'Reservado - Pendiente',
+              'RESERVADO - PAGADO',
+              'RESERVADO - PENDIENTE',
+            ].includes(overlappingDetail.invoice.paidType.name.trim())
           ) {
             throw new BadRequestException(
               `El hospedaje ya está reservado entre ${dto.startDate} y ${dto.endDate}`,
@@ -258,7 +262,7 @@ export class InvoiceDetailService {
           }
         }
 
-        if (stateName !== 'Disponible') {
+        if (stateName !== 'Disponible' && stateName !== 'DISPONIBLE') {
           throw new BadRequestException(
             `El hospedaje no está disponible (estado actual: ${stateName})`,
           );
@@ -266,7 +270,6 @@ export class InvoiceDetailService {
 
         detail.accommodation = accommodation;
 
-        // ✅ Lógica: solo marcar Ocupado si la reserva es <= 7 días
         if (dto.startDate) {
           const diffDays = Math.ceil(
             (new Date(dto.startDate).getTime() - new Date().getTime()) /
@@ -275,7 +278,9 @@ export class InvoiceDetailService {
 
           if (diffDays <= 7) {
             const ocupadoState = await this._stateTypeRepository.findOne({
-              where: { name: 'Ocupado' },
+              where: {
+                name: In(['Ocupado', 'OCUPADO']),
+              },
             });
             if (!ocupadoState) {
               throw new NotFoundException('No se encontró el estado "Ocupado"');
@@ -383,7 +388,9 @@ export class InvoiceDetailService {
     if (accommodation) {
       // Buscar el stateType "Disponible" y asignarlo
       const disponibleState = await this._stateTypeRepository.findOne({
-        where: { name: 'Disponible' },
+        where: {
+          name: In(['Disponible', 'DISPONIBLE']),
+        },
       });
 
       if (disponibleState) {
@@ -428,16 +435,18 @@ export class InvoiceDetailService {
     for (const reservation of activeReservations) {
       if (
         reservation.invoice?.paidType?.name &&
-        ['Reservado - Pagado', 'Reservado - Pendiente'].includes(
+        ['RESERVADO - PAGADO', 'RESERVADO - PENDIENTE'].includes(
           reservation.invoice.paidType.name.trim(),
         )
       ) {
         if (
           reservation.accommodation &&
-          reservation.accommodation.stateType?.name === 'Disponible'
+          reservation.accommodation.stateType?.name === 'DISPONIBLE'
         ) {
           const ocupadoState = await this._stateTypeRepository.findOne({
-            where: { name: 'Ocupado' },
+            where: {
+              name: In(['OCUPADO']),
+            },
           });
           if (ocupadoState) {
             reservation.accommodation.stateType = ocupadoState;
@@ -458,11 +467,15 @@ export class InvoiceDetailService {
     for (const reservation of expiredReservations) {
       if (
         reservation.accommodation &&
-        reservation.accommodation.stateType?.name === 'Ocupado'
+        reservation.accommodation.stateType?.name === 'OCUPADO'
       ) {
+        // Corrected way to query for multiple names
         const mantenimientoState = await this._stateTypeRepository.findOne({
-          where: { name: 'Mantenimiento' },
+          where: {
+            name: In(['MANTENIMIENTO']),
+          },
         });
+
         if (mantenimientoState) {
           reservation.accommodation.stateType = mantenimientoState;
           await this._accommodationRepository.save(reservation.accommodation);

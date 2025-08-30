@@ -360,8 +360,8 @@ export class UserService {
 
     const existsInInvoices = await this._invoiceRepository.exist({
       where: [
-        { user: { userId: id } }, // como cliente
-        { employee: { userId: id } }, // como empleado
+        { user: { userId: id } }, 
+        { employee: { userId: id } }, 
       ],
     });
 

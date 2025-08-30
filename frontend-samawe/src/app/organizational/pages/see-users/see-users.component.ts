@@ -324,18 +324,19 @@ export class SeeUsersComponent implements OnInit {
     const userToActOnRoleName = user.roleType?.name;
     const isCurrentUser = this.userLogged?.userId === user.userId;
 
-    // Un administrador puede editar/eliminar a cualquiera, excepto a sí mismo (para eliminar)
-    if (loggedInRoleName === 'Administrador') {
-      // Un administrador puede editar a sí mismo, pero no eliminar
+    if (
+      loggedInRoleName === 'Administrador' ||
+      loggedInRoleName === 'ADMINISTRADOR'
+    ) {
       return isCurrentUser; // Si es el mismo usuario, NO permitir eliminación (o edición si fuera el caso)
     }
 
     // Un Recepcionista solo puede editar/eliminar usuarios con rol 'Usuario' y no a sí mismo.
-    if (loggedInRoleName === 'Recepcionista') {
-      return (
-        userToActOnRoleName !== 'Cliente' || // No permitir si no es un usuario "regular"
-        isCurrentUser // No permitir si es el mismo usuario
-      );
+    if (
+      loggedInRoleName === 'Recepcionista' ||
+      loggedInRoleName === 'RECEPCIONISTA'
+    ) {
+      return userToActOnRoleName !== 'Cliente' || isCurrentUser;
     }
 
     // Por defecto, no se permite ninguna acción si no cumple las condiciones anteriores
@@ -347,7 +348,11 @@ export class SeeUsersComponent implements OnInit {
     const userToActOnRoleName = user.roleType?.name;
     const isCurrentUser = this.userLogged?.userId === user.userId;
 
-    if (loggedInRoleName === 'Administrador') return true;
+    if (
+      loggedInRoleName === 'Administrador' ||
+      loggedInRoleName === 'ADMINISTRADOR'
+    )
+      return true;
 
     if (loggedInRoleName === 'Recepcionista') {
       // Solo puede editar clientes y a sí mismo
@@ -364,7 +369,11 @@ export class SeeUsersComponent implements OnInit {
 
     if (isCurrentUser) return false;
 
-    if (loggedInRoleName === 'Administrador') return true;
+    if (
+      loggedInRoleName === 'Administrador' ||
+      loggedInRoleName === 'ADMINISTRADOR'
+    )
+      return true;
 
     if (loggedInRoleName === 'Recepcionista') {
       // Solo puede eliminar clientes

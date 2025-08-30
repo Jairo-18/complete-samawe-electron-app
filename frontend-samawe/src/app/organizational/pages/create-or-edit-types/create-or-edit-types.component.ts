@@ -15,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { TYPE_ENTITY_LABELS_ES } from '../../../shared/constants/type.contstants';
 import { TypesService } from '../../services/types.service';
+import { UppercaseDirective } from '../../../shared/directives/uppercase.directive';
 
 @Component({
   selector: 'app-create-or-edit-types',
@@ -26,7 +27,8 @@ import { TypesService } from '../../services/types.service';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatIconModule
+    MatIconModule,
+    UppercaseDirective
   ],
   templateUrl: './create-or-edit-types.component.html',
   styleUrl: './create-or-edit-types.component.scss'

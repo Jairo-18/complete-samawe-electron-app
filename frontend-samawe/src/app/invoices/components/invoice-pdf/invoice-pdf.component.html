@@ -92,7 +92,7 @@
           }}
         </td>
         <td class="border px-4 pb-4 text-center text-xs">
-          {{ detail.amount }}
+          {{ detail.amountSale }}
         </td>
         <td class="border px-4 pb-4 text-right text-xs">
           {{ detail.priceWithoutTax | formatCop }}
@@ -152,9 +152,13 @@
           [ngClass]="{
             'text-green-600':
               invoiceData.paidType.name === 'Pagado' ||
+              invoiceData.paidType.name === 'PAGADO' ||
+              invoiceData.paidType.name === 'RESERVADO - PAGADO' ||
               invoiceData.paidType.name === 'Reservado - Pagado',
             'text-red-600':
+              invoiceData.paidType.name === 'PENDIENTE' ||
               invoiceData.paidType.name === 'Pendiente' ||
+              invoiceData.paidType.name === 'RESERVADO - PENDIENTE' ||
               invoiceData.paidType.name === 'Reservado - Pendiente'
           }"
         >

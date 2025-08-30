@@ -57,6 +57,10 @@ export interface DashboardStateSummary {
       | 'Ocupado'
       | 'Mantenimiento'
       | 'Fuera de Servicio'
+      | 'DISPONIBLE'
+      | 'OCUPADO'
+      | 'MANTENIMIENTO'
+      | 'FUERA DE SERVICIO'
       | string;
     count: string;
   }[];
@@ -67,6 +71,10 @@ export interface DashboardStateSummary {
       | 'Ocupado'
       | 'Mantenimiento'
       | 'Fuera de Servicio'
+      | 'DISPONIBLE'
+      | 'OCUPADO'
+      | 'MANTENIMIENTO'
+      | 'FUERA DE SERVICIO'
       | string;
     count: string;
   }[];

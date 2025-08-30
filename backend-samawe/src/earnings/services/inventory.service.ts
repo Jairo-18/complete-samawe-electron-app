@@ -87,7 +87,7 @@ export class InventoryService {
     });
 
     const mantenimientoState = await this._stateTypeRepository.findOne({
-      where: { stateTypeId: 3 }, // Mantenimiento
+      where: { stateTypeId: 3 },
     });
 
     if (!mantenimientoState) {
@@ -100,7 +100,7 @@ export class InventoryService {
       if (
         accommodation &&
         accommodation.accommodationId !== 0 &&
-        accommodation.stateType?.stateTypeId === 4 // Estado actual: Ocupado
+        accommodation.stateType?.stateTypeId === 4
       ) {
         // Verificar si todavía hay otro detalle activo para este alojamiento
         const existeOtroDetalleActivo =

@@ -46,14 +46,20 @@
           *matCellDef="let excursion"
           [ngClass]="{
             'text-yellow-700 font-bold':
-              excursion?.stateType?.name === 'Mantenimiento',
+              excursion?.stateType?.name === 'Mantenimiento' ||
+              excursion?.stateType?.name === 'MANTENIMIENTO',
             'text-green-700 font-bold':
-              excursion?.stateType?.name === 'Disponible',
-            'text-blue-700 font-bold': excursion?.stateType?.name === 'Ocupado',
+              excursion?.stateType?.name === 'Disponible' ||
+              excursion?.stateType?.name === 'DISPONIBLE',
+            'text-blue-700 font-bold':
+              excursion?.stateType?.name === 'Ocupado' ||
+              excursion?.stateType?.name === 'OCUPADO',
             'text-red-700 font-bold':
-              excursion?.stateType?.name === 'Fuera de Servicio',
+              excursion?.stateType?.name === 'Fuera de Servicio' ||
+              excursion?.stateType?.name === 'FUERA DE SERVICIO',
             'text-purple-700 font-bold':
-              excursion?.stateType?.name === 'Reservado'
+              excursion?.stateType?.name === 'Reservado' ||
+              excursion?.stateType?.name === 'RESERVADO'
           }"
         >
           {{ excursion?.stateType?.name || 'Sin estado' }}
@@ -203,15 +209,20 @@
               *matCellDef="let excursion"
               [ngClass]="{
                 'text-yellow-700 font-bold':
-                  excursion?.stateType?.name === 'Mantenimiento',
+                  excursion?.stateType?.name === 'Mantenimiento' ||
+                  excursion?.stateType?.name === 'MANTENIMIENTO',
                 'text-green-700 font-bold':
-                  excursion?.stateType?.name === 'Disponible',
+                  excursion?.stateType?.name === 'Disponible' ||
+                  excursion?.stateType?.name === 'DISPONIBLE',
                 'text-blue-700 font-bold':
-                  excursion?.stateType?.name === 'Ocupado',
+                  excursion?.stateType?.name === 'Ocupado' ||
+                  excursion?.stateType?.name === 'OCUPADO',
                 'text-red-700 font-bold':
-                  excursion?.stateType?.name === 'Fuera de Servicio',
+                  excursion?.stateType?.name === 'Fuera de Servicio' ||
+                  excursion?.stateType?.name === 'FUERA DE SERVICIO',
                 'text-purple-700 font-bold':
-                  excursion?.stateType?.name === 'Reservado'
+                  excursion?.stateType?.name === 'Reservado' ||
+                  excursion?.stateType?.name === 'RESERVADO'
               }"
             >
               {{ excursion?.stateType?.name || 'Sin estado' }}

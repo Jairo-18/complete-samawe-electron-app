@@ -33,6 +33,7 @@ import {
   StateType
 } from '../../../shared/interfaces/relatedDataGeneral';
 import { SectionHeaderComponent } from '../../../shared/components/section-header/section-header.component';
+import { UppercaseDirective } from '../../../shared/directives/uppercase.directive';
 
 @Component({
   selector: 'app-create-or-edit-accommodation',
@@ -50,7 +51,8 @@ import { SectionHeaderComponent } from '../../../shared/components/section-heade
     MatIcon,
     MatIconModule,
     CurrencyFormatDirective,
-    SectionHeaderComponent
+    SectionHeaderComponent,
+    UppercaseDirective
   ],
   templateUrl: './create-or-edit-accommodation.component.html',
   styleUrl: './create-or-edit-accommodation.component.scss'
@@ -65,7 +67,7 @@ export class CreateOrEditAccommodationComponent implements OnChanges {
   set categoryTypes(value: CategoryType[]) {
     this._categoryTypes = value;
     this.visibleCategoryTypes = value.filter((c) =>
-      ['Hospedaje'].includes(c.name)
+      ['Hospedaje', 'HOSPEDAJE'].includes(c.name)
     );
 
     // CLAVE: Si ya tenemos un alojamiento cargado y ahora llegan las categorías,
