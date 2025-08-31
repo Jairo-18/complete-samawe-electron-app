@@ -9,6 +9,7 @@ import {
 export interface InvoiceDetail {
   invoiceDetailId: number;
   amountSale: string;
+  amount: string;
   priceWithoutTax: string;
   priceWithTax: string;
   subtotal: string;

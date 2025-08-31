@@ -92,7 +92,7 @@
           }}
         </td>
         <td class="border px-4 pb-4 text-center text-xs">
-          {{ detail.amountSale }}
+          {{ detail.amount || 'N/A' }}
         </td>
         <td class="border px-4 pb-4 text-right text-xs">
           {{ detail.priceWithoutTax | formatCop }}
