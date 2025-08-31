@@ -1,3 +1,5 @@
+import { DiscountType } from './../../shared/entities/discountType.entity';
+import { AdditionalType } from './../../shared/entities/additionalType.entity';
 import { StateTypeRepository } from './../../shared/repositories/stateType.repository';
 import { CategoryType } from './../../shared/entities/categoryType.entity';
 import { IdentificationType } from './../../shared/entities/identificationType.entity';
@@ -51,6 +53,8 @@ export class InvoiceDetailService {
       paidType,
       categoryType,
       identificationType,
+      additionalType,
+      discountType,
     } = this._repositoriesService.repositories;
 
     const [
@@ -60,6 +64,8 @@ export class InvoiceDetailService {
       paidTypes,
       categoryTypes,
       identificationTypes,
+      additionalTypes,
+      discountTypes,
     ] = await Promise.all([
       this._repositoriesService.getEntities<InvoiceType>(invoiceType),
       this._repositoriesService.getEntities<TaxeType>(taxeType),
@@ -69,6 +75,8 @@ export class InvoiceDetailService {
       this._repositoriesService.getEntities<IdentificationType>(
         identificationType,
       ),
+      this._repositoriesService.getEntities<AdditionalType>(additionalType),
+      this._repositoriesService.getEntities<DiscountType>(discountType),
     ]);
 
     return {
@@ -78,6 +86,8 @@ export class InvoiceDetailService {
       paidType: paidTypes,
       categoryType: categoryTypes,
       identificationType: identificationTypes,
+      additionalType: additionalTypes,
+      discountType: discountTypes,
     };
   }
 

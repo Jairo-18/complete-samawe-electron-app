@@ -192,7 +192,9 @@ export class SeeAccommodationsComponent implements OnInit {
 
     this._accommodationService.getAccommodationWithPagination(query).subscribe({
       next: (res) => {
-        this.dataSource.data = res.data || [];
+        this.dataSource.data = (res.data || []).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
         this.paginationParams = res?.pagination;
         this.loading = false;
       },

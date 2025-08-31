@@ -48,7 +48,9 @@
             'text-red-600':
               accommodation.stateType?.name === 'Fuera de Servicio' ||
               accommodation.stateType?.name === 'FUERA DE SERVICIO',
-            'text-blue-600': accommodation.stateType?.name === 'Ocupado' || accommodation.stateType?.name === 'OCUPADO'
+            'text-blue-600':
+              accommodation.stateType?.name === 'Ocupado' ||
+              accommodation.stateType?.name === 'OCUPADO'
           }"
         >
           - {{ accommodation.stateType?.name }}

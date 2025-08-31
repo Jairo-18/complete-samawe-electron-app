@@ -84,12 +84,4 @@ export class EarningController {
   ): Promise<ResponsePaginationDto<LowAmountProductDto>> {
     return this._inventoryService.paginatedList(params);
   }
-
-  @Get('update-accommodations')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard())
-  async testUpdate(): Promise<string> {
-    await this._inventoryService.updateAccommodationsState();
-    return 'Actualización completada.';
-  }
 }

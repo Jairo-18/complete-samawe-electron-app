@@ -1,22 +1,14 @@
-import { AccommodationRepository } from './../../shared/repositories/accommodation.repository';
-import { StateTypeRepository } from './../../shared/repositories/stateType.repository';
-import { InvoiceDetaillRepository } from './../../shared/repositories/invoiceDetaill.repository';
 import { ResponsePaginationDto } from './../../shared/dtos/pagination.dto';
 import { InventoryLowParamsDto } from './../dtos/inventoryAmount.dto';
 import { PageMetaDto } from './../../shared/dtos/pageMeta.dto';
 import { ProductRepository } from './../../shared/repositories/product.repository';
 import { Injectable } from '@nestjs/common';
-import { IsNull, LessThan, Like, MoreThan, Not } from 'typeorm';
+import { LessThan, Like } from 'typeorm';
 import { LowAmountProductDto } from '../dtos/inventoryAmount.dto';
 
 @Injectable()
 export class InventoryService {
-  constructor(
-    private readonly productRepository: ProductRepository,
-    private readonly _invoiceDetaillRepository: InvoiceDetaillRepository,
-    private readonly _stateTypeRepository: StateTypeRepository,
-    private readonly _accommodationRepository: AccommodationRepository,
-  ) {}
+  constructor(private readonly productRepository: ProductRepository) {}
 
   /**
    * Busca productos con bajo stock, filtrando por nombre y/o cantidad, y paginados
@@ -71,54 +63,6 @@ export class InventoryService {
       throw new Error(
         `Error al buscar productos con bajo stock: ${error.message}`,
       );
-    }
-  }
-
-  async updateAccommodationsState(): Promise<void> {
-    const now = new Date();
-
-    // Buscar detalles vencidos con accommodation asociado
-    const expiredDetails = await this._invoiceDetaillRepository.find({
-      where: {
-        endDate: LessThan(now),
-        accommodation: Not(IsNull()),
-      },
-      relations: ['accommodation', 'accommodation.stateType'],
-    });
-
-    const mantenimientoState = await this._stateTypeRepository.findOne({
-      where: { stateTypeId: 3 },
-    });
-
-    if (!mantenimientoState) {
-      throw new Error('Estado con ID 3 ("Mantenimiento") no encontrado');
-    }
-
-    for (const detail of expiredDetails) {
-      const accommodation = detail.accommodation;
-
-      if (
-        accommodation &&
-        accommodation.accommodationId !== 0 &&
-        accommodation.stateType?.stateTypeId === 4
-      ) {
-        // Verificar si todavía hay otro detalle activo para este alojamiento
-        const existeOtroDetalleActivo =
-          await this._invoiceDetaillRepository.exist({
-            where: {
-              accommodation: { accommodationId: accommodation.accommodationId },
-              endDate: MoreThan(now),
-            },
-          });
-
-        if (!existeOtroDetalleActivo) {
-          // Solo actualizar si no hay otro detalle activo
-          await this._accommodationRepository.update(
-            { accommodationId: accommodation.accommodationId },
-            { stateType: { stateTypeId: 3 } }, // Cambiar a Mantenimiento
-          );
-        }
-      }
     }
   }
 }

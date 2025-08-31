@@ -1,3 +1,5 @@
+import { DiscountType } from './../../shared/entities/discountType.entity';
+import { AdditionalType } from './../../shared/entities/additionalType.entity';
 import { PaidType } from './../../shared/entities/paidType.entity';
 import { BaseResponseDto } from './../../shared/dtos/response.dto';
 import { PayType } from './../../shared/entities/payType.entity';
@@ -110,6 +112,8 @@ export interface CreateRelatedDataInvoiceDto {
   payType: PayType[];
   paidType: PaidType[];
   identificationType: IdentificationType[];
+  additionalType: AdditionalType[];
+  discountType: DiscountType[];
 }
 
 export class CreateRelatedDataInvoiceResponseDto implements BaseResponseDto {

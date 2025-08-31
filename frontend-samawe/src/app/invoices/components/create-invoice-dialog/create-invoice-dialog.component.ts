@@ -42,6 +42,7 @@ import { Router } from '@angular/router';
 import { PaginationPartialService } from '../../../shared/services/paginationPartial.service';
 import { PaginatedUserPartial } from '../../../shared/interfaces/paginatedPartial.interface';
 import { CurrencyFormatDirective } from '../../../shared/directives/currency-format.directive';
+import { UppercaseDirective } from '../../../shared/directives/uppercase.directive';
 @Component({
   selector: 'app-create-invoice-dialog',
   standalone: true,
@@ -58,7 +59,8 @@ import { CurrencyFormatDirective } from '../../../shared/directives/currency-for
     MatProgressSpinnerModule,
     MatIconModule,
     LoaderComponent,
-    CurrencyFormatDirective
+    CurrencyFormatDirective,
+    UppercaseDirective
   ],
   templateUrl: './create-invoice-dialog.component.html',
   styleUrls: ['./create-invoice-dialog.component.scss']
@@ -265,8 +267,6 @@ export class CreateInvoiceDialogComponent implements OnInit {
       cash: Math.abs(Number(formValue.cash)),
       transfer: Math.abs(Number(formValue.transfer))
     };
-
-    console.log('Payload a enviar:', updatePayload); // Para debug
 
     this._invoiceService
       .updateInvoice(this.data.invoiceId, updatePayload)

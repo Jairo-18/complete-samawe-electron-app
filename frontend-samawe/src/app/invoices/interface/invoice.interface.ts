@@ -1,6 +1,8 @@
 import { UserComplete } from '../../organizational/interfaces/create.interface';
 import {
+  AdditionalType,
   CategoryType,
+  DiscountType,
   IdentificationType,
   InvoiceType,
   PaidType,
@@ -16,6 +18,8 @@ export interface createInvoiceRelatedData {
   taxeType: TaxeType[];
   payType: PayType[];
   paidType: PaidType[];
+  additionalType: AdditionalType[];
+  discountType: DiscountType[];
 }
 
 export interface Invoice {

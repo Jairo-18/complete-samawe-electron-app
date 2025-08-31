@@ -65,25 +65,26 @@
       </div>
     </div>
   </section>
-  <div class="border border-[#06a606] w-full h-[1px] my-6"></div>
+  <div class="border border-[#06a606] w-full h-[1px] my-[3px]"></div>
+
   <table
-    class="w-full border border-collapse my-4"
+    class="w-full border border-collapse my-[3px]"
     *ngIf="invoiceData?.invoiceDetails?.length"
   >
     <thead>
       <tr>
-        <th class="border text-sm pb-4 bg-[#06a606]">Nro°</th>
-        <th class="border text-sm pb-4 bg-[#06a606]">Item</th>
-        <th class="border text-sm pb-4 bg-[#06a606]">Und</th>
-        <th class="border text-sm pb-4 bg-[#06a606]">Precio</th>
-        <th class="border text-sm pb-4 bg-[#06a606]">Impuesto</th>
-        <th class="border text-sm pb-4 bg-[#06a606]">Subtotal</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Nro°</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Item</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Und</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Precio</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Impuesto</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Subtotal</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let detail of invoiceData.invoiceDetails; let i = index">
-        <td class="border px-4 pb-4 text-left text-xs">{{ i + 1 }}</td>
-        <td class="border px-4 pb-4 text-left text-xs">
+        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">{{ i + 1 }}</td>
+        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">
           {{
             detail.product?.name ||
               detail.accommodation?.name ||
@@ -91,13 +92,13 @@
               'N/A'
           }}
         </td>
-        <td class="border px-4 pb-4 text-center text-xs">
+        <td class="border px-4 p-1 pt-0 m-0 text-center text-xs">
           {{ detail.amount || 'N/A' }}
         </td>
-        <td class="border px-4 pb-4 text-right text-xs">
+        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
           {{ detail.priceWithoutTax | formatCop }}
         </td>
-        <td class="border px-4 pb-4 text-right text-xs">
+        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
           {{
             detail.product?.taxe ||
               detail.accommodation?.taxe ||
@@ -105,7 +106,7 @@
               'N/A' | formatCop
           }}
         </td>
-        <td class="border px-4 pb-4 text-right text-xs">
+        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
           {{ detail.subtotal | formatCop }}
         </td>
       </tr>
@@ -113,7 +114,7 @@
   </table>
 
   <section class="flex flex-col h-full justify-center">
-    <div class="border border-[#06a606] w-full h-[1px] my-6"></div>
+    <div class="border border-[#06a606] w-full h-[1px] my-[3px]"></div>
 
     @if (invoiceData.cash && invoiceData.cash > 0) {
     <div class="flex content-between">
@@ -209,9 +210,9 @@
       </div>
     </div>
   </section>
-  <section class="text-center mt-6 text-[11px] italic">
+  <section class="text-center text-[11px] italic">
     <span
-      >“Gracias por su compañía - Factura generada por Samawe Putumayo S A S
+      >"Gracias por su compañía - Factura generada por Samawe Putumayo S A S
       Zomac"</span
     >
   </section>

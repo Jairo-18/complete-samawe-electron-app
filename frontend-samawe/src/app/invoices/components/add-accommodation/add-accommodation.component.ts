@@ -39,9 +39,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTimepickerModule } from '@angular/material/timepicker';
-import { InvoiceDetaillService } from '../../services/invoiceDetaill.service';
-import { TypesService } from '../../../organizational/services/types.service';
 import { CurrencyFormatDirective } from '../../../shared/directives/currency-format.directive';
+import { InvoiceDetaillService } from '../../services/invoiceDetaill.service';
 
 @Component({
   selector: 'app-add-accommodation',
@@ -70,6 +69,8 @@ import { CurrencyFormatDirective } from '../../../shared/directives/currency-for
 export class AddAccommodationComponent implements OnInit {
   @Input() categoryTypes: CategoryType[] = [];
   @Input() taxeTypes: TaxeType[] = [];
+  @Input() additionalTypes: AdditionalType[] = [];
+  @Input() discountTypes: DiscountType[] = [];
   @Output() itemSaved = new EventEmitter<void>();
 
   private readonly _accommodationsService: AccommodationsService = inject(
@@ -82,7 +83,7 @@ export class AddAccommodationComponent implements OnInit {
   private readonly _invoiceDetaillService: InvoiceDetaillService = inject(
     InvoiceDetaillService
   );
-  private readonly _typesService: TypesService = inject(TypesService);
+  // private readonly _typesService: TypesService = inject(TypesService); <-- Eliminado
 
   form: FormGroup;
   isLoading: boolean = false;
@@ -90,10 +91,6 @@ export class AddAccommodationComponent implements OnInit {
   isLoadingAccommodations: boolean = false;
   value!: Date;
   invoiceId?: number;
-
-  // Propiedades para discount y additional
-  discountTypes: DiscountType[] = [];
-  additionalTypes: AdditionalType[] = [];
 
   // Propiedades de precio
   originalPrice: number = 0; // Precio base del hospedaje
@@ -134,8 +131,8 @@ export class AddAccommodationComponent implements OnInit {
       this.calculateFinalPrice();
     });
 
-    this.loadDiscountTypes();
-    this.loadAdditionalTypes();
+    // this.loadDiscountTypes(); <-- Eliminado
+    // this.loadAdditionalTypes(); <-- Eliminado
   }
 
   constructor() {
@@ -186,25 +183,25 @@ export class AddAccommodationComponent implements OnInit {
     return acc ? acc.name : '';
   }
 
-  loadDiscountTypes() {
-    this._typesService.getAllDiscountTypes().subscribe({
-      next: (res) => {
-        this.discountTypes = res.data || [];
-        this._cdr.detectChanges();
-      },
-      error: (err) => console.error('Error cargando discountTypes', err)
-    });
-  }
+  // loadDiscountTypes() { <-- Eliminado
+  //   this._typesService.getAllDiscountTypes().subscribe({
+  //     next: (res) => {
+  //       this.discountTypes = res.data || [];
+  //       this._cdr.detectChanges();
+  //     },
+  //     error: (err) => console.error('Error cargando discountTypes', err)
+  //   });
+  // }
 
-  loadAdditionalTypes() {
-    this._typesService.getAllAdditionalTypes().subscribe({
-      next: (res) => {
-        this.additionalTypes = res.data || [];
-        this._cdr.detectChanges();
-      },
-      error: (err) => console.error('Error cargando additionalTypes', err)
-    });
-  }
+  // loadAdditionalTypes() { <-- Eliminado
+  //   this._typesService.getAllAdditionalTypes().subscribe({
+  //     next: (res) => {
+  //       this.additionalTypes = res.data || [];
+  //       this._cdr.detectChanges();
+  //     },
+  //     error: (err) => console.error('Error cargando additionalTypes', err)
+  //   });
+  // }
 
   calculateFinalPrice() {
     const formValue = this.form.value;

@@ -99,7 +99,7 @@ export class SeeInvoicesComponent implements OnInit {
 
   paginationParams: PaginationInterface = {
     page: 1,
-    perPage: 25,
+    perPage: 10,
     total: 0,
     pageCount: 0,
     hasPreviousPage: false,

@@ -1,3 +1,5 @@
+import { ReportController } from './controllers/report.controller';
+import { ReportService } from './services/report.service';
 import { InventoryService } from './services/inventory.service';
 import { StatisticsService } from './services/statistics.service';
 import { Module } from '@nestjs/common';
@@ -11,7 +13,12 @@ import { EarningService } from './services/earning.service';
     SharedModule.forRoot(),
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
-  controllers: [EarningController],
-  providers: [StatisticsService, EarningService, InventoryService],
+  controllers: [EarningController, ReportController],
+  providers: [
+    StatisticsService,
+    EarningService,
+    InventoryService,
+    ReportService,
+  ],
 })
 export class EarningModule {}

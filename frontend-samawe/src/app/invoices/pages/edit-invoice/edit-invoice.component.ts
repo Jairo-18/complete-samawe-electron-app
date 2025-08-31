@@ -14,7 +14,9 @@ import { AddAccommodationComponent } from '../../components/add-accommodation/ad
 import { AddExcursionComponent } from '../../components/add-excursion/add-excursion.component';
 import { RelatedDataService } from '../../../shared/services/relatedData.service';
 import {
+  AdditionalType,
   CategoryType,
+  DiscountType,
   PaidType,
   PayType,
   TaxeType
@@ -30,11 +32,9 @@ import { InvoiceSummaryComponent } from '../../components/invoice-summary/invoic
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { InvoicePdfComponent } from '../../components/invoice-pdf/invoice-pdf.component';
 import html2pdf from 'html2pdf.js';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
-import { InvoiceDetaillService } from '../../services/invoiceDetaill.service';
 import { CreateInvoiceDialogComponent } from '../../components/create-invoice-dialog/create-invoice-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -63,9 +63,6 @@ export class EditInvoiceComponent implements OnInit {
   private readonly _relatedDataService: RelatedDataService =
     inject(RelatedDataService);
   private readonly _invoiceService: InvoiceService = inject(InvoiceService);
-  private readonly _invoiceDetaillService: InvoiceDetaillService = inject(
-    InvoiceDetaillService
-  );
   private readonly _route: ActivatedRoute = inject(ActivatedRoute);
   private readonly _dialog: MatDialog = inject(MatDialog);
 
@@ -77,6 +74,8 @@ export class EditInvoiceComponent implements OnInit {
   paidTypes: PaidType[] = [];
   taxeTypes: TaxeType[] = [];
   payTypes: PayType[] = [];
+  additionalTypes: AdditionalType[] = [];
+  discountTypes: DiscountType[] = [];
   reloadInvoiceDetails: boolean = false;
   invoiceData?: Invoice;
   invoiceId?: number;
@@ -108,6 +107,8 @@ export class EditInvoiceComponent implements OnInit {
     this.payTypes = res.data.payType || [];
     this.paidTypes = res.data.paidType || [];
     this.taxeTypes = res.data.taxeType || [];
+    this.additionalTypes = res.data.additionalType || [];
+    this.discountTypes = res.data.discountType || [];
   }
 
   onItemSaved(): void {
