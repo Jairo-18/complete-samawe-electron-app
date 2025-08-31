@@ -27,16 +27,15 @@ if %errorlevel% neq 0 (
 )
 
 :: Verificar si el servicio esta corriendo
-sc query postgresql-x64-17 | findstr "RUNNING" >nul 2>&1
+echo Verificando conexión a PostgreSQL...
+set PGPASSWORD=postgres
+psql -U postgres -c "SELECT 1;" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo Intentando iniciar servicio PostgreSQL...
- net start postgresql-x64-17 >nul 2>&1
-    if %errorlevel% neq 0 (
-        echo ERROR: No se pudo iniciar PostgreSQL. Verifica el servicio manualmente.
-        pause
-        exit /b 1
-    )
+    echo ADVERTENCIA: PostgreSQL no responde. Verifica que esté corriendo.
+    echo Continuando de todas formas...
+    timeout /t 2 >nul
 )
+set PGPASSWORD=
 
 :: ==============================
 :: CONFIGURAR BASE DE DATOS
@@ -46,7 +45,7 @@ echo Configurando base de datos PROD...
 :: Crear usuario si no existe (usando usuario postgres por defecto)
 echo Creando usuario %DB_USER%...
 set PGPASSWORD=postgres
-psql -U postgres -c "DO $ BEGIN CREATE USER %DB_USER% WITH PASSWORD '%DB_PASS%'; EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'Usuario ya existe'; END $;" 2>nul
+psql -U postgres -c "DO $$ BEGIN CREATE USER %DB_USER% WITH PASSWORD '%DB_PASS%'; EXCEPTION WHEN duplicate_object THEN RAISE NOTICE 'Usuario ya existe'; END $$;" 2>nul
 psql -U postgres -c "ALTER USER %DB_USER% CREATEDB;" 2>nul
 
 :: Crear base de datos si no existe
