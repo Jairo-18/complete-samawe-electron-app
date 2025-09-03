@@ -10,8 +10,8 @@
     }
 
     <div class="w-full rounded-lg border border-[#06a606] px-2 py-3">
-      {{ invoiceData.user.firstName || 'Nombres' }}
-      {{ invoiceData.user.lastName || 'Apellidos' }}
+      {{ invoiceData.user.firstName || '' }}
+      {{ invoiceData.user.lastName || '' }}
     </div>
   </div>
 
@@ -21,7 +21,7 @@
       <span class="font-bold">Tipo de pago:</span>
     </div>
     <div class="flex justify-end w-[50%]">
-      <span>{{ invoiceData.payType.name }} </span>
+      <span>{{ invoiceData.payType?.name || '' }} </span>
     </div>
   </div>
   <div class="flex content-between">
@@ -33,17 +33,17 @@
         class="font-medium"
         [ngClass]="{
           'text-green-600':
-            invoiceData.paidType.name === 'Pagado' ||
-            invoiceData.paidType.name === 'PAGADO' ||
-            invoiceData.paidType.name === 'RESERVADO - PAGADO' ||
-            invoiceData.paidType.name === 'Reservado - Pagado',
+            invoiceData.paidType?.name === 'Pagado' ||
+            invoiceData.paidType?.name === 'PAGADO' ||
+            invoiceData.paidType?.name === 'RESERVADO - PAGADO' ||
+            invoiceData.paidType?.name === 'Reservado - Pagado',
           'text-red-600':
-            invoiceData.paidType.name === 'PENDIENTE' ||
-            invoiceData.paidType.name === 'Pendiente' ||
-            invoiceData.paidType.name === 'RESERVADO - PENDIENTE' ||
-            invoiceData.paidType.name === 'Reservado - Pendiente'
+            invoiceData.paidType?.name === 'PENDIENTE' ||
+            invoiceData.paidType?.name === 'Pendiente' ||
+            invoiceData.paidType?.name === 'RESERVADO - PENDIENTE' ||
+            invoiceData.paidType?.name === 'Reservado - Pendiente'
         }"
-        >{{ invoiceData.paidType.name }}
+        >{{ invoiceData.paidType?.name || '' }}
       </span>
     </div>
   </div>
@@ -52,9 +52,9 @@
       <span class="font-bold">Factura #:</span>
     </div>
     <div class="flex justify-end w-[50%]">
-      <span>{{ invoiceData.invoiceType.code }}</span>
+      <span>{{ invoiceData.invoiceType.code || '' }}</span>
       <span> - </span>
-      <span>{{ invoiceData.code }}</span>
+      <span>{{ invoiceData.code || '' }}</span>
     </div>
   </div>
   <div class="flex content-between">
@@ -62,7 +62,7 @@
       <span class="font-bold">Subtotal:</span>
     </div>
     <div class="flex justify-end w-[50%]">
-      <span>{{ invoiceData.subtotalWithoutTax | formatCop }}</span>
+      <span>{{ invoiceData.subtotalWithoutTax ?? 0 | formatCop }}</span>
     </div>
   </div>
 
@@ -85,7 +85,7 @@
     </div>
     <div class="flex justify-end w-[50%]">
       <span class="font-medium text-[#06a606]">{{
-        invoiceData.total | formatCop
+        invoiceData.total ?? 0 | formatCop
       }}</span>
     </div>
   </div>
@@ -100,7 +100,7 @@
     </div>
     <div class="flex justify-end w-[50%]">
       <span class="text-[#06a606] font-medium">
-        {{ invoiceData.cash | formatCop }}
+        {{ invoiceData.cash || '' | formatCop }}
       </span>
     </div>
   </div>
@@ -114,7 +114,7 @@
     </div>
     <div class="flex justify-end w-[50%]">
       <span class="text-[#06a606] font-medium">
-        {{ invoiceData.transfer | formatCop }}
+        {{ invoiceData.transfer || '' | formatCop }}
       </span>
     </div>
   </div>

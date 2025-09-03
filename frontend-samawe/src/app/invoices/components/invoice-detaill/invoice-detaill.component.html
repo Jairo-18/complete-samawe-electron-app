@@ -1,5 +1,6 @@
 <!-- Tabla principal de items guardados -->
 <div class="overflow-auto m-4 md:m-0">
+  @if (dataSource.data && dataSource.data.length > 0) {
   <table mat-table [dataSource]="dataSource">
     <!-- Code Column -->
     <ng-container matColumnDef="code">
@@ -104,6 +105,7 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
+
   <mat-paginator
     [length]="paginationParams.total"
     [pageSize]="paginationParams.perPage"
@@ -111,4 +113,11 @@
     [pageIndex]="(paginationParams.page || 0) - 1"
     (page)="onChangePagination($event)"
   ></mat-paginator>
+  } @else {
+
+  <div class="text-center p-4 text-gray-500 text-sm">
+    No hay ningún item aún
+  </div>
+
+  }
 </div>

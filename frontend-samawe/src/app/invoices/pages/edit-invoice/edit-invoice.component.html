@@ -20,7 +20,8 @@
         <!-- Información de la factura - aparece cuando invoiceData esté disponible -->
         @if (invoiceData) {
         <span class="text-base md:text-xl font-extrabold">
-          {{ invoiceData.invoiceType.name }} Nr° {{ invoiceData.code }}
+          {{ invoiceData.invoiceType.name || '' }} Nr°
+          {{ invoiceData.code || '' }}
         </span>
 
         <section class="flex-row md:flex w-full">
@@ -34,7 +35,8 @@
                   : 'Cliente:'
               }}
               <span class="font-normal">
-                {{ invoiceData.user.firstName }} {{ invoiceData.user.lastName }}
+                {{ invoiceData.user.firstName || '' }}
+                {{ invoiceData.user.lastName || '' }}
               </span>
             </span>
           </div>
@@ -44,8 +46,8 @@
             <span class="font-bold">
               Empleado:
               <span class="font-normal">
-                {{ invoiceData.employee.firstName }}
-                {{ invoiceData.employee.lastName }}
+                {{ invoiceData.employee.firstName || '' }}
+                {{ invoiceData.employee.lastName || '' }}
               </span>
             </span>
           </div>

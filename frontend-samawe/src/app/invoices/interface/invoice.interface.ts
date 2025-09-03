@@ -26,9 +26,9 @@ export interface Invoice {
   invoiceId: number;
   code: string;
   observations?: string;
-  subtotalWithoutTax: string;
-  subtotalWithTax: string;
-  total: string;
+  subtotalWithoutTax?: string;
+  subtotalWithTax?: string;
+  total?: string;
   totalTaxes?: number;
   startDate: string;
   endDate: string;
@@ -40,8 +40,8 @@ export interface Invoice {
   updatedAt: string;
   deletedAt: string | null;
   invoiceType: InvoiceType;
-  payType: PayType;
-  paidType: PaidType;
+  payType?: PayType;
+  paidType?: PaidType;
   invoiceDetails: InvoiceDetail[];
 }
 

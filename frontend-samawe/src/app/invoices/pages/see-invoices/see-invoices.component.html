@@ -60,12 +60,12 @@
           <td
             mat-cell
             *matCellDef="let invoice"
-            class="center-text"
-            [ngClass]="
-              invoice.invoiceType?.code === 'FV'
-                ? '!text-green-700 font-bold'
-                : '!text-red-700 font-bold'
-            "
+            class="center-text font-bold"
+            [ngClass]="{
+              '!text-green-700': invoice.invoiceType?.code === 'FV',
+              '!text-red-700': invoice.invoiceType?.code === 'FC',
+              '!text-yellow-700': invoice.invoiceType?.code === 'CO'
+            }"
           >
             {{ invoice.invoiceType?.code || '---' }}
           </td>
@@ -75,7 +75,7 @@
         <ng-container matColumnDef="code">
           <th mat-header-cell *matHeaderCellDef class="center-text">Código</th>
           <td mat-cell *matCellDef="let invoice" class="center-text">
-            {{ invoice.code || '---' }}
+            {{ invoice?.code || '---' }}
           </td>
         </ng-container>
 
@@ -83,7 +83,7 @@
         <ng-container matColumnDef="clientName">
           <th mat-header-cell *matHeaderCellDef class="center-text">Cliente</th>
           <td mat-cell *matCellDef="let invoice">
-            {{ invoice.clientName || '---' }}
+            {{ invoice?.clientName || '---' }}
           </td>
         </ng-container>
 
@@ -93,7 +93,7 @@
             Identificación
           </th>
           <td mat-cell *matCellDef="let invoice">
-            {{ invoice.clientIdentification || '---' }}
+            {{ invoice?.clientIdentification || '---' }}
           </td>
         </ng-container>
 
@@ -103,7 +103,7 @@
             Recepcionista
           </th>
           <td mat-cell *matCellDef="let invoice">
-            {{ invoice.employeeName || '---' }}
+            {{ invoice?.employeeName || '---' }}
           </td>
         </ng-container>
 
@@ -115,14 +115,14 @@
           <td
             mat-cell
             *matCellDef="let invoice"
-            class="right-text"
-            [ngClass]="
-              invoice.invoiceType?.code === 'FV'
-                ? '!text-green-700 font-bold'
-                : '!text-red-700 font-bold'
-            "
+            class="right-text font-bold"
+            [ngClass]="{
+              '!text-green-700': invoice.invoiceType?.code === 'FV',
+              '!text-red-700': invoice.invoiceType?.code === 'FC',
+              '!text-yellow-700': invoice.invoiceType?.code === 'CO'
+            }"
           >
-            {{ invoice.subtotalWithoutTax | formatCop }}
+            {{ invoice?.subtotalWithoutTax ?? 0 | formatCop }}
           </td>
         </ng-container>
 
@@ -143,7 +143,7 @@
             Impuesto
           </th>
           <td mat-cell *matCellDef="let invoice" class="right-text">
-            {{ invoice.totalTaxes ?? 0 | formatCop }}
+            {{ invoice?.totalTaxes ?? 0 | formatCop }}
           </td>
         </ng-container>
 
@@ -153,14 +153,14 @@
           <td
             mat-cell
             *matCellDef="let invoice"
-            class="right-text"
-            [ngClass]="
-              invoice.invoiceType?.code === 'FV'
-                ? '!text-green-700 font-bold'
-                : '!text-red-700 font-bold'
-            "
+            class="right-text font-bold"
+            [ngClass]="{
+              '!text-green-700': invoice.invoiceType?.code === 'FV',
+              '!text-red-700': invoice.invoiceType?.code === 'FC',
+              '!text-yellow-700': invoice.invoiceType?.code === 'CO'
+            }"
           >
-            {{ invoice.total | formatCop }}
+            {{ invoice?.total ?? 0 | formatCop }}
           </td>
         </ng-container>
 
@@ -169,8 +169,8 @@
           <th mat-header-cell *matHeaderCellDef class="center-text">
             Tipo Pago
           </th>
-          <td mat-cell *matCellDef="let invoice">
-            {{ invoice.payType?.name || '---' }}
+          <td mat-cell *matCellDef="let invoice" class="font-bold">
+            {{ invoice?.payType?.name || 'NO APLICA' }}
           </td>
         </ng-container>
 
@@ -182,20 +182,21 @@
           <td
             mat-cell
             *matCellDef="let invoice"
+            class="font-bold"
             [ngClass]="{
-              'text-green-700 font-bold':
-                invoice.paidType.name === 'Pagado' ||
-                invoice.paidType.name === 'PAGADO' ||
-                invoice.paidType.name === 'RESERVADO - PAGADO' ||
-                invoice.paidType.name === 'Reservado - Pagado',
-              'text-red-600 font-bold':
-                invoice.paidType.name === 'PENDIENTE' ||
-                invoice.paidType.name === 'Pendiente' ||
-                invoice.paidType.name === 'RESERVADO - PENDIENTE' ||
-                invoice.paidType.name === 'Reservado - Pendiente'
+              '!text-green-700':
+                invoice?.paidType?.name === 'Pagado' ||
+                invoice?.paidType?.name === 'PAGADO' ||
+                invoice?.paidType?.name === 'RESERVADO - PAGADO' ||
+                invoice?.paidType?.name === 'Reservado - Pagado',
+              '!text-red-700':
+                invoice?.paidType?.name === 'PENDIENTE' ||
+                invoice?.paidType?.name === 'Pendiente' ||
+                invoice?.paidType?.name === 'RESERVADO - PENDIENTE' ||
+                invoice?.paidType?.name === 'Reservado - Pendiente'
             }"
           >
-            {{ invoice.paidType?.name || '---' }}
+            {{ invoice?.paidType?.name || 'NO APLICA' }}
           </td>
         </ng-container>
 
@@ -208,7 +209,7 @@
                 ? 'Sí'
                 : invoice.invoiceElectronic === false
                 ? 'No'
-                : '---'
+                : ''
             }}
           </td>
         </ng-container>
@@ -320,14 +321,14 @@
             <td
               mat-cell
               *matCellDef="let invoice"
-              class="center-text"
-              [ngClass]="
-                invoice.invoiceType?.code === 'FV'
-                  ? '!text-green-700 font-bold'
-                  : '!text-red-700 font-bold'
-              "
+              class="center-text font-bold"
+              [ngClass]="{
+                '!text-green-700': invoice.invoiceType?.code === 'FV',
+                '!text-red-700': invoice.invoiceType?.code === 'FC',
+                '!text-yellow-700': invoice.invoiceType?.code === 'CO'
+              }"
             >
-              {{ invoice.invoiceType?.name || '---' }}
+              {{ invoice.invoiceType?.name || '' }}
             </td>
           </ng-container>
 
@@ -336,7 +337,7 @@
               Código
             </th>
             <td mat-cell *matCellDef="let invoice" class="center-text">
-              {{ invoice.code || '---' }}
+              {{ invoice?.code || '' }}
             </td>
           </ng-container>
 
@@ -345,7 +346,7 @@
               Cliente
             </th>
             <td mat-cell *matCellDef="let invoice">
-              {{ invoice.clientName || '---' }}
+              {{ invoice?.clientName || '' }}
             </td>
           </ng-container>
 
@@ -354,7 +355,7 @@
               Identificación Cliente
             </th>
             <td mat-cell *matCellDef="let invoice">
-              {{ invoice.clientIdentification || '---' }}
+              {{ invoice?.clientIdentification || '' }}
             </td>
           </ng-container>
 
@@ -374,7 +375,7 @@
               Recepcionista
             </th>
             <td mat-cell *matCellDef="let invoice">
-              {{ invoice.employeeName || '---' }}
+              {{ invoice?.employeeName || '' }}
             </td>
           </ng-container>
 
@@ -385,14 +386,14 @@
             <td
               mat-cell
               *matCellDef="let invoice"
-              class="right-text"
-              [ngClass]="
-                invoice.invoiceType?.code === 'FV'
-                  ? '!text-green-700 font-bold'
-                  : '!text-red-700 font-bold'
-              "
+              class="right-text font-bold"
+              [ngClass]="{
+                '!text-green-700': invoice.invoiceType?.code === 'FV',
+                '!text-red-700': invoice.invoiceType?.code === 'FC',
+                '!text-yellow-700': invoice.invoiceType?.code === 'CO'
+              }"
             >
-              {{ invoice.subtotalWithoutTax | formatCop }}
+              {{ invoice?.subtotalWithoutTax ?? 0 | formatCop }}
             </td>
           </ng-container>
 
@@ -402,7 +403,7 @@
               Impuesto
             </th>
             <td mat-cell *matCellDef="let invoice" class="right-text">
-              {{ invoice.totalTaxes ?? 0 | formatCop }}
+              {{ invoice?.totalTaxes ?? 0 | formatCop }}
             </td>
           </ng-container>
 
@@ -411,14 +412,14 @@
             <td
               mat-cell
               *matCellDef="let invoice"
-              class="right-text"
-              [ngClass]="
-                invoice.invoiceType?.code === 'FV'
-                  ? '!text-green-700 font-bold'
-                  : '!text-red-700 font-bold'
-              "
+              class="right-text font-bold"
+              [ngClass]="{
+                '!text-green-700': invoice.invoiceType?.code === 'FV',
+                '!text-red-700': invoice.invoiceType?.code === 'FC',
+                '!text-yellow-700': invoice.invoiceType?.code === 'CO'
+              }"
             >
-              {{ invoice.total | formatCop }}
+              {{ invoice?.total ?? 0 | formatCop }}
             </td>
           </ng-container>
 
@@ -427,7 +428,7 @@
               Tipo de Pago
             </th>
             <td mat-cell *matCellDef="let invoice">
-              {{ invoice.payType?.name || '---' }}
+              {{ invoice.payType?.name || '' }}
             </td>
           </ng-container>
 
@@ -438,20 +439,21 @@
             <td
               mat-cell
               *matCellDef="let invoice"
+              class="font-bold"
               [ngClass]="{
-                'text-green-700 font-bold':
-                  invoice.paidType.name === 'Pagado' ||
-                  invoice.paidType.name === 'PAGADO' ||
-                  invoice.paidType.name === 'RESERVADO - PAGADO' ||
-                  invoice.paidType.name === 'Reservado - Pagado',
-                'text-red-600 font-bold':
-                  invoice.paidType.name === 'PENDIENTE' ||
-                  invoice.paidType.name === 'Pendiente' ||
-                  invoice.paidType.name === 'RESERVADO - PENDIENTE' ||
-                  invoice.paidType.name === 'Reservado - Pendiente'
+                '!text-green-700':
+                  invoice?.paidType?.name === 'Pagado' ||
+                  invoice?.paidType?.name === 'PAGADO' ||
+                  invoice?.paidType?.name === 'RESERVADO - PAGADO' ||
+                  invoice?.paidType?.name === 'Reservado - Pagado',
+                '!text-red-700':
+                  invoice?.paidType?.name === 'PENDIENTE' ||
+                  invoice?.paidType?.name === 'Pendiente' ||
+                  invoice?.paidType?.name === 'RESERVADO - PENDIENTE' ||
+                  invoice?.paidType?.name === 'Reservado - Pendiente'
               }"
             >
-              {{ invoice.paidType?.name || '---' }}
+              {{ invoice?.paidType?.name || '' }}
             </td>
           </ng-container>
 
@@ -460,7 +462,7 @@
               Tipo impuesto
             </th>
             <td mat-cell *matCellDef="let invoice">
-              {{ invoice.taxeType?.name || '---' }}
+              {{ invoice.taxeType?.name || '' }}
             </td>
           </ng-container>
 
@@ -474,7 +476,7 @@
                   ? 'Sí'
                   : invoice.invoiceElectronic === false
                   ? 'No'
-                  : '---'
+                  : ''
               }}
             </td>
           </ng-container>
