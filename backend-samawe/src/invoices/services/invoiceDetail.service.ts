@@ -91,6 +91,14 @@ export class InvoiceDetailService {
     };
   }
 
+  /**
+   * Crea un detalle de factura.
+   * - Si invoice.invoiceType.code === 'CO' (cotización) NO modifica stock ni estados de accommodation.
+   * - Si invoice.invoiceType.code === 'FV' (venta) y viene product, resta stock.
+   * - Si invoice.invoiceType.code === 'FC' (compra) y viene product, suma stock.
+   * - Si viene accommodation y la reserva está dentro de los próximos 2 días y NO es cotización,
+   *   marca la accommodation como OCUPADO.
+   */
   async create(invoiceId: number, dto: CreateInvoiceDetailDto) {
     try {
       const [invoice, taxeType] = await Promise.all([
@@ -110,6 +118,10 @@ export class InvoiceDetailService {
           `Factura con ID ${invoiceId} no encontrada`,
         );
       }
+
+      const isQuote = invoice.invoiceType?.code === 'CO';
+      const isSale = invoice.invoiceType?.code === 'FV';
+      const isBuy = invoice.invoiceType?.code === 'FC';
 
       if (dto.taxeTypeId && !taxeType) {
         throw new NotFoundException('Tipo de impuesto no encontrado');
@@ -149,12 +161,15 @@ export class InvoiceDetailService {
         product = await this._productRepository.findOne({
           where: { productId: dto.productId },
         });
-        if (!product) {
-          throw new NotFoundException('Producto no encontrado');
-        }
-
-        if (!product.isActive) {
+        if (!product) throw new NotFoundException('Producto no encontrado');
+        if (!product.isActive)
           throw new BadRequestException('Este producto está inactivo');
+
+        // ✅ Validar stock solo si es venta y no es cotización
+        if (isSale && amount > (product.amount ?? 0)) {
+          throw new BadRequestException(
+            `Stock insuficiente para ${product.name}. Disponible: ${product.amount}, solicitado: ${amount}`,
+          );
         }
 
         const prices = this._generalInvoiceDetaillService.getHistoricalPrices(
@@ -206,11 +221,12 @@ export class InvoiceDetailService {
 
       if (product) detail.product = product;
 
+      // --- IMPORTANT: removed 'reservations' relation (no existe en la entidad)
       const [accommodation, excursion] = await Promise.all([
         dto.accommodationId
           ? this._accommodationRepository.findOne({
               where: { accommodationId: dto.accommodationId },
-              relations: ['stateType'],
+              relations: ['stateType'], // solo stateType, no reservations
             })
           : Promise.resolve(null),
         dto.excursionId
@@ -241,7 +257,7 @@ export class InvoiceDetailService {
           );
         }
 
-        // Verificar reservas existentes
+        // Verificar reservas existentes (si hay solapamiento y están reservadas -> error)
         if (dto.startDate && dto.endDate) {
           const overlappingDetail = await this._invoiceDetaillRepository
             .createQueryBuilder('detail')
@@ -272,6 +288,7 @@ export class InvoiceDetailService {
           }
         }
 
+        // Mantengo la validación de disponibilidad
         if (stateName !== 'Disponible' && stateName !== 'DISPONIBLE') {
           throw new BadRequestException(
             `El hospedaje no está disponible (estado actual: ${stateName})`,
@@ -280,13 +297,15 @@ export class InvoiceDetailService {
 
         detail.accommodation = accommodation;
 
-        if (dto.startDate) {
+        // ✅ Cambiar a OCUPADO solo si NO es cotización (isQuote === false)
+        if (!isQuote && dto.startDate) {
+          // umbral cambiado a 2 días
           const diffDays = Math.ceil(
             (new Date(dto.startDate).getTime() - new Date().getTime()) /
               (1000 * 60 * 60 * 24),
           );
 
-          if (diffDays <= 7) {
+          if (diffDays <= 2) {
             const ocupadoState = await this._stateTypeRepository.findOne({
               where: {
                 name: In(['Ocupado', 'OCUPADO']),
@@ -305,22 +324,29 @@ export class InvoiceDetailService {
 
       const savedDetail = await this._invoiceDetaillRepository.save(detail);
 
+      // ===========================
+      // STOCK: modificar solo si no es cotización
+      // ===========================
       if (isProduct) {
         const currentAmount = Number(product.amount) || 0;
 
-        if (invoice.invoiceType.code === 'FV') {
-          if (currentAmount < amount) {
-            throw new BadRequestException(
-              `No tienes stock del producto ${product.name}. Stock actual: ${currentAmount}, solicitado: ${amount}`,
-            );
-          }
+        if (isSale) {
+          // Venta: restar (ya validamos stock arriba)
           product.amount = currentAmount - amount;
-        } else if (invoice.invoiceType.code === 'FC') {
+        } else if (isBuy) {
+          // Compra: sumar
           product.amount = currentAmount + amount;
+        } else if (isQuote) {
+          // Cotización -> NO tocar stock
+          this._eventEmitter.emit('invoice.detail.cotizacion', {
+            invoice,
+            product,
+          });
         }
       }
 
       const savePromises = [
+        // guardamos product solo si vino product (y aunque sea cotización no hacemos cambios al product)
         isProduct ? this._productRepository.save(product) : Promise.resolve(),
         this._generalInvoiceDetaillService.updateInvoiceTotal(invoiceId),
       ];
@@ -334,6 +360,9 @@ export class InvoiceDetailService {
 
       return savedDetail;
     } catch (error) {
+      // Log completo para depuración
+      console.error('❌ Error al crear detalle:', error);
+
       if (error instanceof HttpException) {
         throw error;
       }
@@ -343,6 +372,10 @@ export class InvoiceDetailService {
     }
   }
 
+  /**
+   * Eliminar detalle:
+   * - Si invoiceType === 'CO' no revertir stock ni cambiar estados de accommodation.
+   */
   async delete(invoiceDetailId: number) {
     const detail = await this._invoiceDetaillRepository.findOne({
       where: { invoiceDetailId },
@@ -365,11 +398,12 @@ export class InvoiceDetailService {
     const invoiceTypeCode = invoice.invoiceType.code;
     const isSale = invoiceTypeCode === 'FV';
     const isBuy = invoiceTypeCode === 'FC';
+    const isQuote = invoiceTypeCode === 'CO';
 
     const ops: Promise<any>[] = [];
 
-    // ✅ REVERTIR STOCK SI ES PRODUCTO
-    if (product) {
+    // ✅ REVERTIR STOCK SOLO SI NO ES COTIZACIÓN
+    if (product && !isQuote) {
       const currentAmount = Number(product.amount ?? 0);
       const amt = Number(detailAmount ?? 0);
 
@@ -380,8 +414,10 @@ export class InvoiceDetailService {
       }
 
       if (isSale) {
+        // Si fue venta, al eliminar reponemos
         product.amount = currentAmount + amt;
       } else if (isBuy) {
+        // Si fue compra, al eliminar restamos (verificamos no negativo)
         const newAmount = currentAmount - amt;
         if (newAmount < 0) {
           throw new BadRequestException(
@@ -394,9 +430,8 @@ export class InvoiceDetailService {
       ops.push(this._productRepository.save(product));
     }
 
-    // 🆕 LIBERAR ACCOMMODATION SI EXISTE
-    if (accommodation) {
-      // Buscar el stateType "Disponible" y asignarlo
+    // 🆕 LIBERAR ACCOMMODATION SOLO SI NO ES COTIZACIÓN
+    if (accommodation && !isQuote) {
       const disponibleState = await this._stateTypeRepository.findOne({
         where: {
           name: In(['Disponible', 'DISPONIBLE']),
@@ -409,7 +444,7 @@ export class InvoiceDetailService {
       }
     }
 
-    // ✅ ELIMINAR DETALLE Y ACTUALIZAR TOTAL EN PARALELO
+    // ELIMINAR DETALLE Y ACTUALIZAR TOTAL
     await this._invoiceDetaillRepository.remove(detail);
 
     await this._generalInvoiceDetaillService.updateInvoiceTotal(
@@ -466,7 +501,7 @@ export class InvoiceDetailService {
       }
     }
 
-    // 🆕 Buscar reservas que ya pasaron su fecha de fin
+    // Buscar reservas que ya pasaron su fecha de fin
     const expiredReservations = await this._invoiceDetaillRepository
       .createQueryBuilder('detail')
       .leftJoinAndSelect('detail.accommodation', 'accommodation')
@@ -479,7 +514,6 @@ export class InvoiceDetailService {
         reservation.accommodation &&
         reservation.accommodation.stateType?.name === 'OCUPADO'
       ) {
-        // Corrected way to query for multiple names
         const mantenimientoState = await this._stateTypeRepository.findOne({
           where: {
             name: In(['MANTENIMIENTO']),

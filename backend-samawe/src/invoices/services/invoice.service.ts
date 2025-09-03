@@ -1,3 +1,4 @@
+import { User } from './../../shared/entities/user.entity';
 import { StateType } from './../../shared/entities/stateType.entity';
 import { ExcursionRepository } from './../../shared/repositories/excursion.repository';
 import { AccommodationRepository } from './../../shared/repositories/accommodation.repository';
@@ -176,31 +177,42 @@ export class InvoiceService {
   }
 
   async create(dto: CreateInvoiceDto, employeeId: string): Promise<Invoice> {
-    const [payType, paidType, invoiceType, user] = await Promise.all([
-      this._payTypeRepository.findOne({ where: { payTypeId: dto.payTypeId } }),
-      this._paidTypeRepository.findOne({
-        where: { paidTypeId: dto.paidTypeId },
-      }),
-      this._invoiceTypeRepository.findOne({
-        where: { invoiceTypeId: dto.invoiceTypeId },
-      }),
-      this._userRepository.findOne({ where: { userId: dto.userId } }),
-    ]);
+    // Obtenemos el tipo de factura
+    const invoiceType = await this._invoiceTypeRepository.findOne({
+      where: { invoiceTypeId: dto.invoiceTypeId },
+    });
 
-    if (!payType) throw new BadRequestException('Tipo de pago no encontrado');
-    if (!paidType)
-      throw new BadRequestException('Estado de pago no encontrado');
-    if (!invoiceType)
+    if (!invoiceType) {
       throw new BadRequestException('Tipo de factura no encontrado');
+    }
+
+    // Obtenemos el usuario
+    const user = await this._userRepository.findOne({
+      where: { userId: dto.userId },
+    });
+
     if (!user) throw new BadRequestException('Cliente no encontrado');
 
-    // NUEVA VALIDACIÓN: Verificar si el usuario está activo
     if (!user.isActive) {
       throw new BadRequestException('Este usuario está inactivo');
     }
 
-    const { saved: invoiceEntity } =
-      await this._invoiceRepository.manager.transaction(async (manager) => {
+    // Si vienen payType y paidType en el dto, los buscamos
+    const [payType, paidType] = await Promise.all([
+      dto.payTypeId
+        ? this._payTypeRepository.findOne({
+            where: { payTypeId: dto.payTypeId },
+          })
+        : null,
+      dto.paidTypeId
+        ? this._paidTypeRepository.findOne({
+            where: { paidTypeId: dto.paidTypeId },
+          })
+        : null,
+    ]);
+
+    const invoiceEntity = await this._invoiceRepository.manager.transaction(
+      async (manager) => {
         const lastInvoice = await manager
           .getRepository(Invoice)
           .createQueryBuilder('invoice')
@@ -226,31 +238,35 @@ export class InvoiceService {
           total,
           subtotalWithTax,
           subtotalWithoutTax,
-          hasProducts,
         } = await this._calculateInvoiceDetails(dto.details ?? []);
 
         const invoiceRepo = manager.getRepository(Invoice);
 
-        const newInvoice = invoiceRepo.create({
+        const invoiceData: Partial<Invoice> = {
           code,
-          invoiceElectronic: dto.invoiceElectronic,
-          startDate: dto.startDate,
           observations: dto.observations,
-          endDate: dto.endDate,
+          invoiceElectronic: dto.invoiceElectronic,
+          startDate: new Date(dto.startDate),
+          endDate: new Date(dto.endDate),
           subtotalWithoutTax,
           subtotalWithTax,
           total,
+          transfer: dto.transfer || 0,
+          cash: dto.cash || 0,
           invoiceDetails,
           invoiceType,
           user,
-          employee: { userId: employeeId },
-          payType,
-          paidType,
-        });
+          employee: { userId: employeeId } as User,
+          payType: payType ?? undefined,
+          paidType: paidType ?? undefined,
+        };
 
+        const newInvoice = invoiceRepo.create(invoiceData);
         const saved = await invoiceRepo.save(newInvoice);
-        return { saved, hasProducts };
-      });
+
+        return saved;
+      },
+    );
 
     return invoiceEntity;
   }
@@ -337,7 +353,6 @@ export class InvoiceService {
       await queryRunner.release();
     }
   }
-
   async findOne(invoiceId: number): Promise<GetInvoiceWithDetailsDto> {
     const invoice = await this._invoiceRepository.findOne({
       where: { invoiceId },
@@ -360,7 +375,7 @@ export class InvoiceService {
       throw new NotFoundException('Factura no encontrada');
     }
 
-    // 🔹 Calcular suma de impuestos (subtotalWithTax) directamente desde detalles
+    // 🔹 Calcular suma de impuestos
     const { totalTaxes } = await this._invoiceDetaillRepository
       .createQueryBuilder('d')
       .select(
@@ -375,28 +390,38 @@ export class InvoiceService {
       code: invoice.code,
       observations: invoice.observations,
       invoiceElectronic: invoice.invoiceElectronic,
-      subtotalWithoutTax: invoice.subtotalWithoutTax.toString(),
-      subtotalWithTax: invoice.subtotalWithTax.toString(),
+      subtotalWithoutTax: invoice.subtotalWithoutTax?.toString(),
+      subtotalWithTax: invoice.subtotalWithTax?.toString(),
       cash: invoice.cash,
       transfer: invoice.transfer,
-      total: invoice.total.toString(),
+      total: invoice.total?.toString(),
       totalTaxes: Number(totalTaxes),
-      invoiceType: {
-        invoiceTypeId: invoice.invoiceType.invoiceTypeId,
-        code: invoice.invoiceType.code,
-        name: invoice.invoiceType.name,
-      },
-      payType: {
-        payTypeId: invoice.payType.payTypeId,
-        code: invoice.payType.code,
-        name: invoice.payType.name,
-      },
-      paidType: {
-        paidTypeId: invoice.paidType.paidTypeId,
-        code: invoice.paidType.code,
-        name: invoice.paidType.name,
-      },
-      user: {
+
+      invoiceType: invoice.invoiceType
+        ? {
+            invoiceTypeId: invoice.invoiceType.invoiceTypeId,
+            code: invoice.invoiceType.code,
+            name: invoice.invoiceType.name,
+          }
+        : undefined,
+
+      payType: invoice.payType
+        ? {
+            payTypeId: invoice.payType.payTypeId,
+            code: invoice.payType.code,
+            name: invoice.payType.name,
+          }
+        : undefined,
+
+      paidType: invoice.paidType
+        ? {
+            paidTypeId: invoice.paidType.paidTypeId,
+            code: invoice.paidType.code,
+            name: invoice.paidType.name,
+          }
+        : undefined,
+
+      user: invoice.user && {
         userId: invoice.user.userId,
         firstName: invoice.user.firstName,
         lastName: invoice.user.lastName,
@@ -419,19 +444,23 @@ export class InvoiceService {
             }
           : undefined,
       },
-      employee: {
-        userId: invoice.employee.userId,
-        firstName: invoice.employee.firstName,
-        lastName: invoice.employee.lastName,
-        identificationNumber: invoice.employee.identificationNumber,
-      },
+
+      employee: invoice.employee
+        ? {
+            userId: invoice.employee.userId,
+            firstName: invoice.employee.firstName,
+            lastName: invoice.employee.lastName,
+            identificationNumber: invoice.employee.identificationNumber,
+          }
+        : undefined,
+
       invoiceDetails: invoice.invoiceDetails.map((detail) => {
         const baseDetail = {
           invoiceDetailId: detail.invoiceDetailId,
           amount: Number(detail.amount),
-          priceWithoutTax: detail.priceWithoutTax.toString(),
-          priceWithTax: detail.priceWithTax.toString(),
-          subtotal: detail.subtotal.toString(),
+          priceWithoutTax: detail.priceWithoutTax?.toString(),
+          priceWithTax: detail.priceWithTax?.toString(),
+          subtotal: detail.subtotal?.toString(),
 
           product: detail.product && {
             productId: detail.product.productId,

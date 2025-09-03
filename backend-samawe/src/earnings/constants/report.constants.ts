@@ -7,6 +7,8 @@ export const PAYMENT_TYPES = [
   'CREDITO',
 ] as const;
 
+export const PAIDMENT_TYPES = ['PAGADO', 'RESERVADO - PAGADO'] as const;
+
 export const CATEGORY_TYPES = [
   'BAR',
   'RESTAURANTE',

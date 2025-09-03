@@ -40,13 +40,13 @@ export class Invoice {
   @JoinColumn({ name: 'employeeId' })
   employee: User;
 
-  @ManyToOne(() => PaidType)
+  @ManyToOne(() => PaidType, { nullable: true })
   @JoinColumn({ name: 'paidTypeId' })
-  paidType: PaidType;
+  paidType?: PaidType;
 
-  @ManyToOne(() => PayType)
+  @ManyToOne(() => PayType, { nullable: true })
   @JoinColumn({ name: 'payTypeId' })
-  payType: PayType;
+  payType?: PayType;
 
   @Column({ type: 'boolean', default: false })
   invoiceElectronic: boolean;

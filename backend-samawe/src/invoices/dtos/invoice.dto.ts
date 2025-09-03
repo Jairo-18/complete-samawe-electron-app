@@ -60,8 +60,8 @@ export class CreateInvoiceDto {
     description: 'False y True',
   })
   @IsBoolean()
-  @IsNotEmpty({ message: 'Es factura electronica reeuqerido' })
-  invoiceElectronic: boolean;
+  @IsOptional()
+  invoiceElectronic?: boolean;
 
   @ApiProperty({ example: '2025-05-27', description: 'Fecha de inicio' })
   @IsDateString(
@@ -82,20 +82,20 @@ export class CreateInvoiceDto {
   @ApiProperty({
     example: 1,
     description: 'ID del tipo de pago (PayType)',
-    required: true,
+    required: false,
   })
   @IsNumber()
-  @IsNotEmpty({ message: 'El tipo de pago es requerido' })
-  payTypeId: number;
+  @IsOptional()
+  payTypeId?: number;
 
   @ApiProperty({
     example: 1,
     description: 'ID del estado de pago (PaidType)',
-    required: true,
+    required: false,
   })
   @IsNumber()
-  @IsNotEmpty({ message: 'El estado de pago es requerido' })
-  paidTypeId: number;
+  @IsOptional()
+  paidTypeId?: number;
 
   @ApiProperty({
     example: 0,

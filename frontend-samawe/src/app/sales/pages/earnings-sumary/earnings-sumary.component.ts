@@ -182,4 +182,12 @@ export class EarningsSumaryComponent implements OnInit {
         console.error('Error al cargar resumen de facturas agrupadas:', err)
     });
   }
+
+  payReport() {
+    this._earningService.downloadPayReport();
+  }
+
+  detaillsReport() {
+    this._earningService.downloadDetailsReport();
+  }
 }
