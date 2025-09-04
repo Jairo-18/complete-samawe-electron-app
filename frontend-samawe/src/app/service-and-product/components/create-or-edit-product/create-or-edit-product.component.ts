@@ -127,7 +127,7 @@ export class CreateOrEditProductComponent implements OnChanges {
         0,
         [Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.0)]
       ],
-      isActive: [false, Validators.required]
+      isActive: [true, Validators.required]
     });
   }
 
