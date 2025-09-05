@@ -71,6 +71,7 @@ export class SeeUsersComponent implements OnInit {
     'lastName',
     'roleType',
     'phoneCode',
+    'phone',
     'isActive',
     'actions'
   ];
@@ -216,8 +217,9 @@ export class SeeUsersComponent implements OnInit {
     );
   }
 
-  getPhoneCodeName(id: string): string {
-    return this.phoneCode.find((p) => p.phoneCodeId === id)?.name || '';
+  getPhoneCodeDisplay(id: string): string {
+    const phoneCode = this.phoneCode.find((p) => p.phoneCodeId === id);
+    return phoneCode ? `${phoneCode.code} - ${phoneCode.name}` : '';
   }
 
   /**
