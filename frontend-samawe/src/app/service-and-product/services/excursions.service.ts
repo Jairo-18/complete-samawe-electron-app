@@ -4,7 +4,8 @@ import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import {
   CreateExcursionPanel,
-  ExcursionComplete
+  ExcursionComplete,
+  ExcursionListResponse
 } from '../interface/excursion.interface';
 import {
   ApiResponseCreateInterface,
@@ -30,6 +31,12 @@ export class ExcursionsService {
       pagination: PaginationInterface;
       data: CreateExcursionPanel[];
     }>(`${environment.apiUrl}excursion/paginated-list`, { params });
+  }
+
+  getAllExcursions(): Observable<{ data: ExcursionListResponse }> {
+    return this._httpClient.get<{ data: ExcursionListResponse }>(
+      `${environment.apiUrl}excursion`
+    );
   }
 
   getExcursionEditPanel(

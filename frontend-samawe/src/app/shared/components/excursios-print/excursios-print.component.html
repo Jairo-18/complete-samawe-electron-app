@@ -1,0 +1,45 @@
+<article
+  #printSection
+  class="bg-white text-black p-6 w-full max-w-[800px] text-xs"
+>
+  <section class="flex content-between w-full items-center mb-2">
+    <p class="text-xl font-bold">Lista de Pasadias y Servicios</p>
+  </section>
+
+  <table class="w-full border border-collapse my-[3px]" *ngIf="excursions">
+    <thead>
+      <tr>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Nro°</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Código</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Nombre</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">P. Compra</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">P. Venta</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="excursions.length === 0">
+        <td colspan="6" class="border p-2 text-center text-xs">
+          No hay productos registrados
+        </td>
+      </tr>
+      <tr *ngFor="let excursion of excursions; let i = index">
+        <td class="border px-4 p-1 pt-0 m-0 text-center text-xs">
+          {{ i + 1 }}
+        </td>
+        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">
+          {{ excursion.code || 'N/A' }}
+        </td>
+        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">
+          {{ excursion.name || 'N/A' }}
+        </td>
+
+        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
+          {{ excursion?.priceBuy ?? 0 | formatCop }}
+        </td>
+        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
+          {{ excursion?.priceSale ?? 0 | formatCop }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</article>

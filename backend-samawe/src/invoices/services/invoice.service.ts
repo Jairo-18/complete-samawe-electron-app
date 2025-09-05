@@ -45,6 +45,11 @@ export class InvoiceService {
     private readonly _eventEmitter: EventEmitter2,
   ) {}
 
+  private toDateOnly(dateString: string): Date {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
   private async _calculateInvoiceDetails(
     detailsDto: CreateInvoiceDetailDto[],
   ): Promise<{
@@ -246,8 +251,9 @@ export class InvoiceService {
           code,
           observations: dto.observations,
           invoiceElectronic: dto.invoiceElectronic,
-          startDate: new Date(dto.startDate),
-          endDate: new Date(dto.endDate),
+          startDate: this.toDateOnly(dto.startDate),
+          endDate: this.toDateOnly(dto.endDate),
+
           subtotalWithoutTax,
           subtotalWithTax,
           total,

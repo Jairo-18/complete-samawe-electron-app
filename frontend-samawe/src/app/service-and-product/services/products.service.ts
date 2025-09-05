@@ -9,7 +9,8 @@ import {
 import { HttpUtilitiesService } from '../../shared/utilities/http-utilities.service';
 import {
   CreateProductPanel,
-  ProductComplete
+  ProductComplete,
+  ProductListResponse
 } from '../interface/product.interface';
 import { PaginationInterface } from '../../shared/interfaces/pagination.interface';
 
@@ -30,6 +31,12 @@ export class ProductsService {
       pagination: PaginationInterface;
       data: CreateProductPanel[];
     }>(`${environment.apiUrl}product/paginated-list`, { params });
+  }
+
+  getAllProducts(): Observable<{ data: ProductListResponse }> {
+    return this._httpClient.get<{ data: ProductListResponse }>(
+      `${environment.apiUrl}product`
+    );
   }
 
   getProductEditPanel(

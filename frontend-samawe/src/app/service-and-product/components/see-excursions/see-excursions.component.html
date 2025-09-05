@@ -24,6 +24,17 @@
       Limpiar filtros
     </button>
   </div>
+  <div class="w-[24%]">
+    <button
+      class="!w-full"
+      mat-stroked-button
+      extended="true"
+      color="primary"
+      (click)="printExcursions()"
+    >
+      Imprimir pasadías y servicios
+    </button>
+  </div>
 </section>
 
 <div class="mt-4">
@@ -317,3 +328,8 @@
   </mat-tab>
 </mat-tab-group>
 }
+<app-excursios-print
+  style="position: absolute; top: -9999px; left: -9999px"
+  [excursions]="allExcursions"
+  #excursionsPrint
+></app-excursios-print>

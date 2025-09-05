@@ -189,7 +189,7 @@ export class CreateOrEditProductComponent implements OnChanges {
       amount: 0,
       priceBuy: 0,
       priceSale: 0,
-      isActive: false
+      isActive: true
     });
     this.cdr.detectChanges();
   }

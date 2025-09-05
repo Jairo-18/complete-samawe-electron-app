@@ -56,6 +56,7 @@
 
         <!-- Tabs siempre visibles después de la carga inicial -->
         <mat-tab-group animationDuration="0ms">
+          @if (invoiceData?.invoiceType?.code === 'FV') {
           <!-- Producto: siempre disponible -->
           <mat-tab label="Producto">
             <ng-template matTabContent>
@@ -67,8 +68,6 @@
             </ng-template>
           </mat-tab>
 
-          <!-- Hospedaje: solo si no es FC -->
-          @if (invoiceData?.invoiceType?.code !== 'FC') {
           <mat-tab label="Hospedaje">
             <ng-template matTabContent>
               <app-add-accommodation
@@ -90,6 +89,28 @@
               ></app-add-excursion>
             </ng-template>
           </mat-tab>
+          } @else {
+
+          <mat-tab label="Productos">
+            <ng-template matTabContent>
+              <app-add-invoice-buy
+                [categoryTypes]="categoryTypes"
+                [taxeTypes]="taxeTypes"
+                (itemSaved)="onItemSaved()"
+              ></app-add-invoice-buy>
+            </ng-template>
+          </mat-tab>
+
+          <mat-tab label="Pasadías y Servicios">
+            <ng-template matTabContent>
+              <app-add-excursion
+                [categoryTypes]="categoryTypes"
+                [taxeTypes]="taxeTypes"
+                (itemSaved)="onItemSaved()"
+              ></app-add-excursion>
+            </ng-template>
+          </mat-tab>
+
           }
         </mat-tab-group>
       </section>

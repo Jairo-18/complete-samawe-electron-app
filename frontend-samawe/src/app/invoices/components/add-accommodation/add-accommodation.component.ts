@@ -217,8 +217,9 @@ export class AddAccommodationComponent implements OnInit {
       const discount = this.discountTypes.find(
         (d) => d.discountTypeId === formValue.discountTypeId
       );
-      if (discount) {
-        const discountAmount = basePrice * parseFloat(discount.percent);
+      if (discount && discount.code) {
+        // El code es un valor fijo en pesos que se descuenta directamente
+        const discountAmount = parseFloat(discount.code);
         basePrice = basePrice - discountAmount;
       }
     }
@@ -267,7 +268,6 @@ export class AddAccommodationComponent implements OnInit {
       {
         priceWithoutTax: this.subtotal,
         unitPrice: this.unitPrice,
-
         finalPrice: this.finalPrice
       },
       { emitEvent: false }
@@ -299,12 +299,9 @@ export class AddAccommodationComponent implements OnInit {
 
   getDiscountAmount(): number {
     const discount = this.getSelectedDiscountType();
-    if (!discount) return 0;
-    const basePrice =
-      typeof this.originalPrice === 'string'
-        ? parseFloat(this.originalPrice)
-        : this.originalPrice;
-    return basePrice * parseFloat(discount.percent);
+    if (!discount || !discount.code) return 0;
+    // El code es un valor fijo en pesos que se descuenta directamente
+    return parseFloat(discount.code);
   }
 
   getAdditionalAmount(): number {

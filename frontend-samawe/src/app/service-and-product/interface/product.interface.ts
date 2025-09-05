@@ -28,3 +28,7 @@ export interface ProductComplete {
   createdAt: Date;
   deletedAt: Date;
 }
+
+export interface ProductListResponse {
+  products: ProductComplete[];
+}

@@ -1,0 +1,61 @@
+<article
+  #printSection
+  class="bg-white text-black p-6 w-full max-w-[800px] text-xs"
+>
+  <section class="flex content-between w-full items-center mb-2">
+    <p class="text-xl font-bold">
+      Lista de Productos, Bar, Mecato, Restaurante y Otros
+    </p>
+  </section>
+
+  <table class="w-full border border-collapse my-[3px]" *ngIf="products">
+    <thead>
+      <tr>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Nro°</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Código</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Nombre</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Unidades</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">P. Compra</th>
+        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">P. Venta</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngIf="products.length === 0">
+        <td colspan="6" class="border p-2 text-center text-xs">
+          No hay productos registrados
+        </td>
+      </tr>
+      <tr *ngFor="let product of products; let i = index">
+        <td class="border px-4 p-1 pt-0 m-0 text-center text-xs">
+          {{ i + 1 }}
+        </td>
+        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">
+          {{ product.code || 'N/A' }}
+        </td>
+        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">
+          {{ product.name || 'N/A' }}
+        </td>
+        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
+          {{ product?.amount ?? 0 }}
+        </td>
+        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
+          {{ product?.priceBuy ?? 0 | formatCop }}
+        </td>
+        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
+          {{ product?.priceSale ?? 0 | formatCop }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <tfoot>
+    <tr class="font-bold justify-end">
+      <td colspan="3" class="border p-1 text-right text-xs">
+        Precio Total Del Inventario:
+      </td>
+
+      <td class="border p-1 text-right text-xs">
+        {{ totalSaleValue | formatCop }}
+      </td>
+    </tr>
+  </tfoot>
+</article>

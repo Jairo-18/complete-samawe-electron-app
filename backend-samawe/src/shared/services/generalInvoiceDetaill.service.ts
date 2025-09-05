@@ -58,43 +58,6 @@ export class GeneralInvoiceDetaillService {
   }
 
   /**
-   * Valida si los precios del producto han cambiado y sugiere crear uno nuevo
-   */
-  validateProductPriceConsistency(
-    product: Product,
-    priceBuy: number,
-    priceWithoutTax: number,
-    invoiceTypeCode: string,
-  ): { isValid: boolean; message?: string } {
-    const currentPriceBuy = Number(product.priceBuy);
-    const currentPriceSale = Number(product.priceSale);
-
-    // Solo validar para facturas de compra
-    if (invoiceTypeCode === 'FC') {
-      const priceBuyDiff = Math.abs(currentPriceBuy - priceBuy) > 0.01;
-      const priceSaleDiff = Math.abs(currentPriceSale - priceWithoutTax) > 0.01;
-
-      if (priceBuyDiff || priceSaleDiff) {
-        return {
-          isValid: false,
-          message: `⚠️ ATENCIÓN: Los precios del producto "${product.name}" han cambiado:
-                Precios actuales del producto:
-                - Precio de compra: $${currentPriceBuy}
-                - Precio de venta: $${currentPriceSale}
-  
-                Precios en esta factura:
-                - Precio de compra: $${priceBuy}
-                - Precio de venta: $${priceWithoutTax}
-  
-                RECOMENDACIÓN: Considera crear un producto diferente para mantener la integridad contable, ya que esto podría alterar la contabilidad de la aplicación.`,
-        };
-      }
-    }
-
-    return { isValid: true };
-  }
-
-  /**
    * Obtiene los precios históricos del producto o los precios actuales
    */
   getHistoricalPrices(

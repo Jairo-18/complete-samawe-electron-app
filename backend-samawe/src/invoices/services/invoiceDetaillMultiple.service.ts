@@ -173,18 +173,6 @@ export class InvoiceDetaillMultiple {
       priceBuy = prices.priceBuy;
       priceWithoutTax = prices.priceWithoutTax;
 
-      const validation =
-        this._generalInvoiceDetaillService.validateProductPriceConsistency(
-          product,
-          priceBuy,
-          priceWithoutTax,
-          invoice.invoiceType.code,
-        );
-
-      if (!validation.isValid) {
-        throw new BadRequestException(validation.message);
-      }
-
       isProduct = true;
     } else {
       priceBuy = Number(dto.priceBuy) || 0;

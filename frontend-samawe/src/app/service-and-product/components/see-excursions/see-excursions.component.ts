@@ -41,6 +41,7 @@ import {
 import { ExcursionsService } from '../../services/excursions.service';
 import { SectionHeaderComponent } from '../../../shared/components/section-header/section-header.component';
 import { FormatCopPipe } from '../../../shared/pipes/format-cop.pipe';
+import { ExcursiosPrintComponent } from '../../../shared/components/excursios-print/excursios-print.component';
 
 @Component({
   selector: 'app-see-excursions',
@@ -60,7 +61,8 @@ import { FormatCopPipe } from '../../../shared/pipes/format-cop.pipe';
     MatTab,
     MatTabGroup,
     SectionHeaderComponent,
-    FormatCopPipe
+    FormatCopPipe,
+    ExcursiosPrintComponent
   ],
   templateUrl: './see-excursions.component.html',
   styleUrl: './see-excursions.component.scss'
@@ -80,6 +82,8 @@ export class SeeExcursionsComponent implements OnInit {
   private readonly _authService: AuthService = inject(AuthService);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(SearchFieldsComponent) searchComponent!: SearchFieldsComponent;
+  @ViewChild('excursionsPrint')
+  excursionsPrintComponent!: ExcursiosPrintComponent;
 
   displayedColumns: string[] = [
     'categoryType',
@@ -92,7 +96,7 @@ export class SeeExcursionsComponent implements OnInit {
   ];
 
   dataSource = new MatTableDataSource<CreateExcursionPanel>([]);
-
+  allExcursions: ExcursionComplete[] = [];
   userLogged: UserInterface;
   form!: FormGroup;
   showClearButton: boolean = false;
@@ -274,5 +278,25 @@ export class SeeExcursionsComponent implements OnInit {
         user.roleType?.name === 'Cliente') ||
       user.roleType?.name === 'CLIENTE'
     );
+  }
+
+  printExcursions(): void {
+    this._excursionService.getAllExcursions().subscribe({
+      next: (res) => {
+        this.allExcursions = (res.data?.excursions || []).sort(
+          (a: ExcursionComplete, b: ExcursionComplete) =>
+            a.name.localeCompare(b.name)
+        );
+
+        if (!this.allExcursions.length) {
+          console.warn('No hay pasadias o servicios para imprimir');
+          return;
+        }
+
+        setTimeout(() => {
+          this.excursionsPrintComponent.print();
+        }, 0);
+      }
+    });
   }
 }

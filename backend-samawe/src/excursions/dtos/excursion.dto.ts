@@ -159,7 +159,7 @@ export class GetExcursionDto implements BaseResponseDto {
 }
 
 export interface GetAllExcursionsResponse {
-  accommodations: Excursion[];
+  excursions: Excursion[];
 }
 
 export class GetAllExcursionsResposeDto implements BaseResponseDto {

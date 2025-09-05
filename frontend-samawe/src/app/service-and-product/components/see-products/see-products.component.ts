@@ -36,6 +36,7 @@ import { ProductsService } from '../../services/products.service';
 import { CategoryType } from '../../../shared/interfaces/relatedDataGeneral';
 import { SectionHeaderComponent } from '../../../shared/components/section-header/section-header.component';
 import { FormatCopPipe } from '../../../shared/pipes/format-cop.pipe';
+import { ProductsPrintComponent } from '../../../shared/components/products-print/products-print.component';
 
 @Component({
   selector: 'app-see-products',
@@ -55,7 +56,8 @@ import { FormatCopPipe } from '../../../shared/pipes/format-cop.pipe';
     MatTab,
     MatTabGroup,
     SectionHeaderComponent,
-    FormatCopPipe
+    FormatCopPipe,
+    ProductsPrintComponent
   ],
   templateUrl: './see-products.component.html',
   styleUrl: './see-products.component.scss'
@@ -65,6 +67,8 @@ export class SeeProductsComponent implements OnInit {
   @Input() categoryTypes: CategoryType[] = [];
   @Output() productSelected = new EventEmitter<ProductComplete>();
   @Output() productClean = new EventEmitter<number>();
+  @Output() printRequested = new EventEmitter<void>();
+  @ViewChild('productsPrint') productsPrintComponent!: ProductsPrintComponent;
 
   private readonly _productsService: ProductsService = inject(ProductsService);
   private readonly _activatedRoute: ActivatedRoute = inject(ActivatedRoute);
@@ -86,7 +90,7 @@ export class SeeProductsComponent implements OnInit {
   ];
 
   dataSource = new MatTableDataSource<CreateProductPanel>([]);
-
+  allProducts: ProductComplete[] = [];
   userLogged: UserInterface;
   form!: FormGroup;
   showClearButton: boolean = false;
@@ -248,5 +252,26 @@ export class SeeProductsComponent implements OnInit {
         user.roleType?.name === 'Cliente') ||
       user.roleType?.name === 'CLIENTE'
     );
+  }
+
+  printProducts(): void {
+    this._productsService.getAllProducts().subscribe({
+      next: (res) => {
+        this.allProducts = (res.data?.products || []).sort(
+          (a: ProductComplete, b: ProductComplete) =>
+            a.name.localeCompare(b.name)
+        );
+
+        if (!this.allProducts.length) {
+          console.warn('No hay productos para imprimir');
+          return;
+        }
+
+        // Esperar un ciclo de detección de cambios antes de imprimir
+        setTimeout(() => {
+          this.productsPrintComponent.print();
+        }, 0);
+      }
+    });
   }
 }

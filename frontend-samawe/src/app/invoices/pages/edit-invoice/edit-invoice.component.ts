@@ -37,6 +37,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { CreateInvoiceDialogComponent } from '../../components/create-invoice-dialog/create-invoice-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AddInvoiceBuyComponent } from '../../components/add-invoice-buy/add-invoice-buy.component';
 
 @Component({
   selector: 'app-edit-invoice',
@@ -54,7 +55,8 @@ import { MatDialog } from '@angular/material/dialog';
     InvoicePdfComponent,
     MatButtonModule,
     MatTableModule,
-    MatIconModule
+    MatIconModule,
+    AddInvoiceBuyComponent
   ],
   templateUrl: './edit-invoice.component.html',
   styleUrl: './edit-invoice.component.scss'

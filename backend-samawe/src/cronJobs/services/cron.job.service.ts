@@ -6,9 +6,8 @@ import { Cron } from '@nestjs/schedule';
 export class CronJobService {
   constructor(private readonly _invoiceDetaillService: InvoiceDetailService) {}
 
-  @Cron('0 */30 * * * *')
+  @Cron('0 */2 * * *')
   async handleReservationsJob() {
-    console.log('⏰ Ejecutando revisión de reservas...');
     await this._invoiceDetaillService.handleScheduledReservation();
   }
 }

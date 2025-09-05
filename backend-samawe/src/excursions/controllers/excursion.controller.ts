@@ -85,10 +85,10 @@ export class ExcursionController {
   @UseGuards(AuthGuard())
   @ApiOkResponse({ type: GetAllExcursionsResposeDto })
   async findAll(): Promise<GetAllExcursionsResposeDto> {
-    const accommodations = await this._excursionUC.findAll();
+    const excursions = await this._excursionUC.findAll();
     return {
       statusCode: HttpStatus.OK,
-      data: { accommodations },
+      data: { excursions },
     };
   }
 

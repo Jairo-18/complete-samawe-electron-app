@@ -37,7 +37,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CurrencyFormatDirective } from '../../../shared/directives/currency-format.directive';
 
 @Component({
-  selector: 'app-add-product',
+  selector: 'app-add-invoice-buy',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -52,14 +52,13 @@ import { CurrencyFormatDirective } from '../../../shared/directives/currency-for
     MatProgressSpinnerModule,
     CurrencyFormatDirective
   ],
-  templateUrl: './add-product.component.html',
-  styleUrl: './add-product.component.scss'
+  templateUrl: './add-invoice-buy.component.html',
+  styleUrl: './add-invoice-buy.component.scss'
 })
-export class AddProductComponent implements OnInit {
+export class AddInvoiceBuyComponent implements OnInit {
   @Input() categoryTypes: CategoryType[] = [];
   @Input() taxeTypes: TaxeType[] = [];
   @Output() itemSaved = new EventEmitter<void>();
-
   private readonly _producsService: ProductsService = inject(ProductsService);
   private readonly _invoiceDetaillService: InvoiceDetaillService = inject(
     InvoiceDetaillService
@@ -97,13 +96,20 @@ export class AddProductComponent implements OnInit {
     this.form = this._fb.group({
       name: ['', Validators.required],
       productId: [null, Validators.required],
-      priceSale: [0],
+      priceSale: [0, [Validators.required, Validators.min(0)]], // Ahora editable con validadores
       priceBuy: [0, [Validators.required, Validators.min(0)]],
       priceWithoutTax: [null, Validators.required],
       taxeTypeId: [3],
       amountSale: [1, [Validators.required, Validators.min(1)]],
       finalPrice: [0],
       amount: [0]
+    });
+
+    // Listener para sincronizar priceSale con priceWithoutTax y recalcular
+    this.form.get('priceSale')?.valueChanges.subscribe((value) => {
+      // Sincronizar priceSale con priceWithoutTax
+      this.form.patchValue({ priceWithoutTax: value }, { emitEvent: false });
+      this.updateFinalPrice();
     });
 
     this.form
@@ -144,14 +150,22 @@ export class AddProductComponent implements OnInit {
     const product = this.filteredProducts.find((p) => p.name === name);
     if (!product) return;
 
+    // Solo actualizar priceSale si está vacío o es 0 (preservar valores manuales)
+    const currentPriceSale = this.form.get('priceSale')?.value;
+    const shouldUpdatePrice = !currentPriceSale || currentPriceSale === 0;
+
     this.form.patchValue({
       productId: product.productId,
-      priceSale: product.priceSale,
+      // Solo actualizar priceSale si no tiene valor
+      ...(shouldUpdatePrice && {
+        priceSale: product.priceSale,
+        priceWithoutTax: product.priceSale
+      }),
       priceBuy: product.priceBuy ?? 0,
-      priceWithoutTax: product.priceSale,
       amount: product.amount,
       categoryId: product.categoryTypeId
     });
+
     this.updateFinalPrice();
   }
 
@@ -159,7 +173,7 @@ export class AddProductComponent implements OnInit {
     this.form.reset({
       name: '',
       productId: null,
-      priceSale: { value: '', disabled: true },
+      priceSale: 0, // Cambiar de disabled a 0
       priceBuy: 0,
       priceWithoutTax: null,
       taxeTypeId: 3,
@@ -227,9 +241,9 @@ export class AddProductComponent implements OnInit {
     this.form.patchValue({
       name: '',
       productId: null,
-      priceSale: '',
+      // No limpiar priceSale para mantener el valor manual
       priceBuy: 0,
-      priceWithoutTax: null,
+      priceWithoutTax: this.form.get('priceSale')?.value || null,
       categoryId: null
     });
 

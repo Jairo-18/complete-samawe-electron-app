@@ -289,11 +289,14 @@ export class CreateInvoiceDialogComponent implements OnInit {
   }
 
   private createInvoice(): void {
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('en-CA'); // yyyy-MM-dd
+
     const payload = {
       ...this.form.value,
       userId: this.form.get('userId')?.value,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date().toISOString().split('T')[0]
+      startDate: formattedDate, // <-- string plano
+      endDate: formattedDate
     };
 
     this._invoiceService.createInvoice(payload).subscribe({

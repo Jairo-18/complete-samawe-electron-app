@@ -91,14 +91,6 @@ export class InvoiceDetailService {
     };
   }
 
-  /**
-   * Crea un detalle de factura.
-   * - Si invoice.invoiceType.code === 'CO' (cotización) NO modifica stock ni estados de accommodation.
-   * - Si invoice.invoiceType.code === 'FV' (venta) y viene product, resta stock.
-   * - Si invoice.invoiceType.code === 'FC' (compra) y viene product, suma stock.
-   * - Si viene accommodation y la reserva está dentro de los próximos 2 días y NO es cotización,
-   *   marca la accommodation como OCUPADO.
-   */
   async create(invoiceId: number, dto: CreateInvoiceDetailDto) {
     try {
       const [invoice, taxeType] = await Promise.all([
@@ -165,11 +157,10 @@ export class InvoiceDetailService {
         if (!product.isActive)
           throw new BadRequestException('Este producto está inactivo');
 
-        // ✅ Validar stock solo si es venta y no es cotización
-        if (isSale && amount > (product.amount ?? 0)) {
-          throw new BadRequestException(
-            `Stock insuficiente para ${product.name}. Disponible: ${product.amount}, solicitado: ${amount}`,
-          );
+        if (isSale && !isQuote) {
+          const currentStock = product.amount ?? 0;
+          if (amount > currentStock) {
+          }
         }
 
         const prices = this._generalInvoiceDetaillService.getHistoricalPrices(
@@ -178,18 +169,6 @@ export class InvoiceDetailService {
         );
         priceBuy = prices.priceBuy;
         priceWithoutTax = prices.priceWithoutTax;
-
-        const validation =
-          this._generalInvoiceDetaillService.validateProductPriceConsistency(
-            product,
-            priceBuy,
-            priceWithoutTax,
-            invoice.invoiceType.code,
-          );
-
-        if (!validation.isValid) {
-          throw new BadRequestException(validation.message);
-        }
 
         isProduct = true;
       } else {
@@ -330,14 +309,15 @@ export class InvoiceDetailService {
       if (isProduct) {
         const currentAmount = Number(product.amount) || 0;
 
-        if (isSale) {
-          // Venta: restar (ya validamos stock arriba)
+        if (isSale && !isQuote) {
+          // Venta (no cotización): restar stock (incluso si queda negativo)
           product.amount = currentAmount - amount;
         } else if (isBuy) {
           // Compra: sumar
           product.amount = currentAmount + amount;
         } else if (isQuote) {
           // Cotización -> NO tocar stock
+
           this._eventEmitter.emit('invoice.detail.cotizacion', {
             invoice,
             product,
@@ -346,8 +326,10 @@ export class InvoiceDetailService {
       }
 
       const savePromises = [
-        // guardamos product solo si vino product (y aunque sea cotización no hacemos cambios al product)
-        isProduct ? this._productRepository.save(product) : Promise.resolve(),
+        // guardamos product solo si vino product y NO es cotización
+        isProduct && !isQuote
+          ? this._productRepository.save(product)
+          : Promise.resolve(),
         this._generalInvoiceDetaillService.updateInvoiceTotal(invoiceId),
       ];
 
@@ -358,9 +340,29 @@ export class InvoiceDetailService {
         isProduct,
       });
 
-      return savedDetail;
+      // Preparar información adicional para el frontend
+      let stockInfo = null;
+      if (isProduct && product) {
+        const previousStock =
+          isSale && !isQuote ? product.amount + amount : product.amount;
+        const currentStock = product.amount;
+
+        stockInfo = {
+          productName: product.name,
+          previousStock,
+          currentStock,
+          requestedAmount: amount,
+          hasStockWarning: isSale && !isQuote && amount > previousStock,
+          isQuote,
+          operationType: isQuote ? 'cotizacion' : isSale ? 'venta' : 'compra',
+        };
+      }
+
+      return {
+        ...savedDetail,
+        stockInfo,
+      };
     } catch (error) {
-      // Log completo para depuración
       console.error('❌ Error al crear detalle:', error);
 
       if (error instanceof HttpException) {
