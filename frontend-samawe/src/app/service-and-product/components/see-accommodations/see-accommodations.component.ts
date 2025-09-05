@@ -88,9 +88,9 @@ export class SeeAccommodationsComponent implements OnInit {
     'code',
     'name',
     'amountPerson',
+    'amountBathroom',
     'jacuzzi',
     'amountRoom',
-    'amountBathroom',
     'priceBuy',
     'priceSale',
     'actions'
