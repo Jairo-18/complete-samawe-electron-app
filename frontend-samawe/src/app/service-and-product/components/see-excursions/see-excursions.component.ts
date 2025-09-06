@@ -87,9 +87,9 @@ export class SeeExcursionsComponent implements OnInit {
 
   displayedColumns: string[] = [
     'categoryType',
-    'stateType',
     'code',
     'name',
+    'stateType',
     'priceBuy',
     'priceSale',
     'actions'
@@ -284,8 +284,13 @@ export class SeeExcursionsComponent implements OnInit {
     this._excursionService.getAllExcursions().subscribe({
       next: (res) => {
         this.allExcursions = (res.data?.excursions || []).sort(
-          (a: ExcursionComplete, b: ExcursionComplete) =>
-            a.name.localeCompare(b.name)
+          (a: ExcursionComplete, b: ExcursionComplete) => {
+            const catCompare = a.categoryType.name.localeCompare(
+              b.categoryType.name
+            );
+            if (catCompare !== 0) return catCompare;
+            return a.name.localeCompare(b.name);
+          }
         );
 
         if (!this.allExcursions.length) {

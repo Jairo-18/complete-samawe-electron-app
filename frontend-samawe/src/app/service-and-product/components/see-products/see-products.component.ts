@@ -258,8 +258,13 @@ export class SeeProductsComponent implements OnInit {
     this._productsService.getAllProducts().subscribe({
       next: (res) => {
         this.allProducts = (res.data?.products || []).sort(
-          (a: ProductComplete, b: ProductComplete) =>
-            a.name.localeCompare(b.name)
+          (a: ProductComplete, b: ProductComplete) => {
+            const catCompare = a.categoryType.name.localeCompare(
+              b.categoryType.name
+            );
+            if (catCompare !== 0) return catCompare;
+            return a.name.localeCompare(b.name);
+          }
         );
 
         if (!this.allProducts.length) {

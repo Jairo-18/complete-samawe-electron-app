@@ -1,61 +1,256 @@
 <article
   #printSection
   class="bg-white text-black p-6 w-full max-w-[800px] text-xs"
+  style="background-color: white; color: black"
 >
   <section class="flex content-between w-full items-center mb-2">
-    <p class="text-xl font-bold">
+    <p class="text-xl font-bold" style="color: black; font-size: 1.25rem">
       Lista de Productos, Bar, Mecato, Restaurante y Otros
     </p>
   </section>
 
-  <table class="w-full border border-collapse my-[3px]" *ngIf="products">
-    <thead>
-      <tr>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Nro°</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Código</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Nombre</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Unidades</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">P. Compra</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">P. Venta</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngIf="products.length === 0">
-        <td colspan="6" class="border p-2 text-center text-xs">
-          No hay productos registrados
-        </td>
-      </tr>
-      <tr *ngFor="let product of products; let i = index">
-        <td class="border px-4 p-1 pt-0 m-0 text-center text-xs">
-          {{ i + 1 }}
-        </td>
-        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">
-          {{ product.code || 'N/A' }}
-        </td>
-        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">
-          {{ product.name || 'N/A' }}
-        </td>
-        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
-          {{ product?.amount ?? 0 }}
-        </td>
-        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
-          {{ product?.priceBuy ?? 0 | formatCop }}
-        </td>
-        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
-          {{ product?.priceSale ?? 0 | formatCop }}
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  <tfoot>
-    <tr class="font-bold justify-end">
-      <td colspan="3" class="border p-1 text-right text-xs">
-        Precio Total Del Inventario:
-      </td>
+  <!-- ✅ TABLA CON DIVS Y FLEXBOX -->
+  <div class="w-full" *ngIf="products" style="width: 100%">
+    <!-- HEADER -->
+    <div class="flex w-full" style="display: flex; width: 100%">
+      <!-- <div
+        class="flex-1 border text-sm p-1 font-bold text-center"
+        style="
+          flex: 1;
+          border: 1px solid black;
+          padding: 4px;
+          background-color: #06a606;
+          color: white;
+          font-weight: bold;
+          text-align: center;
+          font-size: 14px;
+        "
+      ></div> -->
+      <div
+        class="flex-[2] border text-sm p-1 font-bold text-center"
+        style="
+          flex: 2;
+          border: 1px solid black;
+          padding: 4px;
+          background-color: #06a606;
+          color: white;
+          font-weight: bold;
+          text-align: center;
+          font-size: 14px;
+        "
+      >
+        Categoría
+      </div>
+      <div
+        class="flex-[4] border text-sm p-1 font-bold text-center"
+        style="
+          flex: 4;
+          border: 1px solid black;
+          padding: 4px;
+          background-color: #06a606;
+          color: white;
+          font-weight: bold;
+          text-align: center;
+          font-size: 14px;
+        "
+      >
+        Nombre
+      </div>
+      <div
+        class="flex-1 border text-sm p-1 font-bold text-center"
+        style="
+          flex: 1;
+          border: 1px solid black;
+          padding: 4px;
+          background-color: #06a606;
+          color: white;
+          font-weight: bold;
+          text-align: center;
+          font-size: 14px;
+        "
+      >
+        UN
+      </div>
+      <div
+        class="flex-[2] border text-sm p-1 font-bold text-center"
+        style="
+          flex: 2;
+          border: 1px solid black;
+          padding: 4px;
+          background-color: #06a606;
+          color: white;
+          font-weight: bold;
+          text-align: center;
+          font-size: 14px;
+        "
+      >
+        P. Compra
+      </div>
+      <div
+        class="flex-[2] border text-sm p-1 font-bold text-center"
+        style="
+          flex: 2;
+          border: 1px solid black;
+          padding: 4px;
+          background-color: #06a606;
+          color: white;
+          font-weight: bold;
+          text-align: center;
+          font-size: 14px;
+        "
+      >
+        P. Venta
+      </div>
+    </div>
 
-      <td class="border p-1 text-right text-xs">
+    <!-- MENSAJE SI NO HAY PRODUCTOS -->
+    <div
+      *ngIf="products.length === 0"
+      class="flex w-full"
+      style="display: flex; width: 100%"
+    >
+      <div
+        class="w-full border p-2 text-center text-xs"
+        style="
+          width: 100%;
+          border: 1px solid black;
+          padding: 8px;
+          text-align: center;
+          font-size: 12px;
+        "
+      >
+        No hay productos registrados
+      </div>
+    </div>
+
+    <!-- FILAS DE PRODUCTOS -->
+    <div
+      *ngFor="let product of products; let i = index"
+      class="flex w-full"
+      style="display: flex; width: 100%"
+    >
+      <!-- Número -->
+      <!-- <div
+        class="flex-1 border px-4 p-1 text-center text-xs"
+        style="
+          flex: 1;
+          border: 1px solid black;
+          padding: 4px;
+          text-align: center;
+          font-size: 12px;
+        "
+      >
+        {{ i + 1 }}
+      </div> -->
+
+      <!-- Código -->
+      <div
+        class="flex-[2] border px-4 p-1 text-center text-xs"
+        style="
+          flex: 2;
+          border: 1px solid black;
+          padding: 4px;
+          text-align: center;
+          font-size: 12px;
+        "
+      >
+        {{ product.categoryType.name || 'N/A' }}
+      </div>
+
+      <!-- Nombre -->
+      <div
+        class="flex-[4] border px-4 p-1 text-left text-xs"
+        style="
+          flex: 4;
+          border: 1px solid black;
+          padding: 4px;
+          text-align: left;
+          font-size: 12px;
+        "
+      >
+        {{ product.name || 'N/A' }}
+      </div>
+
+      <!-- Unidades con colores -->
+      <div
+        class="flex-1 border px-4 p-1 text-center text-xs font-bold"
+        [ngClass]="{
+          'text-red-600': (product?.amount ?? 0) < 5,
+          'text-yellow-600':
+            (product?.amount ?? 0) >= 5 && (product?.amount ?? 0) < 10,
+          'text-green-600': (product?.amount ?? 0) >= 10
+        }"
+        style="
+          flex: 1;
+          border: 1px solid black;
+          padding: 4px;
+          text-align: center;
+          font-size: 12px;
+        "
+      >
+        {{ product?.amount ?? 0 }}
+      </div>
+
+      <!-- Precio Compra -->
+      <div
+        class="flex-[2] border px-4 p-1 text-right text-xs font-bold text-red-700"
+        style="
+          flex: 2;
+          border: 1px solid black;
+          padding: 4px;
+          text-align: right;
+          font-size: 12px;
+        "
+      >
+        {{ product?.priceBuy ?? 0 | formatCop }}
+      </div>
+
+      <!-- Precio Venta -->
+      <div
+        class="flex-[2] border px-4 p-1 text-right text-xs font-bold text-green-700"
+        style="
+          flex: 2;
+          border: 1px solid black;
+          padding: 4px;
+          text-align: right;
+          font-size: 12px;
+        "
+      >
+        {{ product?.priceSale ?? 0 | formatCop }}
+      </div>
+    </div>
+
+    <!-- FOOTER/TOTAL -->
+    <div class="flex w-full" style="display: flex; width: 100%">
+      <div
+        class="flex-[7] border p-1 text-right text-xs font-bold"
+        style="
+          flex: 7;
+          border: 1px solid black;
+          padding: 4px;
+          text-align: right;
+          font-weight: bold;
+          font-size: 12px;
+        "
+      >
+        Precio Total Del Inventario:
+      </div>
+      <div
+        class="flex-[2] border p-1 text-right text-xs"
+        style="
+          flex: 2;
+          border: 1px solid black;
+          padding: 4px;
+          text-align: right;
+          font-size: 12px;
+        "
+      >
         {{ totalSaleValue | formatCop }}
-      </td>
-    </tr>
-  </tfoot>
+      </div>
+      <div
+        class="flex-[2] border"
+        style="flex: 2; border: 1px solid black"
+      ></div>
+    </div>
+  </div>
 </article>

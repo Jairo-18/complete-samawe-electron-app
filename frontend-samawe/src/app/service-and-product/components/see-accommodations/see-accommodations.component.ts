@@ -83,10 +83,10 @@ export class SeeAccommodationsComponent implements OnInit {
   @ViewChild(SearchFieldsComponent) searchComponent!: SearchFieldsComponent;
 
   displayedColumns: string[] = [
-    'bedType',
-    'stateType',
     'code',
     'name',
+    'bedType',
+    'stateType',
     'amountPerson',
     'amountBathroom',
     'jacuzzi',

@@ -102,7 +102,11 @@ export class ProductService {
   }
 
   async findAll(): Promise<Product[]> {
-    return await this._productRepository.find();
+    return await this._productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.categoryType', 'categoryType')
+      .orderBy('categoryType.name', 'ASC')
+      .getMany();
   }
 
   async findOne(productId: string): Promise<Product> {

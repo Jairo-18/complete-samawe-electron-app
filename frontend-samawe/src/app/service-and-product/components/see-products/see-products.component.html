@@ -67,8 +67,17 @@
 
       <ng-container matColumnDef="amount">
         <th mat-header-cell *matHeaderCellDef class="center-text">Unidades</th>
-        <td mat-cell *matCellDef="let product" class="center-text">
-          {{ product.amount }}
+        <td mat-cell *matCellDef="let product" class="center-text font-bold">
+          <span
+            [ngClass]="{
+              'text-red-600 font-bold': (+product.amount || 0) < 5,
+              'text-yellow-600 font-bold':
+                (+product.amount || 0) >= 5 && (+product.amount || 0) < 10,
+              'text-green-600 font-bold': (+product.amount || 0) >= 10
+            }"
+          >
+            {{ product.amount }}
+          </span>
         </td>
       </ng-container>
 
@@ -233,8 +242,21 @@
             <th mat-header-cell *matHeaderCellDef class="center-text">
               Unidades
             </th>
-            <td mat-cell *matCellDef="let product" class="center-text">
-              {{ product.amount }}
+            <td
+              mat-cell
+              *matCellDef="let product"
+              class="center-text font-bold"
+            >
+              <span
+                [ngClass]="{
+                  'text-red-600 font-bold': (+product.amount || 0) < 5,
+                  'text-yellow-600 font-bold':
+                    (+product.amount || 0) >= 5 && (+product.amount || 0) < 10,
+                  'text-green-600 font-bold': (+product.amount || 0) >= 10
+                }"
+              >
+                {{ product.amount }}
+              </span>
             </td>
           </ng-container>
 

@@ -54,21 +54,22 @@
         <th mat-header-cell *matHeaderCellDef class="center-text">Estado</th>
         <td
           mat-cell
+          class="font-bold"
           *matCellDef="let excursion"
           [ngClass]="{
-            'text-yellow-700 font-bold':
+            'text-yellow-700  ':
               excursion?.stateType?.name === 'Mantenimiento' ||
               excursion?.stateType?.name === 'MANTENIMIENTO',
-            'text-green-700 font-bold':
+            'text-green-700  ':
               excursion?.stateType?.name === 'Disponible' ||
               excursion?.stateType?.name === 'DISPONIBLE',
-            'text-blue-700 font-bold':
+            'text-blue-700  ':
               excursion?.stateType?.name === 'Ocupado' ||
               excursion?.stateType?.name === 'OCUPADO',
-            'text-red-700 font-bold':
+            'text-red-700  ':
               excursion?.stateType?.name === 'Fuera de Servicio' ||
               excursion?.stateType?.name === 'FUERA DE SERVICIO',
-            'text-purple-700 font-bold':
+            'text-purple-700  ':
               excursion?.stateType?.name === 'Reservado' ||
               excursion?.stateType?.name === 'RESERVADO'
           }"
@@ -218,20 +219,21 @@
             <td
               mat-cell
               *matCellDef="let excursion"
+              class="font-bold"
               [ngClass]="{
-                'text-yellow-700 font-bold':
+                'text-yellow-700 ':
                   excursion?.stateType?.name === 'Mantenimiento' ||
                   excursion?.stateType?.name === 'MANTENIMIENTO',
-                'text-green-700 font-bold':
+                'text-green-700  ':
                   excursion?.stateType?.name === 'Disponible' ||
                   excursion?.stateType?.name === 'DISPONIBLE',
-                'text-blue-700 font-bold':
+                'text-blue-700  ':
                   excursion?.stateType?.name === 'Ocupado' ||
                   excursion?.stateType?.name === 'OCUPADO',
-                'text-red-700 font-bold':
+                'text-red-700 ':
                   excursion?.stateType?.name === 'Fuera de Servicio' ||
                   excursion?.stateType?.name === 'FUERA DE SERVICIO',
-                'text-purple-700 font-bold':
+                'text-purple-700  ':
                   excursion?.stateType?.name === 'Reservado' ||
                   excursion?.stateType?.name === 'RESERVADO'
               }"

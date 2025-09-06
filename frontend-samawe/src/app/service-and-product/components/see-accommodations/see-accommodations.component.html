@@ -43,24 +43,25 @@
       </ng-container>
 
       <ng-container matColumnDef="stateType">
-        <th mat-header-cell *matHeaderCellDef class="center-text">Estado</th>
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
         <td
           mat-cell
+          class="font-bold"
           *matCellDef="let accommodation"
           [ngClass]="{
-            'text-yellow-700 font-bold':
+            'text-yellow-700  ':
               accommodation?.stateType?.name === 'Mantenimiento' ||
               accommodation?.stateType?.name === 'MANTENIMIENTO',
-            'text-green-700 font-bold':
+            'text-green-700  ':
               accommodation?.stateType?.name === 'Disponible' ||
               accommodation?.stateType?.name === 'DISPONIBLE',
-            'text-blue-700 font-bold':
+            'text-blue-700 ':
               accommodation?.stateType?.name === 'Ocupado' ||
               accommodation?.stateType?.name === 'OCUPADO',
-            'text-red-700 font-bold':
+            'text-red-700 ':
               accommodation?.stateType?.name === 'Fuera de Servicio' ||
               accommodation?.stateType?.name === 'FUERA DE SERVICIO',
-            'text-purple-700 font-bold':
+            'text-purple-700 ':
               accommodation?.stateType?.name === 'Reservado' ||
               accommodation?.stateType?.name === 'RESERVADO'
           }"
@@ -97,12 +98,8 @@
         <td
           mat-cell
           *matCellDef="let accommodation"
-          class="center-text"
-          [ngClass]="
-            accommodation.isActive
-              ? 'text-red-700 font-bold'
-              : 'text-green-700 font-bold'
-          "
+          class="center-text font-bold"
+          [ngClass]="accommodation.jacuzzi ? 'text-green-700' : 'text-red-700'"
         >
           {{ accommodation.jacuzzi ? 'Sí' : 'No' }}
         </td>
@@ -131,7 +128,7 @@
         <td
           mat-cell
           *matCellDef="let accommodation"
-          class="right-text text-red-700 font-bold"
+          class="right-text font-bold text-red-700"
         >
           {{ accommodation.priceBuy | formatCop }}
         </td>
@@ -142,7 +139,7 @@
         <td
           mat-cell
           *matCellDef="let accommodation"
-          class="right-text text-green-700 font-bold"
+          class="right-text font-bold text-green-700"
         >
           {{ accommodation.priceSale | formatCop }}
         </td>
@@ -250,21 +247,22 @@
             <th mat-header-cell *matHeaderCellDef>Estado</th>
             <td
               mat-cell
+              class="font-bold"
               *matCellDef="let accommodation"
               [ngClass]="{
-                'text-yellow-700 font-bold':
+                'text-yellow-700 ':
                   accommodation?.stateType?.name === 'Mantenimiento' ||
                   accommodation?.stateType?.name === 'MANTENIMIENTO',
-                'text-green-700 font-bold':
+                'text-green-700 ':
                   accommodation?.stateType?.name === 'Disponible' ||
                   accommodation?.stateType?.name === 'DISPONIBLE',
-                'text-blue-700 font-bold':
+                'text-blue-700 ':
                   accommodation?.stateType?.name === 'Ocupado' ||
                   accommodation?.stateType?.name === 'OCUPADO',
-                'text-red-700 font-bold':
+                'text-red-700 ':
                   accommodation?.stateType?.name === 'Fuera de Servicio' ||
                   accommodation?.stateType?.name === 'FUERA DE SERVICIO',
-                'text-purple-700 font-bold':
+                'text-purple-700 ':
                   accommodation?.stateType?.name === 'Reservado' ||
                   accommodation?.stateType?.name === 'RESERVADO'
               }"
@@ -299,11 +297,9 @@
             <td
               mat-cell
               *matCellDef="let accommodation"
-              class="center-text"
+              class="center-text font-bold"
               [ngClass]="
-                accommodation.isActive
-                  ? 'text-red-700 font-bold'
-                  : 'text-green-700 font-bold'
+                accommodation.jacuzzi ? 'text-green-700' : 'text-red-700'
               "
             >
               {{ accommodation.jacuzzi ? 'Sí' : 'No' }}
@@ -329,7 +325,7 @@
             <td
               mat-cell
               *matCellDef="let accommodation"
-              class="right-text text-red-700 font-bold"
+              class="right-text font-bold text-red-700"
             >
               {{ accommodation.priceBuy | formatCop }}
             </td>
@@ -340,7 +336,7 @@
             <td
               mat-cell
               *matCellDef="let accommodation"
-              class="right-text text-green-700 font-bold"
+              class="right-text font-bold text-green-700"
             >
               {{ accommodation.priceSale | formatCop }}
             </td>

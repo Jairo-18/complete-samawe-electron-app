@@ -154,7 +154,11 @@ export class ExcursionService {
   }
 
   async findAll(): Promise<Excursion[]> {
-    return await this._excursionRepository.find();
+    return await this._excursionRepository
+      .createQueryBuilder('excursion')
+      .leftJoinAndSelect('excursion.categoryType', 'categoryType')
+      .orderBy('categoryType.name', 'ASC')
+      .getMany();
   }
 
   async delete(excursionId: number): Promise<void> {
