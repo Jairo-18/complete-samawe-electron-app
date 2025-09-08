@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ChangeDetectorRef,
   Component,
@@ -38,6 +39,7 @@ import { CurrencyFormatDirective } from '../../../shared/directives/currency-for
 
 @Component({
   selector: 'app-add-invoice-buy-excursion',
+  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -76,17 +78,20 @@ export class AddInvoiceBuyExcursionComponent implements OnInit {
     this.form = this._fb.group({
       name: ['', Validators.required],
       excursionId: [null, Validators.required],
-      priceSale: [0, [Validators.required, Validators.min(0)]], // Ahora editable con validadores
-      priceWithoutTax: [null, Validators.required], // Base sin IVA (lo que se envía)
+      priceSale: [0, [Validators.required, Validators.min(0)]],
+      priceWithoutTax: [0, Validators.required],
       taxeTypeId: [2],
       amount: [1, [Validators.required, Validators.min(1)]],
-      finalPrice: [0] // Total CON IVA (= unitario c/IVA * cantidad)
+      finalPrice: [0]
     });
 
-    // Listener para sincronizar priceSale con priceWithoutTax y recalcular
+    // Listener para sincronizar priceSale → priceWithoutTax
     this.form.get('priceSale')?.valueChanges.subscribe((value) => {
-      // Sincronizar priceSale con priceWithoutTax
-      this.form.patchValue({ priceWithoutTax: value }, { emitEvent: false });
+      const numericValue = this.parseNumber(value);
+      this.form.patchValue(
+        { priceWithoutTax: numericValue },
+        { emitEvent: false }
+      );
       this.updateFinalPrice();
     });
 
@@ -109,13 +114,39 @@ export class AddInvoiceBuyExcursionComponent implements OnInit {
     const id = this._activateRouter.snapshot.paramMap.get('id');
     if (id) this.invoiceId = Number(id);
 
-    // Recalcular total cuando cambien entradas relevantes (solo los que no tienen listener en constructor)
     this.form
       .get('amount')
       ?.valueChanges.subscribe(() => this.updateFinalPrice());
     this.form
       .get('taxeTypeId')
       ?.valueChanges.subscribe(() => this.updateFinalPrice());
+  }
+
+  /** 🔑 Convierte strings con , y . a number real */
+  private parseNumber(value: any): number {
+    if (value == null) return 0;
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+
+    let s = String(value).trim();
+    s = s.replace(/[^\d\-,.]/g, '');
+
+    const hasDot = s.includes('.');
+    const hasComma = s.includes(',');
+
+    if (hasDot && hasComma) {
+      if (s.lastIndexOf('.') > s.lastIndexOf(',')) {
+        s = s.replace(/,/g, '');
+      } else {
+        s = s.replace(/\./g, '').replace(/,/g, '.');
+      }
+    } else if (hasComma && !hasDot) {
+      s = s.replace(/\./g, '').replace(/,/g, '.');
+    } else {
+      s = s.replace(/,/g, '');
+    }
+
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : 0;
   }
 
   onExcursionFocus() {
@@ -132,13 +163,13 @@ export class AddInvoiceBuyExcursionComponent implements OnInit {
     const exc = this.filteredExcursions.find((e) => e.name === name);
     if (!exc) return;
 
-    // Solo actualizar priceSale si está vacío o es 0 (preservar valores manuales)
-    const currentPriceSale = this.form.get('priceSale')?.value;
+    const currentPriceSale = this.parseNumber(
+      this.form.get('priceSale')?.value
+    );
     const shouldUpdatePrice = !currentPriceSale || currentPriceSale === 0;
 
     this.form.patchValue({
       excursionId: exc.excursionId,
-      // Solo actualizar priceSale si no tiene valor
       ...(shouldUpdatePrice && {
         priceSale: exc.priceSale,
         priceWithoutTax: exc.priceSale
@@ -148,7 +179,6 @@ export class AddInvoiceBuyExcursionComponent implements OnInit {
     this.updateFinalPrice();
   }
 
-  /** Devuelve el impuesto como fracción (0.12 para 12%) */
   private getTaxRate(): number {
     const id = this.form.get('taxeTypeId')?.value;
     const tax = this.taxeTypes?.find((t) => t.taxeTypeId === id);
@@ -160,19 +190,18 @@ export class AddInvoiceBuyExcursionComponent implements OnInit {
         : tax.percentage;
 
     if (!isFinite(rate) || rate < 0) return 0;
-    // Si viene como 12 en lugar de 0.12, normalizar
     if (rate > 1) rate = rate / 100;
     return rate;
   }
 
   /** Calcula finalPrice = (precio_sin_IVA * (1+IVA)) * cantidad */
   private updateFinalPrice() {
-    const base = Number(
+    const base = this.parseNumber(
       this.form.get('priceWithoutTax')?.value ??
         this.form.get('priceSale')?.value ??
         0
     );
-    const amount = Number(this.form.get('amount')?.value ?? 0);
+    const amount = this.parseNumber(this.form.get('amount')?.value ?? 0);
     const taxRate = this.getTaxRate();
 
     const unitWithTax = base * (1 + taxRate);
@@ -194,13 +223,12 @@ export class AddInvoiceBuyExcursionComponent implements OnInit {
       name: '',
       excursionId: null,
       priceSale: 0,
-      priceWithoutTax: null,
+      priceWithoutTax: 0,
       taxeTypeId: 2,
       amount: 1,
       finalPrice: 0
     });
 
-    // Limpiar errores
     Object.keys(this.form.controls).forEach((key) => {
       const control = this.form.get(key);
       control?.setErrors(null);
@@ -219,8 +247,7 @@ export class AddInvoiceBuyExcursionComponent implements OnInit {
     this.form.patchValue({
       name: '',
       excursionId: null,
-      // No limpiar priceSale para mantener el valor manual
-      priceWithoutTax: this.form.get('priceSale')?.value || null
+      priceWithoutTax: this.parseNumber(this.form.get('priceSale')?.value) || 0
     });
     this.filteredExcursions = [];
   }
@@ -257,9 +284,9 @@ export class AddInvoiceBuyExcursionComponent implements OnInit {
       productId: 0,
       accommodationId: 0,
       excursionId: formValue.excursionId,
-      amount: formValue.amount,
+      amount: this.parseNumber(formValue.amount),
       priceBuy: 0,
-      priceWithoutTax: Number(formValue.priceWithoutTax),
+      priceWithoutTax: this.parseNumber(formValue.priceWithoutTax),
       taxeTypeId: formValue.taxeTypeId,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString()

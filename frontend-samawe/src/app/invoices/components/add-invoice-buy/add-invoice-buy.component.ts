@@ -77,6 +77,7 @@ export class AddInvoiceBuyComponent implements OnInit {
     if (id) {
       this.invoiceId = Number(id);
     }
+
     // Recalcular total cuando cambien entradas relevantes
     this.form
       .get('amountSale')
@@ -96,19 +97,29 @@ export class AddInvoiceBuyComponent implements OnInit {
     this.form = this._fb.group({
       name: ['', Validators.required],
       productId: [null, Validators.required],
-      priceSale: [0, [Validators.required, Validators.min(0)]], // Ahora editable con validadores
+      priceSale: [
+        0,
+        [
+          Validators.required,
+          Validators.min(0),
+          Validators.pattern(/^\d+([.,]\d{1,2})?$/)
+        ]
+      ],
       priceBuy: [0, [Validators.required, Validators.min(0)]],
-      priceWithoutTax: [null, Validators.required],
+      priceWithoutTax: [0, Validators.required],
       taxeTypeId: [3],
       amountSale: [1, [Validators.required, Validators.min(1)]],
       finalPrice: [0],
       amount: [0]
     });
 
-    // Listener para sincronizar priceSale con priceWithoutTax y recalcular
+    // Listener para sincronizar priceSale con priceWithoutTax (normalizando)
     this.form.get('priceSale')?.valueChanges.subscribe((value) => {
-      // Sincronizar priceSale con priceWithoutTax
-      this.form.patchValue({ priceWithoutTax: value }, { emitEvent: false });
+      const numericValue = this.parseNumber(value);
+      this.form.patchValue(
+        { priceWithoutTax: numericValue },
+        { emitEvent: false }
+      );
       this.updateFinalPrice();
     });
 
@@ -126,6 +137,47 @@ export class AddInvoiceBuyComponent implements OnInit {
       .subscribe((res) => {
         this.filteredProducts = res.data ?? [];
       });
+  }
+
+  /**
+   * Robust parseNumber:
+   * - Soporta formatos: "1.234,56"  (EU), "1,234.56" (US) y "4000.00"
+   * - Detecta cuál separador está actuando como decimal (el que aparece más a la derecha)
+   * - Elimina símbolos/espacios no numéricos
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private parseNumber(value: any): number {
+    if (value == null) return 0;
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+
+    let s = String(value).trim();
+
+    // eliminar cualquier cosa que no sea dígito, punto, coma o signo negativo
+    s = s.replace(/[^\d\-,.]/g, '');
+
+    const hasDot = s.indexOf('.') !== -1;
+    const hasComma = s.indexOf(',') !== -1;
+
+    if (hasDot && hasComma) {
+      // ambos presentes: el que esté más a la derecha es el decimal
+      if (s.lastIndexOf('.') > s.lastIndexOf(',')) {
+        // punto es decimal -> quitar comas (separador de miles)
+        s = s.replace(/,/g, '');
+      } else {
+        // coma es decimal -> quitar puntos y reemplazar coma por punto
+        s = s.replace(/\./g, '').replace(/,/g, '.');
+      }
+    } else if (hasComma && !hasDot) {
+      // solo coma: asumimos coma decimal (1.234 -> improbable aquí)
+      s = s.replace(/\./g, '').replace(/,/g, '.');
+    } else {
+      // solo punto o ninguno: asumimos punto decimal (estilo "4000.00")
+      // pero puede haber espacios o símbolos ya eliminados
+      s = s.replace(/,/g, ''); // quitar comas residuales
+    }
+
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : 0;
   }
 
   getInvoiceIdFromRoute(route: ActivatedRoute): string | null {
@@ -150,13 +202,13 @@ export class AddInvoiceBuyComponent implements OnInit {
     const product = this.filteredProducts.find((p) => p.name === name);
     if (!product) return;
 
-    // Solo actualizar priceSale si está vacío o es 0 (preservar valores manuales)
-    const currentPriceSale = this.form.get('priceSale')?.value;
+    const currentPriceSale = this.parseNumber(
+      this.form.get('priceSale')?.value
+    );
     const shouldUpdatePrice = !currentPriceSale || currentPriceSale === 0;
 
     this.form.patchValue({
       productId: product.productId,
-      // Solo actualizar priceSale si no tiene valor
       ...(shouldUpdatePrice && {
         priceSale: product.priceSale,
         priceWithoutTax: product.priceSale
@@ -173,9 +225,9 @@ export class AddInvoiceBuyComponent implements OnInit {
     this.form.reset({
       name: '',
       productId: null,
-      priceSale: 0, // Cambiar de disabled a 0
+      priceSale: 0,
       priceBuy: 0,
-      priceWithoutTax: null,
+      priceWithoutTax: 0,
       taxeTypeId: 3,
       amountSale: 1,
       amount: 0,
@@ -208,19 +260,20 @@ export class AddInvoiceBuyComponent implements OnInit {
         : tax.percentage;
 
     if (!isFinite(rate) || rate < 0) return 0;
-    // Si viene como 12 en lugar de 0.12, normalizar
     if (rate > 1) rate = rate / 100;
     return rate;
   }
 
-  /** Calcula finalPrice = (precio_sin_IVA * (1+IVA)) * cantidad */
+  /** Calcula: (precio_sin_IVA * (1+IVA)) * cantidad */
   private updateFinalPrice() {
-    const base = Number(
+    const base = this.parseNumber(
       this.form.get('priceWithoutTax')?.value ??
         this.form.get('priceSale')?.value ??
         0
     );
-    const amountSale = Number(this.form.get('amountSale')?.value ?? 0);
+    const amountSale = this.parseNumber(
+      this.form.get('amountSale')?.value ?? 0
+    );
     const taxRate = this.getTaxRate();
 
     const unitWithTax = base * (1 + taxRate);
@@ -241,9 +294,8 @@ export class AddInvoiceBuyComponent implements OnInit {
     this.form.patchValue({
       name: '',
       productId: null,
-      // No limpiar priceSale para mantener el valor manual
       priceBuy: 0,
-      priceWithoutTax: this.form.get('priceSale')?.value || null,
+      priceWithoutTax: this.parseNumber(this.form.get('priceSale')?.value) || 0,
       categoryId: null
     });
 
@@ -282,9 +334,9 @@ export class AddInvoiceBuyComponent implements OnInit {
       productId: formValue.productId,
       accommodationId: 0,
       excursionId: 0,
-      amount: formValue.amountSale,
-      priceBuy: Number(formValue.priceBuy) || 0,
-      priceWithoutTax: Number(formValue.priceWithoutTax),
+      amount: this.parseNumber(formValue.amountSale),
+      priceBuy: this.parseNumber(formValue.priceBuy),
+      priceWithoutTax: this.parseNumber(formValue.priceWithoutTax),
       taxeTypeId: formValue.taxeTypeId,
       startDate: now.toISOString(),
       endDate: endDate.toISOString()

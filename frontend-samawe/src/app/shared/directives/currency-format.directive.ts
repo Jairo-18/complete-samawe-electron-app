@@ -24,7 +24,7 @@ export class CurrencyFormatDirective {
 
     // Manejar múltiples comas
     const commaCount = cleanValue.split(',').length - 1;
-    let processedValue =
+    const processedValue =
       commaCount > 1
         ? cleanValue.replace(/,/g, '').replace(/(\d+)(\d{2})$/, '$1,$2')
         : cleanValue;
