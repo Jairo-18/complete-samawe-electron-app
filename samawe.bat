@@ -27,15 +27,17 @@ if %errorlevel% neq 0 (
 )
 
 :: Verificar si el servicio esta corriendo
-echo Verificando conexión a PostgreSQL...
-set PGPASSWORD=postgres
-psql -U postgres -c "SELECT 1;" >nul 2>&1
+sc query postgresql-x64-17 | findstr "RUNNING" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ADVERTENCIA: PostgreSQL no responde. Verifica que esté corriendo.
-    echo Continuando de todas formas...
-    timeout /t 2 >nul
+    echo Intentando iniciar servicio PostgreSQL...
+    net start postgresql-x64-17 >nul 2>&1
+    if %errorlevel% neq 0 (
+        echo ERROR: No se pudo iniciar PostgreSQL. Verifica el servicio manualmente.
+        pause
+        exit /b 1
+    )
 )
-set PGPASSWORD=
+
 
 :: ==============================
 :: CONFIGURAR BASE DE DATOS
