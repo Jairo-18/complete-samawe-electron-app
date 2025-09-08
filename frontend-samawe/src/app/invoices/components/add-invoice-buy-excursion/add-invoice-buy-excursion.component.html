@@ -1,23 +1,27 @@
 <form [formGroup]="form" class="w-full mt-3">
-  <!-- Buscar producto por nombre -->
+  <!-- Buscar excursión -->
   <mat-form-field appearance="outline" class="w-full">
-    <mat-label>Buscar Producto</mat-label>
+    <mat-label>Buscar pasadía o servicio</mat-label>
     <input
       matInput
-      [matAutocomplete]="auto"
       formControlName="name"
-      placeholder="Ejemplo: Coca Cola..."
-      (focus)="onProductFocus()"
+      [matAutocomplete]="auto"
+      placeholder="Ejemplo: Pasadía niños o masajes"
+      (focus)="onExcursionFocus()"
     />
-    <mat-icon matPrefix>inventory</mat-icon>
+    <mat-icon matPrefix>tour</mat-icon>
 
-    <!-- Botón para limpiar el campo -->
+    <!-- Botón limpiar -->
     <button
-      *ngIf="form.get('name')?.enabled && form.get('name')?.value && !isLoading"
+      *ngIf="
+        form.get('name')?.enabled &&
+        form.get('name')?.value &&
+        !isLoadingExcursions
+      "
       matSuffix
       mat-icon-button
       type="button"
-      (click)="clearProductSelection()"
+      (click)="clearExcursionSelection()"
       matTooltip="Limpiar selección"
     >
       <mat-icon>clear</mat-icon>
@@ -25,26 +29,41 @@
 
     <mat-autocomplete
       #auto="matAutocomplete"
-      (optionSelected)="onProductSelected($event.option.value)"
+      (optionSelected)="onExcursionSelected($event.option.value)"
     >
       <mat-option
-        *ngFor="let product of filteredProducts"
-        [value]="product.name"
+        *ngFor="let excursion of filteredExcursions"
+        [value]="excursion.name"
       >
-        {{ product.name }}
-        <span [ngClass]="product.isActive ? 'text-green-600' : 'text-red-600'">
-          - {{ product?.isActive ? 'Activo' : 'Inactivo' }}
+        {{ excursion.name }}
+        <span
+          [ngClass]="{
+            'text-green-600':
+              excursion.stateType?.name === 'Disponible' ||
+              excursion.stateType?.name === 'DISPONIBLE',
+            'text-yellow-600':
+              excursion.stateType?.name === 'Mantenimiento' ||
+              excursion.stateType?.name === 'MANTENIMIENTO',
+            'text-red-600':
+              excursion.stateType?.name === 'Fuera de Servicio' ||
+              excursion.stateType?.name === 'FUERA DE SERVICIO',
+            'text-blue-600':
+              excursion.stateType?.name === 'Ocupado' ||
+              excursion.stateType?.name === 'OCUPADO'
+          }"
+        >
+          - {{ excursion.stateType?.name }}
         </span>
       </mat-option>
     </mat-autocomplete>
 
-    <!-- Mostrar errores de validación del producto -->
+    <!-- Mostrar errores de validación del campo nombre -->
     <mat-error *ngIf="form.get('name')?.hasError('required')">
-      Debe seleccionar un producto
+      Debe seleccionar una excursión
     </mat-error>
   </mat-form-field>
 
-  <!-- Campos de precio y cantidad -->
+  <!-- Precios -->
   <div class="flex flex-col md:flex-row gap-0 md:gap-2">
     <mat-form-field appearance="outline" class="w-full">
       <mat-label>Precio Unitario</mat-label>
@@ -83,24 +102,11 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="w-full">
-      <mat-label>Unidades en Existencia</mat-label>
-      <input
-        matInput
-        type="text"
-        formControlName="amount"
-        [readonly]="true"
-        appCurrencyFormat
-        class="text-right"
-      />
-      <mat-icon matSuffix>store</mat-icon>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="w-full">
       <mat-label>Cantidad</mat-label>
       <input
         matInput
         type="text"
-        formControlName="amountSale"
+        formControlName="amount"
         appCurrencyFormat
         class="text-right"
         min="1"
@@ -110,23 +116,16 @@
       <mat-icon matSuffix>numbers</mat-icon>
 
       <!-- Mostrar errores de validación -->
-      <mat-error *ngIf="form.get('amountSale')?.hasError('required')">
+      <mat-error *ngIf="form.get('amount')?.hasError('required')">
         La cantidad es requerida
       </mat-error>
-      <mat-error *ngIf="form.get('amountSale')?.hasError('min')">
+      <mat-error *ngIf="form.get('amount')?.hasError('min')">
         La cantidad debe ser mayor a 0
       </mat-error>
     </mat-form-field>
   </div>
 
-  <!-- Campo precio de compra (opcional, comentado en tu código original) -->
-  <!-- <mat-form-field appearance="outline" class="w-full">
-    <mat-label>Precio de compra</mat-label>
-    <input matInput formControlName="priceBuy" [readonly]="true" />
-    <mat-icon matSuffix>money_off</mat-icon>
-  </mat-form-field> -->
-
-  <!-- Tipo de impuesto -->
+  <!-- Impuestos -->
   <mat-form-field appearance="outline" class="w-full">
     <mat-label>Tipo de impuesto</mat-label>
     <mat-select formControlName="taxeTypeId">
@@ -137,13 +136,13 @@
     <mat-icon matPrefix>calculate</mat-icon>
   </mat-form-field>
 
-  <!-- Botón para añadir producto -->
+  <!-- Botón añadir -->
   <button
     class="!w-full !rounded-lg"
     mat-fab
     extended="true"
     [disabled]="isLoading"
-    (click)="addProduct()"
+    (click)="addExcursion()"
   >
     <ng-container *ngIf="!isLoading; else loading"> Añadir </ng-container>
     <ng-template #loading>
