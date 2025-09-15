@@ -1,0 +1,15 @@
+complete-samawe:{
+    backend-samawe:{
+        typeormconfig
+        .env.production
+        .env.development
+        el package json etc
+    }
+    frontend-samawe:{
+
+    }
+    main.ts(de electron)
+    preload.js
+    package.json (de electron)
+    todo lo que esta aca es de electron
+}

@@ -22,7 +22,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import { PasswordService } from './password.service';
 import { Not } from 'typeorm';
@@ -359,10 +359,7 @@ export class UserService {
     const user = await this.findOne(id);
 
     const existsInInvoices = await this._invoiceRepository.exist({
-      where: [
-        { user: { userId: id } }, 
-        { employee: { userId: id } }, 
-      ],
+      where: [{ user: { userId: id } }, { employee: { userId: id } }],
     });
 
     if (existsInInvoices) {

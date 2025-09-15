@@ -24,7 +24,8 @@
     "migration:generate": "cross-env NODE_ENV=development npm run typeorm -- -d typeorm.config.ts migration:generate ./src/migrations/%npm_config_name%",
     "migration:create": "npm run typeorm -- migration:create ./src/migrations/%npm_config_name%",
     "migration:revert": "cross-env NODE_ENV=development npm run typeorm -- -d typeorm.config.ts migration:revert",
-    "migration:revert:prod": "cross-env NODE_ENV=production npm run typeorm -- -d typeorm.config.ts migration:revert"
+    "migration:revert:prod": "cross-env NODE_ENV=production npm run typeorm -- -d typeorm.config.ts migration:revert",
+    "build:exe": "pnpm build && pkg dist/src/main.js --targets node18-win-x64 --output backend.exe"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
@@ -40,11 +41,12 @@
     "@nestjs/swagger": "^11.0.6",
     "@nestjs/typeorm": "^11.0.0",
     "@types/passport-jwt": "^4.0.1",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cloudinary": "^2.7.0",
+    "crypto-browserify": "^3.12.1",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.7",
     "exceljs": "^4.4.0",
@@ -81,6 +83,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "jest": "^29.5.0",
+    "pkg": "^5.8.1",
     "prettier": "^3.0.0",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
@@ -113,5 +116,20 @@
       "@scarf/scarf",
       "bcrypt"
     ]
+  },
+  "pkg": {
+    "scripts": [
+      "dist/src/main.js"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ],
+    "assets": [
+      "backend-samawe/.env.development",
+      "backend-samawe/.env.production"
+    ],
+    "options": {
+      "subsystem": "windows"
+    }
   }
 }

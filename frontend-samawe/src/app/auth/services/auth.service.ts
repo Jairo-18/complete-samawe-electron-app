@@ -114,7 +114,7 @@ export class AuthService {
         tap(() => {
           this._localStorageService.cleanLocalStorage();
           this._isLoggedSubject.next(false);
-          this._router.navigateByUrl('/');
+          this._router.navigateByUrl('/auth/login');
         })
       );
   }

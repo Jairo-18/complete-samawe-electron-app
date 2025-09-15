@@ -235,9 +235,12 @@
                 <mat-icon class="blue-color">edit</mat-icon>
                 <span>Editar detalles</span>
               </button>
-              <button mat-menu-item (click)="onPrintInvoice(invoice.invoiceId)">
+              <button
+                mat-menu-item
+                (click)="onDownloadInvoice(invoice.invoiceId)"
+              >
                 <mat-icon class="green-color">print</mat-icon>
-                <span>Imprimir</span>
+                <span>Descargar</span>
               </button>
               <button
                 mat-menu-item
@@ -514,7 +517,7 @@
                   (click)="onDownloadInvoice(invoice.invoiceId)"
                 >
                   <mat-icon>print</mat-icon>
-                  <span class="green-color">Descargar PDF</span>
+                  <span class="green-color">Descargar</span>
                 </button>
 
                 <button

@@ -1,95 +1,78 @@
 <!-- CONTENEDOR A IMPRIMIR -->
-<article
-  #pdfWrapper
-  class="bg-white text-black p-6 w-full max-w-[800px] text-xs"
->
-  <section class="flex content-between w-full items-center">
-    <div class="flex items-center justify-center w-[25%]">
-      <img
-        src="../../../../assets/images/Logo Samawe.png"
-        alt="Logo"
-        class="w-[125px] h-[125px] rounded-full border border-solid border-black"
-      />
+<article #pdfWrapper class="invoice-pdf">
+  <section class="invoice-header">
+    <div class="invoice-logo">
+      <img src="assets/images/Logo Samawe.png" alt="Logo" />
     </div>
-    <div class="flex flex-col w-[75%]">
-      <div class="flex w-full content-between font-semibold">
-        <div class="flex w-[50%] justify-start">
-          <span>
-            NIT:
-            <span class="font-medium"> 9013501728 </span></span
-          >
+    <div class="invoice-info">
+      <div class="row">
+        <div class="col">
+          <span>NIT: <span class="value">9013501728</span></span>
         </div>
-        <div class="flex w-[50%] justify-start">
+        <div class="col">
           <span>
             {{ invoiceData.invoiceType.name }} #:
-            <span class="font-medium">{{ invoiceData.code }} </span></span
-          >
+            <span class="value">{{ invoiceData.code }}</span>
+          </span>
         </div>
       </div>
-      <div class="flex w-full content-between font-semibold">
-        <div class="flex w-[50%] justify-start">
-          <span
-            >Generado por:
-            <span class="font-medium"
-              >{{ invoiceData.employee.firstName }}
-              {{ invoiceData.employee.lastName }}</span
-            ></span
-          >
-        </div>
-        <div class="flex w-[50%] justify-start">
+      <div class="row">
+        <div class="col">
           <span>
-            Dirección
-            <span class="font-medium"> Vereda Pueblo Viejo - Aut 21</span></span
-          >
+            Generado por:
+            <span class="value">
+              {{ invoiceData.employee.firstName }}
+              {{ invoiceData.employee.lastName }}
+            </span>
+          </span>
+        </div>
+        <div class="col">
+          <span>
+            Dirección <span class="value">Vereda Pueblo Viejo - Aut 21</span>
+          </span>
         </div>
       </div>
-      <div class="flex w-full content-between font-semibold">
-        <div class="flex w-[50%] justify-start">
-          <span
-            >Cliente:
-            <span class="font-medium"
-              >{{ invoiceData.user.firstName }}
-              {{ invoiceData.user.lastName }}</span
-            ></span
-          >
+      <div class="row">
+        <div class="col">
+          <span>
+            Cliente:
+            <span class="value">
+              {{ invoiceData.user.firstName }} {{ invoiceData.user.lastName }}
+            </span>
+          </span>
         </div>
-
-        <div class="flex w-[50%] justify-start">
+        <div class="col">
           <span>
             Fecha de impresión:
-            <span class="font-medium">
-              {{ printDate | date : 'dd/MM/yyyy HH:mm:ss' }}</span
-            ></span
-          >
+            <span class="value">
+              {{ printDate | date : 'dd/MM/yyyy HH:mm:ss' }}
+            </span>
+          </span>
         </div>
       </div>
     </div>
   </section>
-  <div class="border border-[#06a606] w-full h-[1px] my-[3px]"></div>
 
-  <table
-    class="w-full border border-collapse my-[3px]"
-    *ngIf="invoiceData?.invoiceDetails"
-  >
+  <div class="separator"></div>
+
+  <table *ngIf="invoiceData?.invoiceDetails">
     <thead>
       <tr>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Nro°</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Item</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Und</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Precio</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Impuesto</th>
-        <th class="border text-sm p-1 pt-0 m-0 bg-[#06a606]">Subtotal</th>
+        <th>Nro°</th>
+        <th>Item</th>
+        <th>Und</th>
+        <th>Precio</th>
+        <th>Impuesto</th>
+        <th>Subtotal</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngIf="invoiceData.invoiceDetails.length === 0">
-        <td colspan="6" class="border p-2 text-center text-xs">
-          No hay productos registrados
-        </td>
+        <td colspan="6" class="no-data">No hay productos registrados</td>
       </tr>
       <tr *ngFor="let detail of invoiceData.invoiceDetails; let i = index">
-        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">{{ i + 1 }}</td>
-        <td class="border px-4 p-1 pt-0 m-0 text-left text-xs">
+        <td class="text-left">{{ i + 1 }}</td>
+        <td class="text-left">
           {{
             detail.product?.name ||
               detail.accommodation?.name ||
@@ -97,13 +80,11 @@
               'N/A'
           }}
         </td>
-        <td class="border px-4 p-1 pt-0 m-0 text-center text-xs">
-          {{ detail.amount || 0 }}
-        </td>
-        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
+        <td class="text-center">{{ detail.amount || 0 }}</td>
+        <td class="text-right">
           {{ detail?.priceWithoutTax ?? 0 | formatCop }}
         </td>
-        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
+        <td class="text-right">
           {{
             detail.product?.taxe ||
               detail.accommodation?.taxe ||
@@ -111,61 +92,43 @@
               0 | formatCop
           }}
         </td>
-        <td class="border px-4 p-1 pt-0 m-0 text-right text-xs">
-          {{ detail?.subtotal ?? 0 | formatCop }}
-        </td>
+        <td class="text-right">{{ detail?.subtotal ?? 0 | formatCop }}</td>
       </tr>
     </tbody>
   </table>
 
-  <section class="flex flex-col h-full justify-center">
-    <div class="border border-[#06a606] w-full h-[1px] my-[3px]"></div>
+  <section class="invoice-totals">
+    <div class="separator"></div>
 
     @if (invoiceData.cash && invoiceData.cash > 0) {
-    <div class="flex content-between">
-      <div class="flex justify-start w-[50%]">
-        <span class="font-bold">Efectivo:</span>
+    <div class="row">
+      <div class="col-left"><span class="label">Efectivo:</span></div>
+      <div class="col-right">
+        <span class="highlight">{{ invoiceData.cash || '' | formatCop }}</span>
       </div>
-      <div class="flex justify-end w-[50%]">
-        <span class="text-[#06a606] font-medium">
-          {{ invoiceData.cash || '' | formatCop }}
-        </span>
+    </div>
+    } @if (invoiceData.transfer && invoiceData.transfer > 0) {
+    <div class="row">
+      <div class="col-left"><span class="label">Transferencia:</span></div>
+      <div class="col-right">
+        <span class="highlight">{{
+          invoiceData.transfer || '' | formatCop
+        }}</span>
       </div>
     </div>
     }
 
-    <!-- TRANSFER -->
-    @if (invoiceData.transfer && invoiceData.transfer > 0) {
-    <div class="flex content-between">
-      <div class="flex justify-start w-[50%]">
-        <span class="font-bold">Transferencia:</span>
-      </div>
-      <div class="flex justify-end w-[50%]">
-        <span class="text-[#06a606] font-medium">
-          {{ invoiceData.transfer || '' | formatCop }}
-        </span>
-      </div>
-    </div>
-    }
-
-    <div class="flex content-between">
-      <div class="flex justify-start w-[50%]">
-        <span class="font-bold">Estado de pago:</span>
-      </div>
-      <div class="flex justify-end w-[50%]">
+    <div class="row">
+      <div class="col-left"><span class="label">Estado de pago:</span></div>
+      <div class="col-right">
         <span
-          class="font-medium"
+          class="status"
           [ngClass]="{
-            'text-green-600':
-              invoiceData.paidType?.name === 'Pagado' ||
-              invoiceData.paidType?.name === 'PAGADO' ||
-              invoiceData.paidType?.name === 'RESERVADO - PAGADO' ||
-              invoiceData.paidType?.name === 'Reservado - Pagado',
-            'text-red-600':
-              invoiceData.paidType?.name === 'PENDIENTE' ||
-              invoiceData.paidType?.name === 'Pendiente' ||
-              invoiceData.paidType?.name === 'RESERVADO - PENDIENTE' ||
-              invoiceData.paidType?.name === 'Reservado - Pendiente'
+            paid: invoiceData.paidType?.name?.toUpperCase()?.includes('PAGADO'),
+            pending:
+              invoiceData.paidType?.name
+                ?.toUpperCase()
+                ?.includes('PENDIENTE') || ''
           }"
         >
           {{ invoiceData.paidType?.name || '' }}
@@ -173,52 +136,41 @@
       </div>
     </div>
 
-    <div class="flex content-between">
-      <div class="flex justify-start w-[50%]">
-        <span class="font-bold">Tipo de pago:</span>
-      </div>
-      <div class="flex justify-end w-[50%]">
-        <span class="font-medium">{{ invoiceData.payType?.name || '' }}</span>
+    <div class="row">
+      <div class="col-left"><span class="label">Tipo de pago:</span></div>
+      <div class="col-right">
+        <span>{{ invoiceData.payType?.name || '' }}</span>
       </div>
     </div>
 
-    <div class="flex content-between">
-      <div class="flex justify-start w-[50%]">
-        <span class="font-bold">Subtotal sin impuestos:</span>
+    <div class="row">
+      <div class="col-left">
+        <span class="label">Subtotal sin impuestos:</span>
       </div>
-      <div class="flex justify-end w-[50%]">
-        <span class="font-medium">{{
-          invoiceData.subtotalWithoutTax ?? 0 | formatCop
-        }}</span>
+      <div class="col-right">
+        <span>{{ invoiceData.subtotalWithoutTax ?? 0 | formatCop }}</span>
       </div>
     </div>
 
-    <div class="flex content-between">
-      <div class="flex justify-start w-[50%]">
-        <span class="font-bold">Impuestos:</span>
-      </div>
-      <div class="flex justify-end w-[50%]">
-        <span class="font-medium">{{
-          invoiceData.totalTaxes ?? 0 | formatCop
-        }}</span>
+    <div class="row">
+      <div class="col-left"><span class="label">Impuestos:</span></div>
+      <div class="col-right">
+        <span>{{ invoiceData.totalTaxes ?? 0 | formatCop }}</span>
       </div>
     </div>
 
-    <div class="flex content-between">
-      <div class="flex justify-start w-[50%]">
-        <span class="font-bold">Total:</span>
-      </div>
-      <div class="flex justify-end w-[50%]">
-        <span class="font-medium text-[#06a606]">{{
-          invoiceData.total ?? 0 | formatCop
-        }}</span>
+    <div class="row total">
+      <div class="col-left"><span class="label">Total:</span></div>
+      <div class="col-right">
+        <span class="highlight">{{ invoiceData.total ?? 0 | formatCop }}</span>
       </div>
     </div>
   </section>
-  <section class="text-center text-[11px] italic">
-    <span
-      >"Gracias por su compañía - Factura generada por Samawe Putumayo S A S
-      Zomac"</span
-    >
-  </section>
+
+  <footer>
+    <span>
+      "Gracias por su compañía - Factura generada por Samawe Putumayo S A S
+      Zomac"
+    </span>
+  </footer>
 </article>

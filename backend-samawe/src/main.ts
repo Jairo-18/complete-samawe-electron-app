@@ -1,3 +1,25 @@
+// 👇 FIX para que pkg no rompa con NestJS/TypeORM en Node 22+
+import * as nodeCrypto from 'node:crypto';
+
+// Solo define o complementa si hace falta
+if (!globalThis.crypto) {
+  // @ts-ignore
+  globalThis.crypto = nodeCrypto;
+} else {
+  // Agregamos métodos faltantes que esperan algunos paquetes
+  if (!(globalThis.crypto as any).randomUUID) {
+    (globalThis.crypto as any).randomUUID = nodeCrypto.randomUUID;
+  }
+  if (!(globalThis.crypto as any).randomBytes) {
+    (globalThis.crypto as any).randomBytes = nodeCrypto.randomBytes;
+  }
+}
+
+import { v4 as uuidv4 } from 'uuid';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const id = uuidv4();
+
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 import basicAuth = require('express-basic-auth');
 import { NestFactory, Reflector } from '@nestjs/core';
@@ -10,8 +32,27 @@ import * as bodyParser from 'body-parser';
 import { join } from 'path';
 import * as express from 'express';
 import { LoggingInterceptor } from './shared/interceptors/logging.interceptor';
+import { AppDataSource } from 'typeorm.config';
+
+// 👇 Importa tu DataSource central
 
 async function bootstrap() {
+  // 👉 Si se arranca con --migrations, corre migraciones y termina
+  if (process.argv.includes('--migrations')) {
+    try {
+      await AppDataSource.initialize();
+      console.log('📦 Ejecutando migraciones...');
+      const migrations = await AppDataSource.runMigrations();
+      console.log('✅ Migraciones ejecutadas:', migrations);
+      await AppDataSource.destroy();
+      process.exit(0);
+    } catch (err) {
+      console.error('❌ Error ejecutando migraciones:', err);
+      process.exit(1);
+    }
+  }
+
+  // 👉 Arranque normal de NestJS
   const app = await NestFactory.create(AppModule, { bufferLogs: false });
   app.use(bodyParser.urlencoded({ extended: true }));
   const configService = app.get(ConfigService);
@@ -24,6 +65,7 @@ async function bootstrap() {
       users: { [swaggerUser]: swaggerPassword },
     }),
   );
+
   const config = new DocumentBuilder()
     .setTitle('SAMAWE API')
     .setDescription('API for managing the web app from "SAMAWE"')
@@ -32,7 +74,6 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-
   SwaggerModule.setup('docs', app, document);
 
   app.useGlobalPipes(
@@ -47,6 +88,7 @@ async function bootstrap() {
     new LoggingInterceptor(),
     new ClassSerializerInterceptor(app.get(Reflector)),
   );
+
   const allowedHeaders = configService.get('app.cors.allowedHeaders');
   const allowedMethods = configService.get('app.cors.allowedMethods');
 
@@ -56,19 +98,23 @@ async function bootstrap() {
     methods: allowedMethods,
     credentials: true,
   });
+
   app.use(
     helmet({
       contentSecurityPolicy: false,
     }),
   );
+
   app.use(
     '/docs',
     express.static(join(__dirname, '../node_modules/swagger-ui-dist')),
   );
+
   const port = configService.get<number>('app.port') || 3000;
   await app.listen(port);
   console.log(
     `🚀 App corriendo en el puerto ${port} [${configService.get('app.env')}]`,
   );
 }
+
 bootstrap();

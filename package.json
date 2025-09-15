@@ -1,0 +1,100 @@
+{
+  "name": "complete-samawe",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "author": "Tu Nombre <tuemail@ejemplo.com>",
+  "description": "Aplicación de escritorio con Electron + NestJS + Angular",
+  "scripts": {
+    "compile:electron": "tsc --project tsconfig.electron.json",
+    "electron": "electron .",
+    "start": "npm run build-all && npm run electron",
+    "build-frontend": "npm --prefix frontend-samawe run build",
+    "build-backend": "npm --prefix backend-samawe run build && npm run copy-backend-files",
+    "build-electron": "npm run compile:electron",
+    "build-all": "npm run build-frontend && npm run build-backend && npm run build-electron",
+    "copy-backend-files": "node scripts/copy-backend-files.js",
+    "dist": "npm run build-all && electron-builder --publish=never",
+    "dist:win": "npm run build-all && electron-builder --win --publish=never",
+    "start-frontend": "npm --prefix frontend-samawe start",
+    "start-backend": "npm --prefix backend-samawe run start",
+    "migration:run": "npm --prefix backend-samawe run migration:run",
+    "migration:generate": "npm --prefix backend-samawe run migration:generate",
+    "migration:create": "npm --prefix backend-samawe run migration:create",
+    "migration:revert": "npm --prefix backend-samawe run migration:revert",
+    "migration:run:prod": "cross-env NODE_ENV=production npm --prefix backend-samawe run typeorm migration:run -- -d typeorm.config.ts",
+    "migration:revert:prod": "cross-env NODE_ENV=production npm --prefix backend-samawe run typeorm migration:revert -- -d typeorm.config.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.2",
+    "pg": "^8.16.3",
+    "reflect-metadata": "^0.2.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typeorm": "^0.3.26"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "cross-env": "^7.0.3",
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12",
+    "typescript": "~5.9.2"
+  },
+  "build": {
+    "appId": "software.jairo",
+    "productName": "SoftwareJairo",
+    "directories": {
+      "output": "release"
+    },
+    "extraResources": [
+      {
+        "from": "backend-samawe/backend.exe",
+        "to": "backend-samawe/backend.exe"
+      },
+      {
+        "from": "backend-samawe/.env.production",
+        "to": "backend-samawe/.env.production"
+      },
+      {
+        "from": "backend-samawe/.env.development",
+        "to": "backend-samawe/.env.development"
+      },
+      {
+        "from": "backend-samawe/dist/typeorm.config.js",
+        "to": "backend-samawe/typeorm.config.js"
+      },
+      {
+        "from": "backend-samawe/dist/src/shared/entities",
+        "to": "backend-samawe/entities"
+      },
+      {
+        "from": "backend-samawe/dist/src/migrations",
+        "to": "backend-samawe/migrations"
+      }
+    ],
+    "files": [
+      "dist-electron/**/*",
+      "frontend-samawe/dist/frontend-samawe/**/*",
+      "assets/**/*",
+      "!**/.vscode",
+      "!**/.git",
+      "!**/node_modules",
+      "!**/*.map",
+      "!**/*.log",
+      "!release/**",
+      "!**/tests/**"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

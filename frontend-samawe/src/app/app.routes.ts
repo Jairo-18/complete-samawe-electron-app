@@ -8,7 +8,7 @@ import { invoicesRoutes } from './invoices/invoices.routes';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/auth/login',
+    redirectTo: '/home',
     pathMatch: 'full'
   },
   {

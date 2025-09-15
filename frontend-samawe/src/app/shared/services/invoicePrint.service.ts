@@ -39,6 +39,6 @@ export class InvoicePrintService {
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
 
-    await html2pdf().set(options).from(element).save(); // Esto descarga directamente el archivo
+    await html2pdf().set(options).from(element).save();
   }
 }

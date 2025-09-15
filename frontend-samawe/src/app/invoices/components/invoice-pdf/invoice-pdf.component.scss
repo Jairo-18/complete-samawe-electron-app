@@ -1,0 +1,159 @@
+.invoice-pdf {
+  background: #fff;
+  color: #000;
+  font-size: 12px;
+  padding: 24px;
+  max-width: 800px;
+  margin: auto;
+  font-family: Arial, Helvetica, sans-serif;
+
+  /* Header */
+  .invoice-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .invoice-logo {
+    width: 25%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 125px;
+      height: 125px;
+      border-radius: 50%;
+      border: 1px solid #000;
+      object-fit: cover;
+    }
+  }
+
+  .invoice-info {
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+
+    .row {
+      display: flex;
+      width: 100%;
+      font-weight: 600;
+      margin-bottom: 2px;
+
+      .col {
+        width: 50%;
+        display: flex;
+        justify-content: flex-start;
+
+        .value {
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .separator {
+    border: 1px solid #06a606;
+    width: 100%;
+    height: 1px;
+    margin: 6px 0;
+  }
+
+  /* Tabla */
+  table {
+    width: 100%;
+    border: 1px solid #000;
+    border-collapse: collapse;
+    margin: 6px 0;
+    font-size: 11px;
+
+    th,
+    td {
+      border: 1px solid #000;
+      padding: 4px;
+    }
+
+    th {
+      background-color: #06a606;
+      color: #fff;
+      text-align: center;
+    }
+
+    .no-data {
+      text-align: center;
+      font-size: 11px;
+      padding: 8px;
+    }
+
+    .text-left {
+      text-align: left;
+      font-size: 11px;
+    }
+
+    .text-right {
+      text-align: right;
+      font-size: 11px;
+    }
+
+    .text-center {
+      text-align: center;
+      font-size: 11px;
+    }
+  }
+
+  /* Totales */
+  .invoice-totals {
+    margin-top: 12px;
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-size: 12px;
+
+      .col-left {
+        width: 50%;
+        display: flex;
+        justify-content: flex-start;
+
+        .label {
+          font-weight: bold;
+        }
+      }
+
+      .col-right {
+        width: 50%;
+        display: flex;
+        justify-content: flex-end;
+
+        .highlight {
+          color: #06a606;
+          font-weight: 500;
+        }
+      }
+
+      .status {
+        font-weight: 500;
+
+        &.paid {
+          color: #16a34a; // verde-600
+        }
+
+        &.pending {
+          color: #dc2626; // rojo-600
+        }
+      }
+    }
+
+    .total .col-right .highlight {
+      font-size: 13px;
+    }
+  }
+
+  footer {
+    text-align: center;
+    font-size: 11px;
+    margin-top: 16px;
+    font-style: italic;
+  }
+}
