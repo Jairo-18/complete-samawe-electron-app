@@ -67,7 +67,7 @@ function waitForBackendByLogs(): Promise<boolean> {
 
     const checkLog = (data: Buffer) => {
       const logMessage = data.toString();
-      console.log('[Backend]', logMessage);
+
       if (logMessage.includes('Application is running on') || logMessage.includes('Nest application successfully started') || logMessage.includes('server started on') || logMessage.includes('App corriendo en el puerto')) {
         clearTimeout(timeout);
         backendProcess.stdout?.off('data', checkLog);
@@ -100,7 +100,6 @@ function copyConfigFiles(): void {
 
         if (fs.existsSync(sourcePath) && !fs.existsSync(destPath)) {
           fs.copyFileSync(sourcePath, destPath);
-          console.log(`Copiado ${envFile} a recursos`);
         }
       }
 
@@ -110,7 +109,6 @@ function copyConfigFiles(): void {
 
       if (fs.existsSync(typeormSource) && !fs.existsSync(typeormDest)) {
         fs.copyFileSync(typeormSource, typeormDest);
-        console.log('Copiado typeorm.config.js a recursos');
       }
     } catch (err) {
       console.error('Error copiando archivos de configuración:', err);
@@ -136,9 +134,6 @@ async function runMigrations(): Promise<boolean> {
         envVars = { ...envVars, ...dotenv.parse(fs.readFileSync(envPath)) };
       }
 
-      console.log('Ejecutando migraciones desde:', backendDir);
-      console.log('Base de datos:', envVars.DB_DATABASE);
-
       // En producción, ejecutar directamente el typeorm CLI
       if (isPackaged) {
         const nodeExePath = process.execPath;
@@ -151,18 +146,17 @@ async function runMigrations(): Promise<boolean> {
           // Intentar con ruta alternativa
           const altCliPath = path.join(backendDir, 'node_modules/.bin/typeorm');
           if (fs.existsSync(altCliPath)) {
-            console.log('Usando ruta alternativa de typeorm');
           }
         }
 
         const migrationEnv = {
           ...envVars,
           NODE_ENV: 'production',
-          DB_HOST: String(envVars.DB_HOST || 'localhost'),
-          DB_PORT: String(envVars.DB_PORT || '5432'),
-          DB_USERNAME: String(envVars.DB_USERNAME || 'samawe'),
-          DB_PASSWORD: String(envVars.DB_PASSWORD || 'samawe123'),
-          DB_DATABASE: String(envVars.DB_DATABASE || 'samawe_db_prod'),
+          DB_HOST: String(envVars.DB_HOST),
+          DB_PORT: String(envVars.DB_PORT),
+          DB_USERNAME: String(envVars.DB_USERNAME),
+          DB_PASSWORD: String(envVars.DB_PASSWORD),
+          DB_DATABASE: String(envVars.DB_DATABASE),
         };
 
         // Usar el ejecutable de backend con comando de migración
@@ -175,7 +169,6 @@ async function runMigrations(): Promise<boolean> {
 
         migrate.on('exit', (code) => {
           if (code === 0) {
-            console.log('Migraciones ejecutadas exitosamente');
             resolve(true);
           } else {
             console.error('Error en migraciones, código:', code);
@@ -229,11 +222,11 @@ const path = require('path');
 
 const dataSource = new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  username: process.env.DB_USERNAME || 'samawe',
-  password: process.env.DB_PASSWORD || 'samawe123',
-  database: process.env.DB_DATABASE || 'samawe_db_prod',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
   entities: [path.join(__dirname, 'entities/**/*.js')],
   migrations: [path.join(__dirname, 'migrations/*.js')],
   synchronize: false,
@@ -242,11 +235,9 @@ const dataSource = new DataSource({
 
 dataSource.initialize()
   .then(() => {
-    console.log('Conexión establecida');
     return dataSource.runMigrations();
   })
   .then((migrations) => {
-    console.log('Migraciones ejecutadas:', migrations.length);
     process.exit(0);
   })
   .catch((err) => {
@@ -298,20 +289,15 @@ function startBackend(): Promise<boolean> {
       const backendEnv = {
         ...envVars,
         NODE_ENV: app.isPackaged ? 'production' : 'development',
-        APP_PORT: String(envVars.APP_PORT || '3001'),
-        DB_HOST: String(envVars.DB_HOST || 'localhost'),
-        DB_PORT: String(envVars.DB_PORT || '5432'),
-        DB_USERNAME: String(envVars.DB_USERNAME || 'samawe'),
-        DB_PASSWORD: String(envVars.DB_PASSWORD || 'samawe123'),
-        DB_DATABASE: String(envVars.DB_DATABASE || 'samawe_db_prod'),
+        APP_PORT: String(envVars.APP_PORT),
+        DB_HOST: String(envVars.DB_HOST),
+        DB_PORT: String(envVars.DB_PORT),
+        DB_USERNAME: String(envVars.DB_USERNAME),
+        DB_PASSWORD: String(envVars.DB_PASSWORD),
+        DB_DATABASE: String(envVars.DB_DATABASE),
       };
 
       backendPort = parseInt(backendEnv.APP_PORT) || 3001;
-
-      console.log('Iniciando backend con configuración:');
-      console.log('- Ruta:', backendPath);
-      console.log('- Base de datos:', backendEnv.DB_DATABASE);
-      console.log('- Puerto:', backendPort);
 
       const nodeExec = app.isPackaged ? backendPath : 'node';
       const args = app.isPackaged ? [] : [backendPath];
@@ -353,7 +339,6 @@ async function initializeApp(): Promise<void> {
   copyConfigFiles();
 
   // Ejecutar migraciones
-  console.log('Ejecutando migraciones...');
   const migrationsOk = await runMigrations();
 
   if (!migrationsOk) {
@@ -373,7 +358,6 @@ async function initializeApp(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // Iniciar backend
-  console.log('Iniciando backend...');
   const backendReady = await startBackend();
 
   if (!backendReady) {
@@ -386,7 +370,6 @@ async function initializeApp(): Promise<void> {
   // Esperar y verificar salud del backend
   await new Promise((resolve) => setTimeout(resolve, 3000));
   const healthOk = await checkBackendHealth();
-  console.log('Backend health check:', healthOk);
 
   // Crear ventana principal
   createWindow();
